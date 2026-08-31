@@ -93,6 +93,33 @@ def test_write_with_warp():
         assert err < 8, f"після деформації шар не сходиться: {err:.1f} кванта"
 
 
+def test_warp_refreshes_class_map():
+    """Карта класів не має пережити деформацію.
+
+    apply_warp перебудовує маску, і спокуса — покликати build_skin_mask
+    напряму. Тоді Session.cls лишається від кадру ДО деформації, і будь-яке
+    перемикання класів (у UI це просто галочка) ліпить маску, зсунуту
+    відносно зображення: заміряно 4% площі розходження при зсуві 220 px.
+
+    Ваг у репозиторії немає, тому кладемо в cls мітку і дивимось, чи вона
+    вижила. Це перевіряє рівно те, що зламалось: чи apply_warp іде через
+    _build_mask (перераховує cls) чи повз нього (лишає старий).
+    """
+    import numpy as np
+
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        sess = Session(_fixture(d), Config(force_mask=True)).load()
+        MARK = 7
+        sess.cls = np.full(sess.img.shape[:2], MARK, np.int32)
+        sess.warp_field().push(560, 700, 300, 180, 0)
+        sess.apply_warp()
+        survived = sess.cls is not None and bool(np.all(sess.cls == MARK))
+        print(f"  мітка в карті класів пережила деформацію: {survived}")
+        assert not survived, (
+            "cls лишився від старої геометрії — apply_warp обійшов _build_mask")
+
+
 def test_warp_resets_downstream():
     """Деформація скидає все, що рахувалося по старій геометрії."""
     with tempfile.TemporaryDirectory() as t:

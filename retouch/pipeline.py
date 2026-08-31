@@ -344,9 +344,17 @@ class Session:
         self.high2 = self.coverage = self.result = None
         self.remove_cov = self.remove_base = None
         if self.cfg.use_skin_mask:
-            self.skin, self.skin_source = build_skin_mask(
-                self.img, self.cfg.face_model, self.cfg.mask,
-                self.cfg.face_detector)
+            # Саме _build_mask, а не build_skin_mask: воно перераховує ще й
+            # карту класів. Інакше self.cls описував би геометрію ДО
+            # деформації, і перемикання класів у UI ліпило б маску, зсунуту
+            # відносно кадру — заміряно 4% площі розходження.
+            #
+            # Показуємо етапом: на 26 Мп це секунди мовчання, а мовчазних
+            # пауз у цьому конвеєрі не має бути (§1).
+            ms = Stage("skin-mask", sink)
+            self.skin, self.skin_source = self._build_mask()
+            ms.done(f"джерело={self.skin_source} "
+                    f"покриття={self.skin.mean():.1%} (після пластики)")
             self.skin_auto = self.skin.copy()
             self.warn = check_skin_mask(float(self.skin.mean()), self.cfg,
                                         self.skin_source)
