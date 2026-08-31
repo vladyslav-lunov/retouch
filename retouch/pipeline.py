@@ -20,6 +20,7 @@ from .freqsep import freq_merge, freq_split, radius_for
 from .masks import MaskParams, build_skin_mask
 from .develop import DevelopParams, apply_pixels
 from .dodgeburn import DodgeBurnParams, apply as db_apply, coverage as db_cov, gray_map
+from .tools import TOOLS
 from .warp import Field, WarpParams
 
 
@@ -97,6 +98,15 @@ class Config:
     """Чи виконувати D&B. Окремим прапорцем, а не «strength > 0», щоб
     пресет міг задати силу наперед, не вмикаючи етап."""
 
+    tools: tuple[str, ...] = ()
+    """Дрібні інструменти в порядку застосування: eye_vessels, teeth,
+    mattify, skin_tone. Кожен віддається окремим шаром і вимикається
+    окремо. Потребують карти класів, тобто face-parsing."""
+
+    tool_params: dict = field(default_factory=dict)
+    """Параметри інструментів: {"teeth": {"strength": 0.5}, ...}.
+    Не задано — беруться дефолти дата-класів."""
+
     detect: DetectParams = field(default_factory=DetectParams)
     mask: MaskParams = field(default_factory=MaskParams)
     search_radius: int = 90
@@ -173,6 +183,7 @@ def run(
               f"через --force-mask", flush=True)
 
     sess.analyze().heal()
+    sess.run_tools()
     if cfg.dodgeburn_on:
         sess.dodge_burn()
 
@@ -223,7 +234,11 @@ def run(
     # треба класти в Soft Light, і режим стоїть у самій назві файлу.
     # Покласти в Normal — отримати сіру пляму на пів кадру.
     if sess.db_gray is not None:
-        pg = out_dir / f"{stem}_03_dodgeburn_softlight.png"
+        # Номер — ПІСЛЯ всіх звичайних шарів, бо номер і є порядком
+        # складання. Жорстке «03» стикалось з третім інструментом, і
+        # виходило два файли з однаковим індексом: збирати їх у якомусь
+        # порядку стає неможливо.
+        pg = out_dir / f"{stem}_{len(out_layers) + 1:02d}_dodgeburn_softlight.png"
         imageio.write(pg, np.dstack([sess.db_gray] * 3), np.dtype("uint16"))
         written.append(pg)
     s.done(f"{len(written)} файлів")
@@ -284,6 +299,7 @@ class Session:
         self.cls = None
         self.develop_ignored: list[str] = []
         self.db_gray = self.db_base = self.db_coverage = None
+        self.tool_layers: list = []
 
     # --- етапи ---------------------------------------------------------
     def load(self, sink=None) -> "Session":
@@ -517,15 +533,51 @@ class Session:
                f"торкнулися {self.db_coverage.mean():.1%} кадру")
         return self
 
+    def run_tools(self, sink=None) -> "Session":
+        """Дрібні інструменти по черзі. Кожен — окремий шар.
+
+        Потрібна карта класів: без неї ми не знаємо, де око, а де рот, і
+        робити тут нічого. Мовчки не робимо нічого замість того, щоб
+        застосувати навмання (§1).
+        """
+        if not self.cfg.tools:
+            return self
+        if self.cls is None:
+            print("[tools] пропущено: немає карти класів, потрібен --face-model",
+                  flush=True)
+            return self
+        base = self.result if self.result is not None else self.img
+        for name in self.cfg.tools:
+            if name not in TOOLS:
+                print(f"[tools] невідомий інструмент: {name}", flush=True)
+                continue
+            fn, P = TOOLS[name]
+            kw = dict(self.cfg.tool_params.get(name) or {})
+            s = Stage(f"tool:{name}", sink)
+            prev = base
+            base, cov = (fn(base, self.cls, p=P(**kw))
+                         if name in ("mattify", "skin_tone")
+                         else fn(base, self.cls, P(**kw)))
+            if cov.max() > 0:
+                self.tool_layers.append((name, prev, base.copy(), cov))
+            s.done(f"торкнулися {(cov > 0).mean():.2%} кадру")
+        self.result = base
+        return self
+
     def layers(self) -> dict:
         out: dict[str, tuple] = {}
         # База для шару шкіри — кадр ДО видалення об'єктів, якщо воно було.
         # getattr із дефолтом тут не годиться: атрибут існує і дорівнює
         # None, тож дефолт не спрацьовує і в extract_layer їде None.
-        healed = (self.db_base if self.db_base is not None else
+        # База шару шкіри — стан ОДРАЗУ після лікування, до всього, що
+        # йде далі. Інструменти й D&B рахувались уже від нього.
+        healed = (self.tool_layers[0][1] if self.tool_layers else
+                  self.db_base if self.db_base is not None else
                   self.remove_base if self.remove_base is not None else self.result)
         if self.coverage is not None and self.coverage.max() > 0:
             out["skin"] = layers_mod.extract_layer(self.img, healed, self.coverage)
+        for i, (name, prev, after, cov) in enumerate(self.tool_layers):
+            out[name] = layers_mod.extract_layer(prev, after, cov)
         rc = self.remove_cov
         if rc is not None and rc.max() > 0:
             out["remove"] = layers_mod.extract_layer(healed, self.result, rc)
@@ -543,10 +595,10 @@ class Session:
                                          self.layers(), self.result,
                                          self.dtype, masks)
         if self.db_gray is not None:
-            # Окремим файлом і з назвою режиму: це НЕ звичайний шар з
-            # альфою, його треба класти в Soft Light. Покласти в
-            # Normal — отримати сіру пляму на пів кадру.
-            p = Path(out_dir) / f"{self.path.stem}_03_dodgeburn_softlight.png"
+            # Окремим файлом, з режимом у назві й номером ПІСЛЯ всіх
+            # звичайних шарів: номер — це порядок складання.
+            p = Path(out_dir) / (f"{self.path.stem}_{len(self.layers()) + 1:02d}"
+                                 f"_dodgeburn_softlight.png")
             imageio.write(p, np.dstack([self.db_gray] * 3), np.dtype("uint16"))
             written.append(p)
         if self._field is not None and self._field.touched:

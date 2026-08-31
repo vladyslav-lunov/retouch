@@ -93,6 +93,52 @@ def test_write_with_warp():
         assert err < 8, f"після деформації шар не сходиться: {err:.1f} кванта"
 
 
+def test_full_stack_reconstructs_with_all_layers():
+    """Уся стопка: шкіра, інструменти, D&B — і кожен зі своїм режимом.
+
+    Номер у назві файлу — це ПОРЯДОК складання. Свого часу D&B писався з
+    жорстким «03» і стикався з третім інструментом: два файли з тим самим
+    індексом складати стає нíяк.
+    """
+    import glob
+
+    from retouch.dodgeburn import soft_light
+
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        cfg = Config(force_mask=True, dodgeburn_on=True)
+        cfg.dodgeburn.strength = 0.5
+        sess = Session(_fixture(d), cfg).load().analyze().heal()
+        # інструменти потребують карти класів; без моделі їх пропускають,
+        # і тоді перевіряємо стопку без них — вона все одно має зійтись
+        sess.run_tools()
+        sess.dodge_burn()
+        out = d / "out"
+        sess.write(out)
+
+        names = sorted(p.name for p in out.iterdir())
+        print(f"  {', '.join(names)}")
+        idx = [n.split("_")[1] for n in names if n[-4:] == ".png" and n[1:3].isdigit()
+               or (len(n.split("_")) > 1 and n.split("_")[1].isdigit())]
+        assert len(idx) == len(set(idx)), f"однакові індекси у шарах: {idx}"
+
+        rd = lambda n: (cv2.imread(str(out / n), cv2.IMREAD_UNCHANGED)
+                        .astype(np.float32) / 65535)
+        stem = "T"
+        cur = rd(f"{stem}_00_base.tif")
+        flat = rd(f"{stem}_99_flat.tif")
+        for p in sorted(out.glob(f"{stem}_[0-9][0-9]_*.png")):
+            lay = rd(p.name)
+            if "softlight" in p.name:
+                cur = soft_light(cur, lay)
+            else:
+                a = lay[:, :, 3]
+                cur = cur * (1 - a[..., None]) + lay[:, :, :3] * a[..., None]
+        err = float(np.abs(cur - flat).max()) * 65535
+        print(f"  похибка складання всієї стопки: {err:.1f} кванта")
+        assert err < 12, f"стопка не сходиться: {err:.1f} кванта"
+
+
 def test_warp_refreshes_class_map():
     """Карта класів не має пережити деформацію.
 

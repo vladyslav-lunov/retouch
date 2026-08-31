@@ -71,6 +71,8 @@ def build_config(a: argparse.Namespace) -> Config:
         if v is not None:
             setattr(targets[where], field, v)
 
+    if a.tools:
+        cfg.tools = tuple(x.strip() for x in a.tools.split(",") if x.strip())
     if a.dodge_burn:
         cfg.dodgeburn_on = True
     if a.db_strength is not None:
@@ -138,6 +140,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="скинути всі проміжні шари")
     ap.add_argument("--dry-run", action="store_true",
                     help="лише порахувати дефекти, нічого не писати")
+    ap.add_argument("--tools", default=None,
+                    help="дрібні інструменти через кому: eye_vessels, teeth, "
+                         "mattify, skin_tone. Потребують --face-model")
     ap.add_argument("--dodge-burn", action="store_true",
                     help="вирівняти низьку частоту (D&B), spec.md §11 v0.5")
     ap.add_argument("--db-strength", type=float, default=None,

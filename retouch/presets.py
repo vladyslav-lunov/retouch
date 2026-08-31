@@ -200,6 +200,8 @@ def schema() -> dict:
     from .blemish import DetectParams
     from .develop import DevelopParams
     from .dodgeburn import DodgeBurnParams
+    from .tools import (EyeVesselParams, MattifyParams,
+                        SkinToneParams, TeethParams)
     from .masks import CELEBA_CLASSES, MaskParams
     from .pipeline import Config
     from .warp import WarpParams
@@ -224,6 +226,10 @@ def schema() -> dict:
             "develop": _describe(DevelopParams),
             "detect": _describe(DetectParams),
             "dodgeburn": _describe(DodgeBurnParams),
+            "tools.eye_vessels": _describe(EyeVesselParams),
+            "tools.teeth": _describe(TeethParams),
+            "tools.mattify": _describe(MattifyParams),
+            "tools.skin_tone": _describe(SkinToneParams),
             "mask": _describe(MaskParams),
             "warp": _describe(WarpParams),
             "(top-level)": cfg_fields,

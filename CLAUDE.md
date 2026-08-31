@@ -20,6 +20,7 @@ python3 scripts/variants.py IMG.tif presets/*.yaml -o var   # порівняти
 python3 -m retouch.cli IMG.tif --preset p.yaml --preset frame.yaml
 python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml   # ніч
 python3 -m retouch.cli IMG.tif -o out --dodge-burn --db-strength 0.6
+python3 -m retouch.cli IMG.tif -o out --tools eye_vessels,teeth,mattify
 ```
 
 `--preview` кладе поруч із шарами один PNG: загальний план плюс кропи
