@@ -28,8 +28,8 @@ class InputError(Exception):
     а не трасування: це помилка користувача, а не збій програми."""
 
 
-def read(path: str | Path, raw_decoder: str | None = None
-         ) -> tuple[np.ndarray, np.dtype]:
+def read(path: str | Path, raw_decoder: str | None = None,
+         develop=None) -> tuple[np.ndarray, np.dtype]:
     """Повертає (float32 BGR [0..1], оригінальний dtype).
 
     raw_decoder — примусово "rawpy" або "imageio"; None = як вийде."""
@@ -43,7 +43,8 @@ def read(path: str | Path, raw_decoder: str | None = None
         # RAW іде повз OpenCV: він таких не знає. Демозаїк чужий — свій
         # ми не пишемо (spec.md §4), беремо libraw або ImageIO.
         try:
-            rgb, last_raw_decoder = read_raw(p, prefer=raw_decoder)
+            rgb, last_raw_decoder = read_raw(p, prefer=raw_decoder,
+                                             develop=develop)
         except Exception as e:                       # noqa: BLE001
             raise InputError(f"{p.name}: {e}") from None
         bgr = np.ascontiguousarray(rgb[:, :, ::-1])

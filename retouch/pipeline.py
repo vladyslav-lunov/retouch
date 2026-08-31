@@ -18,6 +18,7 @@ from . import imageio, layers as layers_mod
 from .blemish import DetectParams, detect_blemishes, heal_blemishes
 from .freqsep import freq_merge, freq_split, radius_for
 from .masks import MaskParams, build_skin_mask
+from .develop import DevelopParams, apply_pixels
 from .warp import Field, WarpParams
 
 
@@ -82,6 +83,10 @@ class Config:
 
     warp: WarpParams = field(default_factory=WarpParams)
     """Пластика. Саме поле живе в Session, тут лише як його застосовувати."""
+
+    develop: DevelopParams = field(default_factory=DevelopParams)
+    """Проявлення: етапи 1-15 конвеєра (spec.md §16). Іде ПЕРШИМ — усе
+    подальше рахується по кадру, який людина бачить."""
 
     detect: DetectParams = field(default_factory=DetectParams)
     mask: MaskParams = field(default_factory=MaskParams)
@@ -259,17 +264,43 @@ class Session:
         self.img_src = None
         self._field = None
         self.cls = None
+        self.develop_ignored: list[str] = []
 
     # --- етапи ---------------------------------------------------------
     def load(self, sink=None) -> "Session":
         s = Stage("read", sink)
-        self.img, self.dtype = imageio.read(self.path, self.cfg.raw_decoder)
-        # оригінал тримаємо окремо: пластика завжди деформує ЙОГО
-        self.img_src = self.img
+        self.img, self.dtype = imageio.read(self.path, self.cfg.raw_decoder,
+                                            develop=self.cfg.develop)
         self.raw_decoder = imageio.last_raw_decoder
         h, w = self.img.shape[:2]
         s.done(f"{w}x{h} {self.dtype}"
                + (f" raw={self.raw_decoder}" if self.raw_decoder else ""))
+
+        dp = self.cfg.develop
+        # Параметри, що мають сенс лише під час декодування RAW. Якщо на
+        # вході TIFF — вони не спрацювали, і мовчати про це не можна (§1).
+        self.develop_ignored = [] if self.raw_decoder else list(dp.raw_only())
+        if dp.touches_pixels():
+            s = Stage("develop", sink)
+            self.img = apply_pixels(self.img, dp)
+            h, w = self.img.shape[:2]
+            bits = []
+            if dp.crop:
+                bits.append(f"кроп -> {w}x{h}")
+            if dp.rotate:
+                bits.append(f"поворот {dp.rotate:+g}°")
+            if dp.contrast:
+                bits.append(f"контраст {dp.contrast:+g}")
+            if dp.curve:
+                bits.append(f"крива {len(dp.curve)} точок")
+            s.done(", ".join(bits))
+        if self.develop_ignored:
+            print(f"[develop] УВАГА: не для TIFF, проігноровано: "
+                  f"{', '.join(self.develop_ignored)}", flush=True)
+
+        # оригінал для пластики — уже ПРОЯВЛЕНИЙ кадр: деформувати треба
+        # те, що людина бачить, а не те, що віддав декодер
+        self.img_src = self.img
 
         if self.cfg.use_skin_mask:
             s = Stage("skin-mask", sink)

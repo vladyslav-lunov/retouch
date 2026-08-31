@@ -32,7 +32,7 @@ from typing import Any
 # Розділи пресету -> куди вони лягають у Config. Порядок тут визначає
 # порядок у схемі, тобто те, як його читатиме агент.
 SECTIONS = {
-    "develop": "develop",     # з'явиться разом із проявленням
+    "develop": "develop",
     "detect": "detect",
     "mask": "mask",
     "warp": "warp",
@@ -197,6 +197,7 @@ def schema() -> dict:
     обґрунтувати своє рішення в `why` він не зможе.
     """
     from .blemish import DetectParams
+    from .develop import DevelopParams
     from .masks import CELEBA_CLASSES, MaskParams
     from .pipeline import Config
     from .warp import WarpParams
@@ -218,6 +219,7 @@ def schema() -> dict:
             "невідомі ключі не валять роботу, але потрапляють у зауваження",
         ],
         "sections": {
+            "develop": _describe(DevelopParams),
             "detect": _describe(DetectParams),
             "mask": _describe(MaskParams),
             "warp": _describe(WarpParams),

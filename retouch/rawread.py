@@ -49,10 +49,20 @@ def _have_rawpy() -> bool:
         return False
 
 
-def _read_rawpy(path: Path) -> np.ndarray:
-    """uint16 RGB. Параметри явні — щоб результат не «плив» між прогонами."""
+def _read_rawpy(path: Path, develop=None) -> np.ndarray:
+    """uint16 RGB. Параметри явні — щоб результат не «плив» між прогонами.
+
+    develop — DevelopParams; якщо заданий, його значення перекривають
+    дефолти нижче. Саме тут єдине місце, де експозиція й баланс білого
+    ще можуть щось врятувати: світла ще не зрізані.
+    """
     import rawpy
 
+    if develop is not None:
+        from .develop import rawpy_kwargs
+        kw = rawpy_kwargs(develop)
+        with rawpy.imread(str(path)) as r:
+            return r.postprocess(**kw)
     with rawpy.imread(str(path)) as r:
         return r.postprocess(
             output_bps=16,
@@ -239,7 +249,8 @@ def decoders() -> list[str]:
     return out
 
 
-def read_raw(path: str | Path, prefer: str | None = None) -> tuple[np.ndarray, str]:
+def read_raw(path: str | Path, prefer: str | None = None,
+             develop=None) -> tuple[np.ndarray, str]:
     """RAW -> (uint16 RGB, назва декодера).
 
     Пробуємо по черзі: якщо rawpy спіткнувся об екзотичний формат, ще є
@@ -257,7 +268,8 @@ def read_raw(path: str | Path, prefer: str | None = None) -> tuple[np.ndarray, s
     errors = []
     for name in order:
         try:
-            arr = _read_rawpy(path) if name == "rawpy" else _read_imageio(path)
+            arr = (_read_rawpy(path, develop) if name == "rawpy"
+                   else _read_imageio(path))
             if arr.dtype != np.uint16:
                 arr = arr.astype(np.uint16)
             return arr, name
