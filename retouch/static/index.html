@@ -1,0 +1,474 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>retouch-lab</title>
+<style>
+:root{
+  --bg:#16181c; --panel:#1e2126; --line:#2c3037; --ink:#e6e8ec;
+  --dim:#9aa2ae; --acc:#6ea8fe; --warn:#e8a33d; --bad:#e06c6c; --ok:#6ec98a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:13px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
+button,input,select{font:inherit;color:inherit}
+button{background:var(--panel);border:1px solid var(--line);border-radius:6px;
+  padding:6px 11px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--acc)}
+button:disabled{opacity:.45;cursor:default}
+button.pri{background:var(--acc);border-color:var(--acc);color:#0d1117;font-weight:600}
+input[type=text],input[type=number]{background:#12141a;border:1px solid var(--line);
+  border-radius:5px;padding:5px 7px;width:100%}
+input[type=range]{width:100%;accent-color:var(--acc)}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);
+  margin:18px 0 8px;font-weight:600}
+h2:first-child{margin-top:0}
+a{color:var(--acc)}
+.wrap{display:grid;grid-template-columns:290px 1fr;height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:14px;
+  overflow:auto}
+.main{overflow:auto;padding:14px 16px}
+.row{display:flex;gap:8px;align-items:center;margin-bottom:7px}
+.row label{flex:0 0 92px;color:var(--dim);font-size:12px}
+.row .val{flex:0 0 46px;text-align:right;font-variant-numeric:tabular-nums;
+  color:var(--dim);font-size:12px}
+.hint{color:var(--dim);font-size:11.5px;margin:-2px 0 10px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;
+  background:none;padding:7px 12px;color:var(--dim)}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--acc)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  overflow:hidden}
+.card .cap{padding:5px 8px;font-size:11px;color:var(--dim);
+  border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.card img{display:block;width:100%;background:#0d0f13}
+.note{border:1px solid var(--line);border-left:3px solid var(--warn);
+  background:#221d14;border-radius:6px;padding:10px 12px;margin-bottom:12px;
+  white-space:pre-wrap;font-size:12px}
+.note.bad{border-left-color:var(--bad);background:#241618}
+.stages{font-variant-numeric:tabular-nums;font-size:12px}
+.stages div{display:flex;justify-content:space-between;padding:2px 0;
+  color:var(--dim)}
+.stages b{color:var(--ink);font-weight:500}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:6px 9px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--dim);font-weight:600;font-size:11px;text-transform:uppercase}
+tr.on td{background:#1b2430}
+/* Портретний кадр по ширині панелі виходить на 1200+ px заввишки, і щоб
+   клацнути по обличчю, доводилось гортати. Тому обмежуємо ВИСОТОЮ, а
+   ширину лишаємо авто: увесь кадр видно одразу. */
+#stage{background:#0d0f13;border:1px solid var(--line);border-radius:8px;
+  padding:8px;display:flex;justify-content:center}
+.holder{position:relative;display:inline-block;line-height:0;
+  cursor:crosshair;touch-action:none}
+.holder img{display:block;width:auto;max-width:100%;max-height:62vh;
+  min-width:40px;min-height:40px}
+#paint{position:absolute;inset:0;width:100%;height:100%}
+#pin{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;
+  border:2px solid var(--acc);border-radius:50%;pointer-events:none;
+  box-shadow:0 0 0 1px #000}
+.pick{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+.pick div{padding:5px 8px;cursor:pointer;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:8px}
+.pick div:hover{background:#232830}
+.pick .d{color:var(--acc)}
+.pick .raw{color:var(--warn)}
+.tag{display:inline-block;padding:1px 6px;border-radius:4px;background:#232830;
+  color:var(--dim);font-size:11px;margin-left:6px}
+.crops{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid var(--line);
+  border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite;
+  vertical-align:-1px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+kbd{background:#232830;border:1px solid var(--line);border-radius:4px;
+  padding:0 5px;font-size:11px}
+</style>
+
+<div class="wrap">
+<div class="side">
+  <h2>Кадр</h2>
+  <div class="row"><input type="text" id="path" placeholder="шлях до TIFF"></div>
+  <div class="row">
+    <button id="browse">Огляд…</button>
+    <button id="open" class="pri" style="flex:1">Відкрити</button>
+  </div>
+  <div id="picker" hidden><div class="pick" id="picklist"></div></div>
+  <div id="info" class="hint"></div>
+
+  <h2>Детекція</h2>
+  <div class="row"><label>поріг</label>
+    <input type="range" id="threshold" min="0.004" max="0.04" step="0.001" value="0.012">
+    <span class="val" id="threshold_v">0.012</span></div>
+  <div class="row"><label>радіус</label>
+    <input type="range" id="radius" min="0" max="24" step="0.5" value="0">
+    <span class="val" id="radius_v">авто</span></div>
+  <div class="row"><label>мін. площа</label>
+    <input type="number" id="min_area" value="8"></div>
+  <div class="row"><label>макс. площа</label>
+    <input type="number" id="max_area" value="1200"></div>
+  <div class="row"><label>витягнутість</label>
+    <input type="range" id="max_elongation" min="1.5" max="12" step="0.5" value="6">
+    <span class="val" id="max_elongation_v">6</span></div>
+
+  <h2>Лікування</h2>
+  <div class="row"><label>сила</label>
+    <input type="range" id="strength" min="0.1" max="1" step="0.05" value="1">
+    <span class="val" id="strength_v">1</span></div>
+  <div class="row"><label>пошук донора</label>
+    <input type="range" id="search_radius" min="20" max="300" step="10" value="90">
+    <span class="val" id="search_radius_v">90</span></div>
+  <div class="row"><label>ліміт плям</label>
+    <input type="number" id="limit" placeholder="усі"></div>
+  <div class="row"><label>ерозія маски</label>
+    <input type="range" id="mask_erode" min="0" max="24" step="1" value="6">
+    <span class="val" id="mask_erode_v">6</span></div>
+  <div class="row"><label>RAW через</label>
+    <select id="raw_decoder" style="flex:1;background:#12141a;border:1px solid var(--line);
+      border-radius:5px;padding:5px 7px">
+      <option value="">авто</option><option value="rawpy">rawpy (libraw)</option>
+      <option value="imageio">ImageIO (Apple)</option></select></div>
+  <div class="hint">Вибір декодера зсуває поріг: ImageIO додає своє
+    шумозаглушення й різкість у високу частоту, і плям знаходиться втричі
+    більше на тому самому порозі.</div>
+
+  <h2>Дії</h2>
+  <button id="rerun" class="pri" style="width:100%;margin-bottom:6px">Перегнати</button>
+  <div class="row">
+    <input type="text" id="out" value="out" placeholder="тека виводу">
+    <button id="write">Зберегти</button>
+  </div>
+  <div id="stages" class="stages"></div>
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <button data-t="view" class="on">Перегляд</button>
+    <button data-t="crops">1:1</button>
+    <button data-t="mask">Маска</button>
+    <button data-t="remove">Видалення</button>
+    <button data-t="spots">Плями</button>
+    <button data-t="sweep">Калібрування</button>
+  </div>
+  <div id="msg"></div>
+  <div id="pane"></div>
+</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const api = async (u, o) => (await fetch(u, o)).json();
+const post = (u, b) => api(u, {method:'POST', headers:{'Content-Type':'application/json'},
+                               body: JSON.stringify(b||{})});
+const PARAMS = ['threshold','radius','min_area','max_area','max_elongation',
+                'strength','search_radius','limit','mask_erode','raw_decoder'];
+let S = {}, tab = 'view', keep = null, cropAt = null, painting = false, brush = 'add';
+
+function params(){
+  const p = {};
+  for (const k of PARAMS){
+    const v = $('#'+k).value;
+    if (v !== '' && !(k === 'radius' && +v === 0)) p[k] = v;
+  }
+  return p;
+}
+for (const k of PARAMS){
+  const el = $('#'+k), v = $('#'+k+'_v');
+  if (v) el.oninput = () => v.textContent =
+    (k === 'radius' && +el.value === 0) ? 'авто' : el.value;
+}
+
+/* ---------- стан ---------- */
+async function tick(){
+  S = await api('/api/state');
+  const st = $('#stages');
+  st.innerHTML = (S.stages||[]).map(s =>
+    `<div><b>${s.stage}</b><span>${s.sec == null
+      ? '<span class="spin"></span>' : s.sec+'s '+(s.note||'')}</span></div>`).join('');
+  $('#info').innerHTML = S.loaded
+    ? `${S.name} · ${S.w}×${S.h} (${S.mp} Мп)<br>маска ${S.skin_source}` +
+      (S.skin_frac != null ? ` · ${(S.skin_frac*100).toFixed(0)}%` : '') +
+      (S.raw_decoder ? ` · RAW: ${S.raw_decoder}` : '') +
+      (S.radius ? ` · радіус ${S.radius}px` : '') +
+      (S.n_blobs ? ` · ${S.n_blobs} плям` : '') +
+      (S.painted ? '<span class="tag">маска правлена</span>' : '')
+    : 'кадр не відкрито';
+
+  let m = '';
+  if (S.error) m += `<div class="note bad">${esc(S.error)}</div>`;
+  if (S.warn)  m += `<div class="note">${esc(S.warn)}</div>`;
+  if (S.telea_warn) m += `<div class="note">${esc(S.telea_warn)}</div>`;
+  if (S.written && S.written.length)
+    m += `<div class="note" style="border-left-color:var(--ok)">Записано:\n` +
+         esc(S.written.join('\n')) + `</div>`;
+  $('#msg').innerHTML = m;
+
+  for (const b of ['open','rerun','write']) $('#'+b).disabled = S.busy;
+  if (S.busy) setTimeout(tick, 400);
+}
+const esc = s => (s||'').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+const bust = () => '&_=' + Date.now();
+
+/* ---------- вкладки ---------- */
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); tab = b.dataset.t; draw();
+});
+
+function draw(){
+  const p = $('#pane');
+  if (!S.loaded){ p.innerHTML = '<div class="hint">Відкрий 16-бітний TIFF зліва.</div>'; return; }
+  if (tab === 'view') return drawView(p);
+  if (tab === 'crops') return drawCrops(p);
+  if (tab === 'mask') return drawMask(p);
+  if (tab === 'remove') return drawRemove(p);
+  if (tab === 'spots') return drawSpots(p);
+  if (tab === 'sweep') return drawSweep(p);
+}
+
+function card(kind, cap){
+  return `<div class="card"><div class="cap"><span>${cap}</span></div>
+    <img src="/api/view?kind=${kind}&w=760${bust()}" alt="${cap}"></div>`;
+}
+function drawView(p){
+  p.innerHTML = `<div class="hint">Загальний план відповідає на «чи не полізло воно кудись».
+    Про якість ретуші судити тільки на вкладці <b>1:1</b>.</div>
+    <div class="grid">${card('before','ДО')}${card('after','ПІСЛЯ')}
+    ${card('diff','РІЗНИЦЯ ×4')}${card('detected','ЗНАЙДЕНО '+S.n_blobs)}
+    ${card('mask','МАСКА ШКІРИ')}${card('coverage','ПОКРИТТЯ')}</div>`;
+}
+
+/* ---------- 1:1 ---------- */
+function drawCrops(p){
+  p.innerHTML = `<div class="hint">Клацни по кадру — вирізки в рідних пікселях.
+    Розмір: <input type="range" id="csize" min="120" max="700" step="20" value="320"
+    style="width:150px;vertical-align:-4px"> <span id="csize_v">320</span> px</div>
+    <div id="stage"><div class="holder">
+      <img id="nav" src="/api/view?kind=after&w=760${bust()}"><div id="pin" hidden></div>
+    </div><div id="loading" class="hint" style="align-self:center">
+      <span class="spin"></span>рендерю оглядовий план…</div></div>
+    <div id="cropbox" style="margin-top:12px"></div>`;
+  const nav = $('#nav');
+  const ready = () => { $('#loading').remove(); };
+  nav.complete && nav.naturalWidth ? ready() : nav.addEventListener('load', ready);
+  $('#csize').oninput = e => { $('#csize_v').textContent = e.target.value;
+                               if (cropAt) showCrops(); };
+  $('.holder').onclick = e => {
+    const img = $('#nav'), r = img.getBoundingClientRect();
+    // Оглядовий план 26 Мп рендериться помітну частку секунди. Клац по
+    // ще не завантаженій картинці давав rect нульової висоти, ділення на
+    // нуль і кроп за координатами NaN,-Infinity.
+    if (!img.complete || !img.naturalWidth || r.width < 2 || r.height < 2) return;
+    cropAt = [Math.round((e.clientX - r.left) / r.width * S.w),
+              Math.round((e.clientY - r.top) / r.height * S.h)];
+    showCrops();
+  };
+  if (cropAt) showCrops();
+}
+function showCrops(){
+  const [x, y] = cropAt, n = $('#csize').value;
+  const pin = $('#pin');
+  if (pin){ pin.hidden = false;
+    pin.style.left = (x / S.w * 100) + '%'; pin.style.top = (y / S.h * 100) + '%'; }
+  const one = (k, t) => `<div class="card"><div class="cap"><span>${t}</span>
+    <span>${x},${y}</span></div>
+    <img src="/api/crop?kind=${k}&x=${x}&y=${y}&size=${n}${bust()}"></div>`;
+  $('#cropbox').innerHTML = `<div class="crops">${one('before','ДО 1:1')}
+    ${one('after','ПІСЛЯ 1:1')}${one('diff','РІЗНИЦЯ ×4')}</div>`;
+}
+
+/* ---------- маска ---------- */
+function drawMask(p){
+  p.innerHTML = `<div class="hint">Малюй по кадру: <b>червоне</b> — додати шкіру,
+    <b>синє</b> — прибрати. Правки лягають поверх автоматичної маски й
+    переживають зміну параметрів. Конвеєр перерахується кнопкою «Перегнати».</div>
+    <div class="row" style="margin-bottom:10px">
+      <button id="b_add" class="pri">Додати</button>
+      <button id="b_del">Прибрати</button>
+      <label style="flex:0 0 auto;color:var(--dim)">пензель</label>
+      <input type="range" id="bsize" min="4" max="90" value="26" style="width:120px">
+      <button id="b_apply" class="pri">Застосувати</button>
+      <button id="b_clear">Скинути правки</button>
+    </div>
+    <div id="stage"><div class="holder">
+      <img id="nav" src="/api/view?kind=before&w=760${bust()}">
+      <canvas id="paint"></canvas></div></div>`;
+  const img = $('#nav'), cv = $('#paint');
+  img.onload = () => { cv.width = img.naturalWidth; cv.height = img.naturalHeight; };
+  if (img.complete) img.onload();
+  const ctx = () => cv.getContext('2d');
+  const at = e => { const r = cv.getBoundingClientRect();
+    return [(e.clientX - r.left) / r.width * cv.width,
+            (e.clientY - r.top) / r.height * cv.height]; };
+  const dot = e => { const [x, y] = at(e), c = ctx();
+    c.fillStyle = brush === 'add' ? 'rgba(255,40,40,.85)' : 'rgba(40,90,255,.85)';
+    c.beginPath(); c.arc(x, y, +$('#bsize').value, 0, 7); c.fill(); };
+  cv.onpointerdown = e => { painting = true; cv.setPointerCapture(e.pointerId); dot(e); };
+  cv.onpointermove = e => { if (painting) dot(e); };
+  cv.onpointerup = () => painting = false;
+  $('#b_add').onclick = () => { brush = 'add';
+    $('#b_add').classList.add('pri'); $('#b_del').classList.remove('pri'); };
+  $('#b_del').onclick = () => { brush = 'del';
+    $('#b_del').classList.add('pri'); $('#b_add').classList.remove('pri'); };
+  $('#b_apply').onclick = async () => {
+    const r = await post('/api/paint', {png: cv.toDataURL('image/png')});
+    if (r.error) return alert(r.error);
+    await tick(); alert('Маску оновлено. Тепер «Перегнати».');
+  };
+  $('#b_clear').onclick = async () => {
+    ctx().clearRect(0, 0, cv.width, cv.height);
+    await post('/api/paint', {clear: true}); tick();
+  };
+}
+
+/* ---------- видалення ---------- */
+function drawRemove(p){
+  p.innerHTML = `<div class="hint">Замалюй те, що прибрати — людину, предмет,
+    смітник. Це НЕ прозорість: дірка заповнюється правдоподібним фоном.<br>
+    Без ваг LaMa працює запасний Telea, і він тягне краї всередину — на
+    глибині більш ніж 24 px це вже пляма, а не фон. Конвеєр про це скаже.</div>
+    <div class="row" style="margin-bottom:10px">
+      <label style="flex:0 0 auto;color:var(--dim)">пензель</label>
+      <input type="range" id="rsize" min="6" max="140" value="40" style="width:130px">
+      <button id="r_apply" class="pri">Прийняти маску</button>
+      <button id="r_go" class="pri">Видалити</button>
+      <button id="r_clear">Скинути</button>
+      <span id="r_info" class="hint" style="margin:0"></span>
+    </div>
+    <div id="stage"><div class="holder">
+      <img id="nav" src="/api/view?kind=after&w=760${bust()}">
+      <canvas id="paint"></canvas></div></div>`;
+  const img = $('#nav'), cv = $('#paint');
+  const fit = () => { cv.width = img.naturalWidth; cv.height = img.naturalHeight; };
+  img.complete && img.naturalWidth ? fit() : img.addEventListener('load', fit);
+  const at = e => { const r = cv.getBoundingClientRect();
+    return [(e.clientX - r.left) / r.width * cv.width,
+            (e.clientY - r.top) / r.height * cv.height]; };
+  const dot = e => { const [x, y] = at(e), c = cv.getContext('2d');
+    c.fillStyle = 'rgba(255,40,40,.75)';
+    c.beginPath(); c.arc(x, y, +$('#rsize').value, 0, 7); c.fill(); };
+  cv.onpointerdown = e => { painting = true; cv.setPointerCapture(e.pointerId); dot(e); };
+  cv.onpointermove = e => { if (painting) dot(e); };
+  cv.onpointerup = () => painting = false;
+  const info = r => $('#r_info').textContent = r.remove_px
+    ? `${(r.remove_px/1e6).toFixed(2)} Мп, глибина ${r.depth?.toFixed?.(0) ?? '?'} px`
+    : 'маска порожня';
+  $('#r_apply').onclick = async () => {
+    const r = await post('/api/paint', {target:'remove', png: cv.toDataURL('image/png')});
+    if (r.error) return alert(r.error);
+    info(r); tick();
+  };
+  $('#r_clear').onclick = async () => {
+    cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+    const r = await post('/api/paint', {target:'remove', clear:true}); info(r); tick();
+  };
+  $('#r_go').onclick = async () => {
+    const a = await post('/api/paint', {target:'remove', png: cv.toDataURL('image/png')});
+    if (a.error) return alert(a.error);
+    info(a);
+    const r = await post('/api/remove', {});
+    if (r.error) return alert(r.error);
+    await tick(); waitDone();
+  };
+  if (S.remove_px) $('#r_info').textContent =
+    `${(S.remove_px/1e6).toFixed(2)} Мп, глибина ${S.remove_depth} px`;
+}
+
+/* ---------- плями ---------- */
+async function drawSpots(p){
+  const blobs = await api('/api/blobs');
+  if (keep === null) keep = new Set(blobs.map(b => b.id));
+  p.innerHTML = `<div class="hint">Знято галочку — пляму не лікуємо, але донор її
+    все одно обходить. Найконтрастніші зверху: <kbd>--limit N</kbd> у CLI бере саме їх.</div>
+    <div class="row"><button id="s_all">Усі</button><button id="s_none">Жодної</button>
+      <button id="s_top">Топ-30</button>
+      <button id="s_apply" class="pri">Лікувати вибрані (<span id="s_n"></span>)</button></div>
+    <table><thead><tr><th></th><th>контраст</th><th>площа</th><th>x,y</th></tr></thead>
+    <tbody>${blobs.slice(0, 400).map(b => `<tr data-id="${b.id}">
+      <td><input type="checkbox" data-id="${b.id}" ${keep.has(b.id)?'checked':''}></td>
+      <td>${b.contrast.toFixed(4)}</td><td>${b.area}</td>
+      <td>${b.x},${b.y}</td></tr>`).join('')}</tbody></table>`;
+  const n = () => $('#s_n').textContent = keep.size;
+  n();
+  p.querySelectorAll('input[type=checkbox]').forEach(c => c.onchange = () => {
+    const id = +c.dataset.id; c.checked ? keep.add(id) : keep.delete(id); n(); });
+  const setAll = ids => { keep = new Set(ids);
+    p.querySelectorAll('input[type=checkbox]').forEach(c =>
+      c.checked = keep.has(+c.dataset.id)); n(); };
+  $('#s_all').onclick = () => setAll(blobs.map(b => b.id));
+  $('#s_none').onclick = () => setAll([]);
+  $('#s_top').onclick = () => setAll(blobs.slice(0, 30).map(b => b.id));
+  $('#s_apply').onclick = async () => {
+    await post('/api/heal', {keep: [...keep]}); tick();
+  };
+  p.querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = e => {
+    if (e.target.type === 'checkbox') return;
+    const b = blobs.find(x => x.id === +tr.dataset.id);
+    cropAt = [b.x, b.y];
+    document.querySelector('.tabs button[data-t=crops]').click();
+  });
+}
+
+/* ---------- калібрування ---------- */
+function drawSweep(p){
+  const rows = S.sweep || [];
+  p.innerHTML = `<div class="hint">Той самий кадр кількома порогами — таблиця
+    зі spec.md §6.2. Порівнюй колонки між прогонами, а не з таблицею в специфікації:
+    та знята на плоскому клапті шкіри.<br>
+    <b>Але:</b> поріг міряється поверх маски. Поки маска не від face-parsing,
+    калібрування безпідставне — див. §6.2.</div>
+    <div class="row"><input type="text" id="ths" value="0.008, 0.012, 0.018, 0.025">
+      <button id="go" class="pri">Прогнати</button></div>
+    ${rows.length ? `<table><thead><tr><th>поріг</th><th>компонент</th>
+      <th>радіус</th><th>торкнулися</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${r.threshold}</td><td>${r.n_blobs}</td>
+      <td>${r.radius}px</td><td>${(r.touched*100).toFixed(3)}%</td></tr>`).join('')}
+      </tbody></table>` : '<div class="hint">Ще не міряно.</div>'}`;
+  $('#go').onclick = async () => {
+    const th = $('#ths').value.split(',').map(s => parseFloat(s.trim()))
+      .filter(x => x > 0);
+    await post('/api/sweep', {params: params(), thresholds: th}); tick();
+  };
+}
+
+/* ---------- файли ---------- */
+$('#browse').onclick = async () => {
+  const box = $('#picker'); box.hidden = !box.hidden;
+  if (!box.hidden) await listDir($('#path').value || '');
+};
+async function listDir(d){
+  const r = await api('/api/browse?dir=' + encodeURIComponent(d));
+  $('#picklist').innerHTML =
+    `<div class="d" data-d="${r.up}">↑ ..</div>` +
+    r.dirs.map(n => `<div class="d" data-d="${r.dir}/${n}">${n}/</div>`).join('') +
+    r.files.map(f => `<div data-f="${r.dir}/${f.name}" class="${f.raw?'raw':''}">
+      <span>${f.name}${f.raw?' · RAW':''}</span>
+      <span>${f.mb} МБ</span></div>`).join('');
+  $('#picklist').querySelectorAll('[data-d]').forEach(e =>
+    e.onclick = () => listDir(e.dataset.d));
+  $('#picklist').querySelectorAll('[data-f]').forEach(e =>
+    e.onclick = () => { $('#path').value = e.dataset.f; $('#picker').hidden = true; });
+}
+
+/* ---------- кнопки ---------- */
+$('#open').onclick = async () => {
+  keep = null; cropAt = null;
+  const r = await post('/api/open', {path: $('#path').value, params: params()});
+  if (r.error) $('#msg').innerHTML = `<div class="note bad">${esc(r.error)}</div>`;
+  await tick(); waitDone();
+};
+$('#rerun').onclick = async () => {
+  await post('/api/rerun', {params: params(), keep: keep ? [...keep] : null});
+  await tick(); waitDone();
+};
+$('#write').onclick = async () => {
+  await post('/api/write', {out: $('#out').value, preview: true});
+  await tick(); waitDone();
+};
+function waitDone(){
+  const t = setInterval(async () => {
+    await tick();
+    if (!S.busy){ clearInterval(t); draw(); }
+  }, 500);
+}
+tick().then(draw);
+</script>
