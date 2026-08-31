@@ -7,25 +7,42 @@ import sys
 from pathlib import Path
 
 from .blemish import DetectParams
+from .imageio import RAW_SUFFIXES, InputError
 from .masks import MaskParams
-from .pipeline import Config, run
+from .pipeline import Config, MaskSanityError, detect_only, run
 
 SUFFIXES = {".tif", ".tiff", ".png", ".jpg", ".jpeg"}
 
+# Дефолти живуть у дата-класах (CLAUDE.md), сюди беруться лише для підказок.
+_C, _D, _M = Config(), DetectParams(), MaskParams()
+
+# прапорець -> (об'єкт конфігу, поле). Порядок не важливий, важливо, що
+# перекриття явними прапорцями відбувається ПІСЛЯ читання YAML.
+_OVERRIDES = (
+    ("radius", "cfg", "hf_radius"),
+    ("strength", "cfg", "strength"),
+    ("limit", "cfg", "limit"),
+    ("search_radius", "cfg", "search_radius"),
+    ("face_model", "cfg", "face_model"),
+    ("raw_decoder", "cfg", "raw_decoder"),
+    ("lama_model", "cfg", "lama_model"),
+    ("threshold", "detect", "threshold"),
+    ("min_area", "detect", "min_area"),
+    ("max_area", "detect", "max_area"),
+    ("max_elongation", "detect", "max_elongation"),
+    ("mask_erode", "mask", "erode"),
+)
+
 
 def build_config(a: argparse.Namespace) -> Config:
-    cfg = Config(
-        hf_radius=a.radius,
-        detect=DetectParams(threshold=a.threshold,
-                            min_area=a.min_area,
-                            max_area=a.max_area),
-        mask=MaskParams(erode=a.mask_erode),
-        strength=a.strength,
-        limit=a.limit,
-        face_model=a.face_model,
-        lama_model=a.lama_model,
-        use_skin_mask=not a.no_skin_mask,
-    )
+    """YAML — база, явні прапорці перекривають її.
+
+    Раніше було навпаки: YAML застосовувався ПІСЛЯ прапорців і мовчки їх
+    з'їдав, тобто `--config c.yaml --threshold 0.02` працював з порогом
+    із файлу. Щоб відрізнити "користувач задав" від "argparse підставив
+    дефолт", дефолти прапорців — None, а справжні лишаються в дата-класах.
+    """
+    cfg = Config()
     if a.config:
         import yaml
         raw = yaml.safe_load(Path(a.config).read_text(encoding="utf-8")) or {}
@@ -36,6 +53,19 @@ def build_config(a: argparse.Namespace) -> Config:
                 cfg.mask = MaskParams(**v)
             elif hasattr(cfg, k):
                 setattr(cfg, k, v)
+            else:
+                print(f"[cli] невідомий ключ у {a.config}: {k}", file=sys.stderr)
+
+    targets = {"cfg": cfg, "detect": cfg.detect, "mask": cfg.mask}
+    for flag, where, field in _OVERRIDES:
+        v = getattr(a, flag)
+        if v is not None:
+            setattr(targets[where], field, v)
+
+    if a.no_skin_mask:
+        cfg.use_skin_mask = False
+    if a.force_mask:
+        cfg.force_mask = True
     return cfg
 
 
@@ -46,24 +76,40 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("input", help="файл або тека")
     ap.add_argument("-o", "--out", default="out", help="куди писати")
     ap.add_argument("--remove-mask", help="біла маска = що видалити")
-    ap.add_argument("--config", help="YAML з параметрами")
+    ap.add_argument("--config", help="YAML з параметрами (прапорці мають пріоритет)")
 
     ap.add_argument("--radius", type=float, default=None,
-                    help="радіус частотки в px (типово — з роздільності)")
-    ap.add_argument("--threshold", type=float, default=0.012,
-                    help="поріг контрасту дефекту, менше = агресивніше")
-    ap.add_argument("--min-area", type=int, default=8)
-    ap.add_argument("--max-area", type=int, default=1200)
-    ap.add_argument("--strength", type=float, default=1.0,
-                    help="сила лікування 0..1")
+                    help="радіус частотки в px (типово — з ширини обличчя)")
+    ap.add_argument("--threshold", type=float, default=None,
+                    help=f"поріг контрасту дефекту, менше = агресивніше "
+                         f"(типово {_D.threshold}, див. spec.md §6.2)")
+    ap.add_argument("--min-area", type=int, default=None,
+                    help=f"типово {_D.min_area}")
+    ap.add_argument("--max-area", type=int, default=None,
+                    help=f"типово {_D.max_area}")
+    ap.add_argument("--max-elongation", type=float, default=None,
+                    help=f"відношення сторін bbox: більше — це волосина "
+                         f"чи край, не пляма (типово {_D.max_elongation})")
+    ap.add_argument("--strength", type=float, default=None,
+                    help=f"сила лікування 0..1 (типово {_C.strength})")
     ap.add_argument("--limit", type=int, default=None,
                     help="лікувати лише N найконтрастніших плям")
-    ap.add_argument("--mask-erode", type=int, default=6)
+    ap.add_argument("--search-radius", type=int, default=None,
+                    help=f"як далеко шукати донора, px (типово {_C.search_radius})")
+    ap.add_argument("--mask-erode", type=int, default=None,
+                    help=f"відступ від краю маски шкіри, px (типово {_M.erode})")
     ap.add_argument("--no-skin-mask", action="store_true",
                     help="обробляти весь кадр (для тестів)")
+    ap.add_argument("--force-mask", action="store_true",
+                    help="не зупинятися, якщо маска шкіри неправдоподібна")
 
+    ap.add_argument("--raw-decoder", choices=("rawpy", "imageio"), default=None,
+                    help="чим читати RAW; типово rawpy, якщо є, інакше ImageIO. "
+                         "Поріг детекції від цього залежить — див. spec.md §4")
     ap.add_argument("--face-model", default=None, help="ONNX face-parsing")
     ap.add_argument("--lama-model", default=None, help="ONNX LaMa")
+    ap.add_argument("--preview", action="store_true",
+                    help="оглядовий аркуш PNG: загальний план + кропи 1:1")
     ap.add_argument("--debug", action="store_true",
                     help="скинути всі проміжні шари")
     ap.add_argument("--dry-run", action="store_true",
@@ -76,29 +122,39 @@ def main(argv: list[str] | None = None) -> int:
     files = ([p for p in sorted(src.iterdir()) if p.suffix.lower() in SUFFIXES]
              if src.is_dir() else [src])
     if not files:
-        print("нічого обробляти", file=sys.stderr)
+        # Найчастіша причина порожньої теки — вона повна RAW. Мовчазне
+        # "нічого обробляти" на теці з 200 CR3 збиває з пантелику.
+        raws = ([p for p in sorted(src.iterdir())
+                 if p.suffix.lower() in RAW_SUFFIXES] if src.is_dir() else [])
+        if raws:
+            print(f"у {src} лише RAW ({len(raws)} шт., напр. {raws[0].name}).\n"
+                  f"RAW проєкт не читає навмисно — spec.md §4. Потрібен "
+                  f"16-бітний TIFF з Camera Raw.", file=sys.stderr)
+        else:
+            print("нічого обробляти", file=sys.stderr)
         return 1
 
     for f in files:
         print(f"\n=== {f.name} ===")
-        if a.dry_run:
-            cfg_dry = cfg
-            from . import imageio
-            from .blemish import detect_blemishes
-            from .freqsep import freq_split, radius_for
-            from .masks import build_skin_mask
-            img, _ = imageio.read(f)
-            skin = (build_skin_mask(img, cfg_dry.face_model, cfg_dry.mask)[0]
-                    if cfg_dry.use_skin_mask else None)
-            r = cfg_dry.hf_radius or radius_for(img.shape, skin)
-            _, high = freq_split(img, r)
-            _, blobs = detect_blemishes(high, skin, cfg_dry.detect)
-            print(f"{len(blobs)} плям, радіус {r:.1f}px")
-            for b in blobs[:15]:
-                print(f"  контраст {b['contrast']:.4f}  площа {b['area']:5d}"
-                      f"  центр {b['center'][0]:.0f},{b['center'][1]:.0f}")
-            continue
-        run(f, a.out, cfg, a.remove_mask, debug=a.debug)
+        try:
+            if a.dry_run:
+                r = detect_only(f, cfg)
+                print(f"{len(r['blobs'])} плям, радіус {r['radius']:.1f}px, "
+                      f"маска: {r['skin_source']}")
+                if r["warn"]:
+                    print(f"УВАГА: {r['warn']}", file=sys.stderr)
+                for b in r["blobs"][:15]:
+                    print(f"  контраст {b['contrast']:.4f}  площа {b['area']:5d}"
+                          f"  центр {b['center'][0]:.0f},{b['center'][1]:.0f}")
+                continue
+            run(f, a.out, cfg, a.remove_mask, debug=a.debug, preview=a.preview)
+        except (InputError, MaskSanityError) as e:
+            # Помилка користувача, не збій програми: показуємо текст, а не
+            # трасування. На теці йдемо далі — один битий файл не має
+            # зупиняти пакет.
+            print(f"{e}", file=sys.stderr)
+            if len(files) == 1:
+                return 1
     return 0
 
 
