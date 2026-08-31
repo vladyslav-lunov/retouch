@@ -7,16 +7,24 @@
 INFO = """
 Потрібні дві ONNX-моделі. Обидві кладуться в models/.
 
-1) FACE PARSING -> models/face_parsing.onnx
-   BiSeNet, навчений на CelebAMask-HQ (19 класів).
-   Шукати: "face-parsing.PyTorch" / "BiSeNet CelebAMask-HQ onnx".
-   Експорт з PyTorch:
-       torch.onnx.export(net, torch.randn(1,3,512,512), "face_parsing.onnx",
-                         input_names=["input"], output_names=["out"], opset_version=13)
+1) FACE PARSING -> models/resnet18.onnx
+   BiSeNet, навчений на CelebAMask-HQ (19 класів). Готовий ONNX, експорт
+   не потрібен:
 
-   ПЕРЕВІР порядок класів: різні перезаливки трапляються з переставленими
-   індексами. Прогнати одне фото, розфарбувати карту класів, звірити очима
-   зі списком CELEBA_CLASSES у retouch/masks.py.
+       curl -L -o models/resnet18.onnx \
+         https://github.com/yakhyo/face-parsing/releases/download/weights/resnet18.onnx
+
+   resnet34.onnx там само — точніший на папері, але на заміряному кадрі
+   дає те саме за втричі більший файл і довший інференс.
+
+   Контракт і порядок класів ПЕРЕВІРЕНО на цих вагах: збігається з тим,
+   що припускає retouch/masks.py. Для чужих ваг перевіряти заново:
+
+       python3 scripts/check_face_model.py models/M.onnx PORTRAIT.tif
+
+   УВАГА: моделі треба давати КРОП ГОЛОВИ, а не повний кадр. На повному
+   кадрі 26 Мп обличчя стискається до ~100 px і модель ламається.
+   Тимчасово: scripts/crop_face.py.
 
 2) LAMA -> models/lama.onnx
    Suvorov et al., "Resolution-robust Large Mask Inpainting with Fourier

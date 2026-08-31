@@ -184,6 +184,13 @@ pip install --only-binary=:all: "dist/retouch_lab-0.1.0-py3-none-any.whl[raw]" "
 
 На ньому разом стають numpy, opencv, rawpy і onnxruntime без конфліктів.
 
+Готові ваги, перевірені на цьому конвеєрі — `yakhyo/face-parsing`:
+
+```bash
+curl -L -o models/resnet18.onnx \
+  https://github.com/yakhyo/face-parsing/releases/download/weights/resnet18.onnx
+```
+
 ```bash
 python3 scripts/fetch_models.py     # підказки, звідки брати
 python3 scripts/check_face_model.py models/face.onnx PORTRAIT.tif   # звірити
