@@ -5,6 +5,8 @@
   3. низька частота НЕ змінюється (тон і об'єм цілі)
   4. далеко від дефектів кадр не зачеплено взагалі
   5. шар корекції реконструює результат піксель у піксель
+  6. лікування не тримає буферів розміру кадру (бюджет 8 ГБ, spec.md §2)
+  7. лікування не виходить за маску шкіри — ні на піксель
 """
 
 from __future__ import annotations
@@ -71,6 +73,89 @@ def test_layer_reconstructs_result():
     d = np.abs(recon - result).max()
     print(f"  похибка реконструкції шару: {d:.6f}")
     assert d < 2e-3, "шар не збігається з результатом — у Photoshop буде інше"
+
+
+def test_healing_stays_inside_skin_mask():
+    """Лікування не виходить за маску шкіри — жодного пікселя.
+
+    Детекція обмежена маскою (spec.md §6.1), але альфу дотику потім ще
+    розширюють dilate(margin) і blur(feather). На повіці цього вистачало,
+    щоб лікування заповзло на око: заміряно 11 px за маску і 1173 px
+    усередині ока при нульовій детекції там. Ерозія маски з §5 від цього
+    не рятувала — вона захищає інший етап конвеєра.
+
+    Перевіряємо на портреті-макеті, а не на плоскому клапті: на клапті
+    маска покриває весь кадр, і виходити просто нема куди.
+    """
+    from retouch.masks import build_skin_mask
+    from retouch.freqsep import radius_for
+    from tests.synth import make_face
+
+    # Обличчя 900 px — близько до реального кропа голови. На дрібнішому
+    # макеті детектор не знаходить нічого (див. нижче про radius_for), і
+    # тест ставав би зеленим просто тому, що лікувати нема чого.
+    img, _, truth = make_face(h=1500, w=1150, face_w=900, n_spots=20, seed=3)
+    skin, _ = build_skin_mask(img)
+    _, high = freq_split(img, radius_for(img.shape, skin))
+    lbl, blobs = detect_blemishes(high, skin, DetectParams())
+    _, cov = heal_blemishes(high, lbl, blobs, skin)
+
+    outside = int((cov[skin == 0] > 0).sum())
+    touched = int((cov > 0).sum())
+    hit = {k: int(((cov > 0) & truth[k]).sum())
+           for k in ("l_eye", "r_eye", "l_brow", "r_brow", "u_lip", "l_lip", "hair")}
+    print(f"  плям {len(blobs)}, дотиків {touched} px, з них поза маскою: {outside}")
+    print(f"  у зонах виключення: {', '.join(f'{k}={v}' for k, v in hit.items())}")
+    # без цієї перевірки тест зеленів би на порожньому результаті
+    assert len(blobs) >= 10 and touched > 1000, (
+        f"нема чого перевіряти: {len(blobs)} плям, {touched} px дотиків")
+    assert outside == 0, f"лікування вийшло за маску шкіри на {outside} px"
+    assert not any(hit.values()), f"лікування залізло в зони виключення: {hit}"
+
+
+def test_healing_memory_stays_local():
+    """Лікування не тримає карт РОЗМІРУ КАДРУ.
+
+    Пошук донора рахує вартість вікнами. Спокуса — порахувати карту на
+    весь кадр і закешувати її за розміром вікна; на портреті розмірів
+    вікна десятки, і кеш перетворюється на десятки × розмір кадру:
+    0.6 ГБ на 3 Мп, 5.4 ГБ на 24 Мп. У 8 ГБ зі spec.md §2 це не лізе.
+
+    Міряємо в ОКРЕМОМУ процесі: ru_maxrss — високий водяний знак, і в
+    спільному процесі його вже підняли б попередні тести.
+    """
+    import subprocess
+
+    root = Path(__file__).resolve().parents[1]
+    child = r"""
+import resource, sys
+sys.path.insert(0, %r)
+from retouch.blemish import DetectParams, detect_blemishes, heal_blemishes
+from retouch.freqsep import freq_split
+from tests.synth import make_skin_mp
+
+unit = 1 if sys.platform == "darwin" else 1024
+peak = lambda: resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * unit / 2**20
+
+img, _ = make_skin_mp(3.0)
+_, high = freq_split(img, 6.0)
+del img
+lbl, blobs = detect_blemishes(high, None, DetectParams())
+sizes = {((b["bbox"][2] + 6) | 1, (b["bbox"][3] + 6) | 1) for b in blobs}
+before = peak()
+heal_blemishes(high, lbl, blobs, None, search_radius=90)
+print(f"{len(blobs)} {len(sizes)} {high.size // 3} {before:.0f} {peak():.0f}")
+""" % str(root)
+
+    out = subprocess.run([sys.executable, "-c", child], capture_output=True,
+                         text=True, cwd=str(root))
+    assert out.returncode == 0, f"дочірній процес впав:\n{out.stderr[-1500:]}"
+    n, n_sizes, px, before, after = out.stdout.split()
+    grew = float(after) - float(before)
+    naive = int(n_sizes) * int(px) * 4 / 2**20
+    print(f"  {n} плям, {n_sizes} розмірів вікна на {int(px) / 1e6:.1f} Мп")
+    print(f"  лікування додало {grew:.0f} МБ (повнокадровий кеш дав би ~{naive:.0f} МБ)")
+    assert grew < 250, f"лікування з'їло {grew:.0f} МБ — карти знову розміру кадру"
 
 
 def test_stability_across_seeds():
