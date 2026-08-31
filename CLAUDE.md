@@ -36,8 +36,11 @@ pip install --only-binary=:all: rawpy
 Для моделей (face-parsing, LaMa) — **тільки на Python 3.9-3.12**:
 
 ```bash
-pip install --only-binary=:all: "onnxruntime<1.20"
+pip install --only-binary=:all: "dist/retouch_lab-0.1.0-py3-none-any.whl[raw]" "onnxruntime<1.20"
 ```
+
+Пакета `retouch-lab` на PyPI немає — ставиться зі шляху до колеса.
+`pip install retouch-lab[raw]` дасть "No matching distribution found".
 
 Колеса onnxruntime для Intel macOS з 1.20 збираються під macosx_13_0, а
 тут Monterey 12. Остання придатна версія — 1.19.2 (macOS>=11.0), і для

@@ -175,9 +175,12 @@ python3 scripts/crop_face.py IMG.tif        # вирізати голову (к�
 macOS 12 немає взагалі. Тому середовище для моделей — **Python 3.9**:
 
 ```bash
-python3 -m venv .venv39 && . .venv39/bin/activate
-pip install --only-binary=:all: 'retouch-lab[raw]' "onnxruntime<1.20"
+/usr/bin/python3 -m venv .venv39 && . .venv39/bin/activate
+pip install --only-binary=:all: "dist/retouch_lab-0.1.0-py3-none-any.whl[raw]" "onnxruntime<1.20"
 ```
+
+Саме шлях до колеса, а не назва пакета: на PyPI його немає й не буде,
+це інструмент для себе. Запускати з кореня репозиторію, де лежить dist/.
 
 На ньому разом стають numpy, opencv, rawpy і onnxruntime без конфліктів.
 
