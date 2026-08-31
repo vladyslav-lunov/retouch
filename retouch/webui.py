@@ -38,6 +38,7 @@ from .blemish import DetectParams
 from .imageio import RAW_SUFFIXES, InputError
 from .masks import MaskParams
 from .pipeline import Config, Session
+from .warp import WarpParams
 
 STATIC = Path(__file__).resolve().parent / "static"
 SUFFIXES = {".tif", ".tiff", ".png", ".jpg", ".jpeg"}
@@ -61,6 +62,7 @@ class App:
         self.keep_ids: set[int] | None = None
         self.painted: np.ndarray | None = None   # ручні правки маски шкіри
         self.remove_mask: np.ndarray | None = None   # що видаляти
+        self.proxy: np.ndarray | None = None         # зменшена копія для пластики
         self.written: list[str] = []
 
     # --- прогрес --------------------------------------------------------
@@ -99,6 +101,8 @@ class App:
                           else int((self.remove_mask > 0).sum())),
             "remove_depth": self._remove_depth(),
             "telea_warn": getattr(s, "telea_warn", None),
+            "warp": (s._field.stats() if s._field is not None and s._field.touched
+                     else None),
             "keep": (None if self.keep_ids is None else sorted(self.keep_ids)),
             "params": {
                 "threshold": s.cfg.detect.threshold, "radius": s.cfg.hf_radius,
@@ -270,6 +274,7 @@ def apply_painted(sess: Session, painted: np.ndarray | None) -> None:
 def do_open(path: str, params: dict) -> None:
     APP.sess = Session(path, cfg_from(params)).load()
     APP.painted, APP.keep_ids, APP.sweep, APP.written = None, None, None, []
+    APP.proxy = None
     APP.sess.analyze(APP.sink)
 
 
@@ -322,6 +327,31 @@ def do_sweep(params: dict, thresholds: list[float]) -> None:
     apply_painted(sess, APP.painted)
     sess.analyze(APP.sink)
     sess.heal(APP.keep_ids, APP.sink)
+
+
+PROXY_W = 900
+
+
+def proxy_of(sess) -> np.ndarray:
+    """Зменшена копія ОРИГІНАЛУ для інтерактивної пластики.
+
+    Саме оригіналу, а не поточного кадру: інакше кожен мазок лягав би на
+    вже деформовану копію й спотворення накопичувалося б удвічі.
+    """
+    if APP.proxy is None:
+        src = sess.img_src
+        h, w = src.shape[:2]
+        pw = min(PROXY_W, w)
+        APP.proxy = np.ascontiguousarray(
+            cv2.resize(src, (pw, max(1, int(h * pw / w))),
+                       interpolation=cv2.INTER_AREA))
+    return APP.proxy
+
+
+def do_warp_apply(strength: float) -> None:
+    APP.sess.cfg.warp.strength = float(strength)
+    APP.sess.apply_warp(APP.sink).analyze(APP.sink)
+    APP.sess.heal(APP.keep_ids, APP.sink)
 
 
 def do_remove() -> None:
@@ -404,6 +434,15 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json({"error": "кадр не відкрито"}, 409)
                 arr = overview(s, q.get("kind", "before"), int(q.get("w", 1400)))
                 return self._send(200, _png(arr), "image/png")
+            if u.path == "/api/warp/preview":
+                s = APP.sess
+                if s is None or s.img is None:
+                    return self._json({"error": "кадр не відкрито"}, 409)
+                pr = proxy_of(s)
+                f = s._field
+                k = float(q.get("strength", 1.0))
+                out = pr if f is None else f.apply_to(pr, WarpParams(strength=k))
+                return self._send(200, _png(out), "image/png")
             if u.path == "/api/crop":
                 s = APP.sess
                 if s is None or s.img is None:
@@ -447,6 +486,13 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"ok": True})
             if u.path == "/api/paint":
                 return self._json(self._paint(d))
+            if u.path == "/api/warp":
+                return self._json(self._warp(d))
+            if u.path == "/api/warp/apply":
+                if APP.sess is None:
+                    return self._json({"error": "спершу відкрий кадр"}, 409)
+                APP.job(lambda: do_warp_apply(d.get("strength", 1.0)))
+                return self._json({"ok": True})
             if u.path == "/api/remove":
                 if APP.sess is None:
                     return self._json({"error": "спершу відкрий кадр"}, 409)
@@ -461,6 +507,31 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"error": "немає такого"}, 404)
         except Exception as e:                               # noqa: BLE001
             return self._json({"error": f"{type(e).__name__}: {e}"}, 500)
+
+    def _warp(self, d: dict) -> dict:
+        """Один мазок пластики. Координати приходять у пікселях КАДРУ."""
+        s = APP.sess
+        if s is None or s.img is None:
+            return {"error": "кадр не відкрито"}
+        f = s.warp_field()
+        if d.get("clear"):
+            f.clear()
+            return {"ok": True, "warp": None}
+        tool = d.get("tool", "push")
+        x, y = float(d.get("x", 0)), float(d.get("y", 0))
+        r = max(4.0, float(d.get("radius", 100)))
+        k = float(d.get("strength", 1.0))
+        if tool == "push":
+            f.push(x, y, r, float(d.get("mx", 0)), float(d.get("my", 0)), k)
+        elif tool == "bloat":
+            f.bloat(x, y, r, -abs(float(d.get("amount", 0.4))), k)
+        elif tool == "pucker":
+            f.bloat(x, y, r, abs(float(d.get("amount", 0.4))), k)
+        elif tool == "twirl":
+            f.twirl(x, y, r, float(d.get("angle", 0.3)), k)
+        else:
+            return {"error": f"невідомий інструмент: {tool}"}
+        return {"ok": True, "warp": f.stats()}
 
     # --- допоміжне ------------------------------------------------------
     def _paint(self, d: dict) -> dict:

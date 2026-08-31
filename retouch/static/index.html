@@ -146,6 +146,7 @@ kbd{background:#232830;border:1px solid var(--line);border-radius:4px;
     <button data-t="crops">1:1</button>
     <button data-t="mask">Маска</button>
     <button data-t="remove">Видалення</button>
+    <button data-t="warp">Пластика</button>
     <button data-t="spots">Плями</button>
     <button data-t="sweep">Калібрування</button>
   </div>
@@ -188,6 +189,7 @@ async function tick(){
     ? `${S.name} · ${S.w}×${S.h} (${S.mp} Мп)<br>маска ${S.skin_source}` +
       (S.skin_frac != null ? ` · ${(S.skin_frac*100).toFixed(0)}%` : '') +
       (S.raw_decoder ? ` · RAW: ${S.raw_decoder}` : '') +
+      (S.warp ? `<span class="tag">пластика ${S.warp.max_px}px</span>` : '') +
       (S.radius ? ` · радіус ${S.radius}px` : '') +
       (S.n_blobs ? ` · ${S.n_blobs} плям` : '') +
       (S.painted ? '<span class="tag">маска правлена</span>' : '')
@@ -221,6 +223,7 @@ function draw(){
   if (tab === 'crops') return drawCrops(p);
   if (tab === 'mask') return drawMask(p);
   if (tab === 'remove') return drawRemove(p);
+  if (tab === 'warp') return drawWarp(p);
   if (tab === 'spots') return drawSpots(p);
   if (tab === 'sweep') return drawSweep(p);
 }
@@ -371,6 +374,81 @@ function drawRemove(p){
   };
   if (S.remove_px) $('#r_info').textContent =
     `${(S.remove_px/1e6).toFixed(2)} Мп, глибина ${S.remove_depth} px`;
+}
+
+/* ---------- пластика ---------- */
+let wtool = 'push';
+function drawWarp(p){
+  const st = S.warp;
+  p.innerHTML = `<div class="hint">Форма правиться ПЕРЕД шкірою: спершу
+    геометрія, потім текстура. Тягни мишею по кадру; «роздути», «стягнути» і
+    «закрутити» працюють одним кліком.<br>
+    Показано зменшену копію — так деформація видно одразу. Повний кадр
+    перераховується кнопкою «Застосувати».</div>
+    <div class="row" style="margin-bottom:8px">
+      <button id="w_push" class="pri">Тягнути</button>
+      <button id="w_bloat">Роздути</button>
+      <button id="w_pucker">Стягнути</button>
+      <button id="w_twirl">Закрутити</button>
+    </div>
+    <div class="row"><label>пензель</label>
+      <input type="range" id="w_r" min="40" max="900" step="10" value="260">
+      <span class="val" id="w_r_v">260</span></div>
+    <div class="row"><label>сила мазка</label>
+      <input type="range" id="w_k" min="0.1" max="1" step="0.05" value="0.6">
+      <span class="val" id="w_k_v">0.6</span></div>
+    <div class="row"><label>сила поля</label>
+      <input type="range" id="w_g" min="0" max="1" step="0.05" value="1">
+      <span class="val" id="w_g_v">1</span></div>
+    <div class="row">
+      <button id="w_apply" class="pri">Застосувати до кадру</button>
+      <button id="w_clear">Скинути поле</button>
+      <span id="w_info" class="hint" style="margin:0">${st
+        ? `макс ${st.max_px}px · поле ${st.field[0]}x${st.field[1]} · ${st.mb} МБ`
+        : 'поле порожнє'}</span>
+    </div>
+    <div id="stage"><div class="holder">
+      <img id="nav" src="/api/warp/preview?strength=1${bust()}"></div></div>`;
+
+  for (const k of ['w_r','w_k','w_g'])
+    $('#'+k).oninput = e => { $('#'+k+'_v').textContent = e.target.value;
+                              if (k === 'w_g') refresh(); };
+  const tools = {w_push:'push', w_bloat:'bloat', w_pucker:'pucker', w_twirl:'twirl'};
+  for (const [id, t] of Object.entries(tools)) $('#'+id).onclick = () => {
+    wtool = t;
+    Object.keys(tools).forEach(x => $('#'+x).classList.toggle('pri', x === id));
+  };
+
+  const img = $('#nav');
+  const refresh = () => { img.src = `/api/warp/preview?strength=${$('#w_g').value}${bust()}`; };
+  const info = w => $('#w_info').textContent = w
+    ? `макс ${w.max_px}px · поле ${w.field[0]}x${w.field[1]} · ${w.mb} МБ`
+    : 'поле порожнє';
+  const toFrame = e => { const r = img.getBoundingClientRect();
+    if (r.width < 2) return null;
+    return [(e.clientX - r.left) / r.width * S.w, (e.clientY - r.top) / r.height * S.h]; };
+
+  let from = null;
+  const hold = $('.holder');
+  hold.onpointerdown = e => { from = toFrame(e); if (from) hold.setPointerCapture(e.pointerId); };
+  hold.onpointerup = async e => {
+    const to = toFrame(e); if (!from || !to) { from = null; return; }
+    const body = {tool: wtool, x: from[0], y: from[1],
+                  radius: +$('#w_r').value, strength: +$('#w_k').value};
+    if (wtool === 'push'){ body.mx = to[0] - from[0]; body.my = to[1] - from[1];
+      if (Math.hypot(body.mx, body.my) < 2){ from = null; return; } }
+    from = null;
+    const r = await post('/api/warp', body);
+    if (r.error) return alert(r.error);
+    info(r.warp); refresh();
+  };
+  $('#w_clear').onclick = async () => {
+    const r = await post('/api/warp', {clear: true}); info(r.warp); refresh(); tick();
+  };
+  $('#w_apply').onclick = async () => {
+    await post('/api/warp/apply', {strength: +$('#w_g').value});
+    await tick(); waitDone();
+  };
 }
 
 /* ---------- плями ---------- */
