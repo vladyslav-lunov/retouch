@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .blemish import DetectParams
 from .imageio import RAW_SUFFIXES, InputError
+from . import batch as batch_mod
 from . import presets as presets_mod
 from .masks import MaskParams
 from .pipeline import Config, MaskSanityError, detect_only, run
@@ -129,6 +130,11 @@ def main(argv: list[str] | None = None) -> int:
                     help="скинути всі проміжні шари")
     ap.add_argument("--dry-run", action="store_true",
                     help="лише порахувати дефекти, нічого не писати")
+    ap.add_argument("--batch", action="store_true",
+                    help="пакетний режим: збій на кадрі не зупиняє решту, "
+                         "оброблене пропускається, поруч шукається IMG.yaml")
+    ap.add_argument("--no-resume", action="store_true",
+                    help="у пакетному режимі обробляти й те, що вже зроблено")
 
     a = ap.parse_args(argv)
     if a.schema:
@@ -158,6 +164,22 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print("нічого обробляти", file=sys.stderr)
         return 1
+
+    if a.batch:
+        def show(item, rep):
+            n = len(rep.items)
+            mark = {"done": "ок", "skipped": "проп.", "failed": "ЗБІЙ"}[item.status]
+            extra = f"  [{item.preset}]" if item.preset else ""
+            print(f"[{n}] {item.path.name}: {mark} {item.seconds:.1f}s"
+                  f"{extra}{'  ' + item.note if item.note else ''}", flush=True)
+
+        base = presets_mod.merge(*[presets_mod.load(p) for p in (a.preset or [])])
+        rep = batch_mod.process(
+            src, a.out, base_preset=base, cfg_factory=lambda: build_config(a),
+            resume=not a.no_resume, preview=a.preview, debug=a.debug,
+            on_item=show)
+        print("\n" + rep.text())
+        return 1 if rep.failed else 0
 
     for f in files:
         print(f"\n=== {f.name} ===")

@@ -18,6 +18,7 @@ python3 -m retouch.cli --schema             # схема пресету для �
 python3 scripts/brief.py IMG.CR3 -o brief   # досьє на кадр ДЛЯ агента
 python3 scripts/variants.py IMG.tif presets/*.yaml -o var   # порівняти пресети
 python3 -m retouch.cli IMG.tif --preset p.yaml --preset frame.yaml
+python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml   # ніч
 ```
 
 `--preview` кладе поруч із шарами один PNG: загальний план плюс кропи
