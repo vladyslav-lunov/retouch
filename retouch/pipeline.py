@@ -18,6 +18,7 @@ from . import imageio, layers as layers_mod
 from .blemish import DetectParams, detect_blemishes, heal_blemishes
 from .freqsep import freq_merge, freq_split, radius_for
 from .masks import MaskParams, build_skin_mask
+from .warp import Field, WarpParams
 
 
 class MaskSanityError(Exception):
@@ -78,6 +79,9 @@ class Config:
 
     raw_decoder: str | None = None
     """Примусовий декодер RAW: "rawpy" або "imageio". None = як вийде."""
+
+    warp: WarpParams = field(default_factory=WarpParams)
+    """Пластика. Саме поле живе в Session, тут лише як його застосовувати."""
 
     detect: DetectParams = field(default_factory=DetectParams)
     mask: MaskParams = field(default_factory=MaskParams)
@@ -232,11 +236,15 @@ class Session:
         self.high2 = self.coverage = self.result = None
         self.remove_cov = self.remove_base = None
         self.telea_warn = None
+        self.img_src = None
+        self._field = None
 
     # --- етапи ---------------------------------------------------------
     def load(self, sink=None) -> "Session":
         s = Stage("read", sink)
         self.img, self.dtype = imageio.read(self.path, self.cfg.raw_decoder)
+        # оригінал тримаємо окремо: пластика завжди деформує ЙОГО
+        self.img_src = self.img
         self.raw_decoder = imageio.last_raw_decoder
         h, w = self.img.shape[:2]
         s.done(f"{w}x{h} {self.dtype}"
@@ -252,6 +260,44 @@ class Session:
             self.warn = check_skin_mask(frac, self.cfg, self.skin_source)
         else:
             self.skin, self.skin_source, self.warn = None, "off", None
+        return self
+
+    def warp_field(self) -> Field:
+        """Поле зміщення цього кадру, створюється на першу вимогу."""
+        if self._field is None:
+            self._field = Field(self.img.shape[:2], self.cfg.warp.scale)
+        return self._field
+
+    def apply_warp(self, sink=None) -> "Session":
+        """Деформувати кадр і скинути все, що з нього росло.
+
+        Пластика йде ПЕРЕД лікуванням шкіри: спершу форма, потім текстура.
+        Інакше ретуш робилася б по пікселях, які деформація потім
+        пересемплить, а шар корекції з'їхав би відносно бази.
+
+        Деформуємо ЗАВЖДИ від оригіналу (img_src), а не від попереднього
+        результату: інакше кожне ворушіння повзунка сили накладало б
+        ресемпл на ресемпл і кадр повільно мився б.
+        """
+        f = self._field
+        if f is None or not f.touched:
+            self.img = self.img_src
+        else:
+            s = Stage("warp", sink)
+            self.img = f.apply(self.img_src, self.cfg.warp)
+            st = f.stats()
+            s.done(f"макс {st['max_px']}px, поле {st['field'][0]}x{st['field'][1]}")
+        # усе нижче по конвеєру рахувалося по старій геометрії
+        self.low = self.high = None
+        self.labels, self.blobs = None, []
+        self.high2 = self.coverage = self.result = None
+        self.remove_cov = self.remove_base = None
+        if self.cfg.use_skin_mask:
+            self.skin, self.skin_source = build_skin_mask(
+                self.img, self.cfg.face_model, self.cfg.mask)
+            self.skin_auto = self.skin.copy()
+            self.warn = check_skin_mask(float(self.skin.mean()), self.cfg,
+                                        self.skin_source)
         return self
 
     def set_skin_mask(self, mask) -> None:
@@ -321,10 +367,13 @@ class Session:
 
     def layers(self) -> dict:
         out: dict[str, tuple] = {}
-        healed = getattr(self, "remove_base", self.result)
+        # База для шару шкіри — кадр ДО видалення об'єктів, якщо воно було.
+        # getattr із дефолтом тут не годиться: атрибут існує і дорівнює
+        # None, тож дефолт не спрацьовує і в extract_layer їде None.
+        healed = self.remove_base if self.remove_base is not None else self.result
         if self.coverage is not None and self.coverage.max() > 0:
             out["skin"] = layers_mod.extract_layer(self.img, healed, self.coverage)
-        rc = getattr(self, "remove_cov", None)
+        rc = self.remove_cov
         if rc is not None and rc.max() > 0:
             out["remove"] = layers_mod.extract_layer(healed, self.result, rc)
         return out
@@ -332,9 +381,17 @@ class Session:
     def write(self, out_dir, sink=None) -> list[Path]:
         s = Stage("write", sink)
         masks = {"skin": self.skin} if self.skin is not None else {}
+        # База — кадр ПІСЛЯ пластики, а не вихідний файл. Інакше
+        # base*(1-a) + layer*a не зійдеться: лікування рахувалося вже по
+        # деформованій геометрії. Оригінал нікуди не дівається — він
+        # лишається у вхідному файлі, а як саме його зігнуто, записано
+        # окремо полем зміщення.
         written = layers_mod.write_stack(out_dir, self.path.stem, self.img,
                                          self.layers(), self.result,
                                          self.dtype, masks)
+        if self._field is not None and self._field.touched:
+            written.append(self._field.save(
+                Path(out_dir) / f"{self.path.stem}_warp.png"))
         s.done(f"{len(written)} файлів")
         return written
 
