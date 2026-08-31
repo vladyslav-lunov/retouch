@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+out/
+models/*.onnx
+models/*.pt
+*.tif
+*.tiff
+!tests/fixtures/*
+.DS_Store
+config.yaml

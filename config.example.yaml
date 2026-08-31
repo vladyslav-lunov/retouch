@@ -1,0 +1,25 @@
+# Копія: cp config.example.yaml config.yaml
+# Запуск: python3 -m retouch.cli p.tif --config config.yaml
+
+hf_radius: null          # null = вивести з ширини обличчя
+search_radius: 90
+strength: 1.0
+limit: null              # null = усі плями
+use_skin_mask: true
+
+face_model: models/face_parsing.onnx
+lama_model: models/lama.onnx
+
+detect:
+  scales: [1.5, 3.0, 6.0]
+  threshold: 0.012       # див. таблицю калібрування в spec.md §6.2
+  min_area: 8
+  max_area: 1200
+  max_elongation: 6.0
+  darks: true
+  lights: false
+
+mask:
+  erode: 6
+  feather: 4.0
+  exclude_dilate: 5

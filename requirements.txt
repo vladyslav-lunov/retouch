@@ -1,0 +1,6 @@
+numpy>=1.24,<3
+opencv-python-headless>=4.8
+PyYAML>=6.0
+
+# опційно, для ONNX-моделей:
+# onnxruntime>=1.16
