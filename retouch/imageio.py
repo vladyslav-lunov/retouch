@@ -13,13 +13,51 @@ import numpy as np
 
 _MAXV = {np.dtype("uint8"): 255.0, np.dtype("uint16"): 65535.0}
 
+# Список RAW живе в rawread.py разом із декодерами; тут лише реекспорт,
+# щоб решта коду не знала, звідки він.
+from .rawread import RAW_SUFFIXES, decoders, read_raw  # noqa: E402,F401
 
-def read(path: str | Path) -> tuple[np.ndarray, np.dtype]:
-    """Повертає (float32 BGR [0..1], оригінальний dtype)."""
-    path = str(path)
-    img = cv2.imread(path, cv2.IMREAD_UNCHANGED | cv2.IMREAD_ANYDEPTH | cv2.IMREAD_COLOR)
+# Який декодер спрацював на останньому читанні — щоб конвеєр міг це
+# показати. Поріг детекції залежить від декодера (див. spec.md §4), тож
+# мовчати про вибір не можна.
+last_raw_decoder: str | None = None
+
+
+class InputError(Exception):
+    """Вхідний файл не підходить. Окремий тип, щоб CLI показав повідомлення,
+    а не трасування: це помилка користувача, а не збій програми."""
+
+
+def read(path: str | Path, raw_decoder: str | None = None
+         ) -> tuple[np.ndarray, np.dtype]:
+    """Повертає (float32 BGR [0..1], оригінальний dtype).
+
+    raw_decoder — примусово "rawpy" або "imageio"; None = як вийде."""
+    p = Path(path)
+    if not p.exists():
+        raise InputError(f"файлу немає: {p}")
+    global last_raw_decoder
+    last_raw_decoder = None
+
+    if p.suffix.lower() in RAW_SUFFIXES:
+        # RAW іде повз OpenCV: він таких не знає. Демозаїк чужий — свій
+        # ми не пишемо (spec.md §4), беремо libraw або ImageIO.
+        try:
+            rgb, last_raw_decoder = read_raw(p, prefer=raw_decoder)
+        except Exception as e:                       # noqa: BLE001
+            raise InputError(f"{p.name}: {e}") from None
+        bgr = np.ascontiguousarray(rgb[:, :, ::-1])
+        return bgr.astype(np.float32) / 65535.0, np.dtype("uint16")
+
+    # Раніше тут стояло UNCHANGED|ANYDEPTH|COLOR. Це вводило в оману:
+    # UNCHANGED == -1, а -1 побітово АБО з будь-чим лишається -1, тож
+    # решта прапорців не робила нічого. Лишаємо один: беремо як є, з
+    # рідною розрядністю — саме це й потрібно (spec.md §4).
+    img = cv2.imread(str(p), cv2.IMREAD_UNCHANGED)
     if img is None:
-        raise FileNotFoundError(f"не читається: {path}")
+        raise InputError(
+            f"не вдалося декодувати: {p}\n"
+            f"OpenCV не впізнав формат. Очікується TIFF/PNG/JPEG або RAW.")
     if img.ndim == 2:
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     if img.shape[2] == 4:
@@ -51,7 +89,7 @@ def read_mask(path: str | Path, shape: tuple[int, int]) -> np.ndarray:
     """Читає маску (біла = обробляти) і підганяє під розмір кадру."""
     m = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
     if m is None:
-        raise FileNotFoundError(f"маска не читається: {path}")
+        raise InputError(f"маска не читається: {path}")
     if m.shape[:2] != shape:
         m = cv2.resize(m, (shape[1], shape[0]), interpolation=cv2.INTER_NEAREST)
     return (m > 127).astype(np.uint8)
