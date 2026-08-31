@@ -24,6 +24,7 @@ _OVERRIDES = (
     ("limit", "cfg", "limit"),
     ("search_radius", "cfg", "search_radius"),
     ("face_model", "cfg", "face_model"),
+    ("face_detector", "cfg", "face_detector"),
     ("raw_decoder", "cfg", "raw_decoder"),
     ("lama_model", "cfg", "lama_model"),
     ("threshold", "detect", "threshold"),
@@ -107,6 +108,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="чим читати RAW; типово rawpy, якщо є, інакше ImageIO. "
                          "Поріг детекції від цього залежить — див. spec.md §4")
     ap.add_argument("--face-model", default=None, help="ONNX face-parsing")
+    ap.add_argument("--face-detector", default=None,
+                    help="ONNX YuNet: кроп голови перед face-parsing")
     ap.add_argument("--lama-model", default=None, help="ONNX LaMa")
     ap.add_argument("--preview", action="store_true",
                     help="оглядовий аркуш PNG: загальний план + кропи 1:1")

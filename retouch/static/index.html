@@ -122,6 +122,10 @@ kbd{background:#232830;border:1px solid var(--line);border-radius:4px;
   <div class="row"><label>ерозія маски</label>
     <input type="range" id="mask_erode" min="0" max="24" step="1" value="6">
     <span class="val" id="mask_erode_v">6</span></div>
+  <div class="row"><label>face-parsing</label>
+    <input type="text" id="face_model" placeholder="models/resnet18.onnx"></div>
+  <div class="row"><label>детектор</label>
+    <input type="text" id="face_detector" placeholder="models/yunet.onnx"></div>
   <div class="row"><label>RAW через</label>
     <select id="raw_decoder" style="flex:1;background:#12141a;border:1px solid var(--line);
       border-radius:5px;padding:5px 7px">
@@ -161,7 +165,8 @@ const api = async (u, o) => (await fetch(u, o)).json();
 const post = (u, b) => api(u, {method:'POST', headers:{'Content-Type':'application/json'},
                                body: JSON.stringify(b||{})});
 const PARAMS = ['threshold','radius','min_area','max_area','max_elongation',
-                'strength','search_radius','limit','mask_erode','raw_decoder'];
+                'strength','search_radius','limit','mask_erode','raw_decoder',
+                'face_model','face_detector'];
 let S = {}, tab = 'view', keep = null, cropAt = null, painting = false, brush = 'add';
 
 function params(){
@@ -280,6 +285,23 @@ function showCrops(){
 }
 
 /* ---------- маска ---------- */
+function classPanel(){
+  if (!S.has_cls) return `<div class="hint">Класів немає — маска евристична.
+    Вкажи face-parsing зліва, щоб керувати нею по класах.</div>`;
+  const on = new Set(S.skin_classes || []);
+  return `<div class="hint">Що вважати шкірою. Модель дає класи — рішення твоє:
+    ланцюжок на грудях лежить у <b>neck</b> і законно вважається шкірою,
+    але ретушувати його не треба.</div>
+    <div class="row" style="flex-wrap:wrap;gap:6px 14px">` +
+    (S.classes || []).map(c => `<label style="flex:0 0 auto;color:var(--ink);
+      display:flex;gap:5px;align-items:center">
+      <input type="checkbox" class="cls" value="${c.name}" ${on.has(c.name)?'checked':''}>
+      ${c.name} <span style="color:var(--dim)">${(c.frac*100).toFixed(1)}%</span>
+      </label>`).join('') +
+    `<button id="cls_apply" class="pri">Застосувати</button>
+     <span id="cls_info" class="hint" style="margin:0"></span></div>`;
+}
+
 function drawMask(p){
   p.innerHTML = `<div class="hint">Малюй по кадру: <b>червоне</b> — додати шкіру,
     <b>синє</b> — прибрати. Правки лягають поверх автоматичної маски й
@@ -292,9 +314,18 @@ function drawMask(p){
       <button id="b_apply" class="pri">Застосувати</button>
       <button id="b_clear">Скинути правки</button>
     </div>
+    ${classPanel()}
     <div id="stage"><div class="holder">
       <img id="nav" src="/api/view?kind=before&w=760${bust()}">
       <canvas id="paint"></canvas></div></div>`;
+  const ap = $('#cls_apply');
+  if (ap) ap.onclick = async () => {
+    const sel = [...document.querySelectorAll('.cls:checked')].map(x => x.value);
+    const r = await post('/api/classes', {skin_classes: sel});
+    if (r.error) return alert(r.error);
+    $('#cls_info').textContent = `маска ${(r.skin_frac*100).toFixed(1)}% — тепер «Перегнати»`;
+    tick();
+  };
   const img = $('#nav'), cv = $('#paint');
   img.onload = () => { cv.width = img.naturalWidth; cv.height = img.naturalHeight; };
   if (img.complete) img.onload();

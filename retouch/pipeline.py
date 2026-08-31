@@ -89,6 +89,9 @@ class Config:
     strength: float = 1.0
     limit: int | None = None
     face_model: str | None = None
+    face_detector: str | None = None
+    """YuNet для кропа голови перед face-parsing. Без нього повний кадр
+    моделі не по зубах — див. masks.FaceParser.parse."""
     lama_model: str | None = None
     use_skin_mask: bool = True
 
@@ -238,6 +241,7 @@ class Session:
         self.telea_warn = None
         self.img_src = None
         self._field = None
+        self.cls = None
 
     # --- етапи ---------------------------------------------------------
     def load(self, sink=None) -> "Session":
@@ -252,8 +256,7 @@ class Session:
 
         if self.cfg.use_skin_mask:
             s = Stage("skin-mask", sink)
-            self.skin, self.skin_source = build_skin_mask(
-                self.img, self.cfg.face_model, self.cfg.mask)
+            self.skin, self.skin_source = self._build_mask()
             self.skin_auto = self.skin.copy()
             frac = float(self.skin.mean())
             s.done(f"джерело={self.skin_source} покриття={frac:.1%}")
@@ -261,6 +264,54 @@ class Session:
         else:
             self.skin, self.skin_source, self.warn = None, "off", None
         return self
+
+    def _build_mask(self):
+        """Маска + запам'ятана карта класів.
+
+        Карту класів тримаємо, бо вона НЕ залежить від того, що ми потім
+        назвемо шкірою. UI дає перебирати набори класів мишею, і ганяти
+        заради кожної галочки модель по 4 секунди безглуздо.
+        """
+        from .masks import FaceParser, heuristic_skin_mask, mask_from_classes
+        mp = self.cfg.face_model
+        if mp and Path(mp).exists():
+            try:
+                det = (str(self.cfg.face_detector)
+                       if self.cfg.face_detector and Path(self.cfg.face_detector).exists()
+                       else None)
+                self.cls = FaceParser(mp).parse(self.img, det)
+                return (mask_from_classes(self.cls, self.cfg.mask),
+                        "face-parsing" + ("+yunet" if det else ""))
+            except Exception as exc:                      # noqa: BLE001
+                print(f"[masks] face-parsing не спрацював ({exc}), беру евристику")
+        self.cls = None
+        return heuristic_skin_mask(self.img, self.cfg.mask), "heuristic"
+
+    def remask(self) -> bool:
+        """Перебрати маску з наявної карти класів, без запуску моделі.
+        Повертає False, якщо карти немає (евристика) — тоді треба load()."""
+        if self.cls is None:
+            return False
+        from .masks import mask_from_classes
+        self.skin_auto = mask_from_classes(self.cls, self.cfg.mask)
+        self.skin = self.skin_auto.copy()
+        self.warn = check_skin_mask(float(self.skin.mean()), self.cfg,
+                                    self.skin_source)
+        self.labels, self.blobs = None, []
+        self.high2 = self.coverage = self.result = None
+        return True
+
+    def class_stats(self) -> list[dict]:
+        """Частка кадру по кожному класу — щоб UI показав, що взагалі є."""
+        from .masks import CELEBA_CLASSES
+        if self.cls is None:
+            return []
+        out = []
+        for idx, name in CELEBA_CLASSES.items():
+            frac = float((self.cls == idx).mean())
+            if frac > 1e-5:
+                out.append({"name": name, "frac": round(frac, 5)})
+        return sorted(out, key=lambda r: -r["frac"])
 
     def warp_field(self) -> Field:
         """Поле зміщення цього кадру, створюється на першу вимогу."""
@@ -294,7 +345,8 @@ class Session:
         self.remove_cov = self.remove_base = None
         if self.cfg.use_skin_mask:
             self.skin, self.skin_source = build_skin_mask(
-                self.img, self.cfg.face_model, self.cfg.mask)
+                self.img, self.cfg.face_model, self.cfg.mask,
+                self.cfg.face_detector)
             self.skin_auto = self.skin.copy()
             self.warn = check_skin_mask(float(self.skin.mean()), self.cfg,
                                         self.skin_source)
@@ -327,6 +379,13 @@ class Session:
         Фільтруємо СПИСОК плям, а не labels: labels лишаються повними, щоб
         пошук донора й далі обходив усі дефекти, а не лише вибрані.
         """
+        if self.labels is None or self.high is None:
+            # Найчастіше сюди приходять після зміни маски: remask() свідомо
+            # скидає детекцію, бо вона рахувалася по іншій масці. Лікувати
+            # за старими мітками не можна — вони показують на плями, яких у
+            # новій масці вже немає.
+            raise RuntimeError("немає детекції — спершу analyze() "
+                               "(у UI це «Перегнати»)")
         todo = self.blobs
         if keep_ids is not None:
             ids = set(keep_ids)
@@ -405,7 +464,8 @@ def detect_only(image_path: str | Path, cfg: Config | None = None) -> dict:
     cfg = cfg or Config()
     img, _ = imageio.read(image_path, cfg.raw_decoder)
     if cfg.use_skin_mask:
-        skin, source = build_skin_mask(img, cfg.face_model, cfg.mask)
+        skin, source = build_skin_mask(img, cfg.face_model, cfg.mask,
+                                       cfg.face_detector)
     else:
         skin, source = None, "off"
     warn = None if skin is None else check_skin_mask(float(skin.mean()), cfg, source)

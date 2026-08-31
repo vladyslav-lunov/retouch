@@ -51,24 +51,44 @@ class LamaInpainter:
         import onnxruntime as ort
         self.sess = ort.InferenceSession(
             str(model_path), providers=providers or ["CPUExecutionProvider"])
-        names = [i.name for i in self.sess.get_inputs()]
-        if len(names) != 2:
-            raise ValueError(f"очікував 2 входи, модель дає {names}")
-        self.img_name, self.mask_name = names
+        ins = self.sess.get_inputs()
+        if len(ins) != 2:
+            raise ValueError(f"очікував 2 входи, модель дає {[i.name for i in ins]}")
+        self.img_name, self.mask_name = ins[0].name, ins[1].name
+        # Розмір беремо з САМОЇ моделі. Готові експорти LaMa бувають із
+        # намертво зашитими 512x512 (Carve/LaMa-ONNX саме такий), і тоді
+        # доповнення до кратного восьми не рятує — треба точний розмір.
+        shape = ins[0].shape
+        hw = shape[2:4] if len(shape) == 4 else []
+        self.fixed = (tuple(int(v) for v in hw)
+                      if len(hw) == 2 and all(isinstance(v, int) for v in hw)
+                      else None)
 
     def _run(self, rgb: np.ndarray, mask: np.ndarray, pad_to: int) -> np.ndarray:
         h, w = rgb.shape[:2]
-        ph, pw = (-h) % pad_to, (-w) % pad_to
-        if ph or pw:
-            rgb = cv2.copyMakeBorder(rgb, 0, ph, 0, pw, cv2.BORDER_REFLECT)
-            mask = cv2.copyMakeBorder(mask, 0, ph, 0, pw, cv2.BORDER_CONSTANT, value=0)
+        if self.fixed:
+            # Модель приймає рівно один розмір: тягнемо кроп до нього і
+            # повертаємо назад. Маску масштабуємо NEAREST — півтони в
+            # ній не мають сенсу, дірка або є, або її немає.
+            fh, fw = self.fixed
+            src = cv2.resize(rgb, (fw, fh), interpolation=cv2.INTER_AREA)
+            smask = cv2.resize(mask, (fw, fh), interpolation=cv2.INTER_NEAREST)
+        else:
+            ph, pw = (-h) % pad_to, (-w) % pad_to
+            src, smask = rgb, mask
+            if ph or pw:
+                src = cv2.copyMakeBorder(src, 0, ph, 0, pw, cv2.BORDER_REFLECT)
+                smask = cv2.copyMakeBorder(smask, 0, ph, 0, pw,
+                                           cv2.BORDER_CONSTANT, value=0)
 
-        x = rgb.transpose(2, 0, 1)[None].astype(np.float32)
-        m = mask[None, None].astype(np.float32)
+        x = src.transpose(2, 0, 1)[None].astype(np.float32)
+        m = smask[None, None].astype(np.float32)
         out = self.sess.run(None, {self.img_name: x, self.mask_name: m})[0]
         out = out[0].transpose(1, 2, 0)
         if out.max() > 1.5:  # модель віддає 0..255
             out = out / 255.0
+        if self.fixed:
+            out = cv2.resize(out, (w, h), interpolation=cv2.INTER_CUBIC)
         return np.clip(out[:h, :w], 0, 1)
 
 

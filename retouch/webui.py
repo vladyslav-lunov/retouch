@@ -103,6 +103,9 @@ class App:
             "telea_warn": getattr(s, "telea_warn", None),
             "warp": (s._field.stats() if s._field is not None and s._field.touched
                      else None),
+            "classes": s.class_stats(),
+            "skin_classes": list(s.cfg.mask.skin_classes),
+            "has_cls": s.cls is not None,
             "keep": (None if self.keep_ids is None else sorted(self.keep_ids)),
             "params": {
                 "threshold": s.cfg.detect.threshold, "radius": s.cfg.hf_radius,
@@ -165,11 +168,14 @@ def cfg_from(d: dict) -> Config:
         hf_radius=num("radius", float, None),
         detect=detect,
         mask=MaskParams(erode=num("mask_erode", int, mp.erode),
-                        feather=mp.feather, exclude_dilate=mp.exclude_dilate),
+                        feather=mp.feather, exclude_dilate=mp.exclude_dilate,
+                        skin_classes=tuple(d.get("skin_classes") or mp.skin_classes),
+                        exclude_classes=mp.exclude_classes),
         search_radius=num("search_radius", int, Config().search_radius),
         strength=num("strength", float, Config().strength),
         limit=num("limit", int, None),
         face_model=d.get("face_model") or None,
+        face_detector=d.get("face_detector") or None,
         lama_model=d.get("lama_model") or None,
         use_skin_mask=bool(d.get("use_skin_mask", True)),
         raw_decoder=(d.get("raw_decoder") or None),
@@ -486,6 +492,23 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"ok": True})
             if u.path == "/api/paint":
                 return self._json(self._paint(d))
+            if u.path == "/api/classes":
+                # перебір набору класів: карта класів уже є, модель не потрібна
+                s = APP.sess
+                if s is None:
+                    return self._json({"error": "спершу відкрий кадр"}, 409)
+                from .masks import MaskParams as MP
+                m = s.cfg.mask
+                s.cfg.mask = MP(erode=m.erode, feather=m.feather,
+                                exclude_dilate=m.exclude_dilate,
+                                skin_classes=tuple(d.get("skin_classes") or ()),
+                                exclude_classes=m.exclude_classes)
+                if not s.remask():
+                    return self._json({"error": "карти класів немає — "
+                                       "це евристична маска, не модель"}, 409)
+                APP.painted = None
+                return self._json({"ok": True,
+                                   "skin_frac": round(float(s.skin.mean()), 4)})
             if u.path == "/api/warp":
                 return self._json(self._warp(d))
             if u.path == "/api/warp/apply":
