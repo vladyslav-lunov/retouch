@@ -9,6 +9,7 @@ python3 tests/test_blemish.py          # тести ядра, мають бут�
 python3 tests/test_inpaint.py          # тести видалення об'єктів
 python3 tests/test_warp.py             # тести пластики
 python3 tests/test_pipeline.py         # наскрізні: файл -> шари на диску
+python3 tests/test_presets.py          # пресети: часткові, накладаються, з описами
 python3 -m retouch.cli IMG.tif -o out --debug
 python3 -m retouch.cli IMG.tif --dry-run    # лише порахувати дефекти
 python3 scripts/bench.py --mp 24            # бюджет часу й пам'яті, spec.md §9
@@ -16,6 +17,8 @@ python3 scripts/make_fixture.py -o fixtures # макет портрета для
 python3 scripts/check_face_model.py M.onnx IMG.tif   # перевірити ваги ДО довіри
 python3 -m retouch.cli fixtures/PORTRAIT.tif -o out --preview
 python3 -m retouch.webui                    # локальний UI, порт 8765
+python3 -m retouch.cli --schema             # схема пресету для агента
+python3 -m retouch.cli IMG.tif --preset p.yaml --preset frame.yaml
 ```
 
 `--preview` кладе поруч із шарами один PNG: загальний план плюс кропи
@@ -100,6 +103,9 @@ cp313 сумісних колес НЕМАЄ ЖОДНОГО. Тобто на Pyt
   безпідставне: поріг міряється поверх маски;
 - face-parsing вимагає КРОПА ГОЛОВИ — на повний кадр його не подавати
   (spec.md §15.1). Кроп робить YuNet усередині build_skin_mask;
+- нове поле в дата-класі — це нове поле в схемі пресету.Описувати
+  ОБОВ'ЯЗКОВО рядком під полем: агент має розуміти параметр, інакше не
+  обґрунтує його в `why` (spec.md §1.2). Тест це перевіряє;
 - «шкіра» — це рішення фотографа, а не властивість пікселя. Перш ніж
   ускладнювати детектор, спитати, чи не знімається проблема галочкою
   в наборі класів (§15).

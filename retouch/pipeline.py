@@ -86,14 +86,31 @@ class Config:
     detect: DetectParams = field(default_factory=DetectParams)
     mask: MaskParams = field(default_factory=MaskParams)
     search_radius: int = 90
+    """Як далеко від плями шукати донора, px. Відкалібровано під обличчя
+    шириною 1200 px; чи має масштабуватися разом із ним — §13, питання 2."""
+
     strength: float = 1.0
+    """Сила лікування 0..1. Множник альфи дотику, тобто прямий аналог
+    непрозорості шару."""
+
     limit: int | None = None
+    """Лікувати лише N найконтрастніших плям. None = усі. Плями
+    відсортовані за спаданням контрасту, тож це «прибери найпомітніше,
+    решту зроблю руками»."""
     face_model: str | None = None
+    """ONNX face-parsing (BiSeNet). Без нього маска евристична, а на
+    вуличному кадрі це непридатно — див. §5."""
+
     face_detector: str | None = None
     """YuNet для кропа голови перед face-parsing. Без нього повний кадр
     моделі не по зубах — див. masks.FaceParser.parse."""
     lama_model: str | None = None
+    """ONNX LaMa для видалення об'єктів. Без нього запасний Telea, який
+    годиться лише для дрібного (§7)."""
+
     use_skin_mask: bool = True
+    """Обмежувати роботу маскою шкіри. Вимикати лише для тестів: без маски
+    детектор працює по всьому кадру, включно з волоссям і тканиною."""
 
 
 class Stage:

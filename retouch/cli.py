@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .blemish import DetectParams
 from .imageio import RAW_SUFFIXES, InputError
+from . import presets as presets_mod
 from .masks import MaskParams
 from .pipeline import Config, MaskSanityError, detect_only, run
 
@@ -44,6 +45,12 @@ def build_config(a: argparse.Namespace) -> Config:
     дефолт", дефолти прапорців — None, а справжні лишаються в дата-класах.
     """
     cfg = Config()
+    # Пресети йдуть ПЕРЕД yaml і прапорцями: спершу стиль зйомки, потім
+    # уточнення кадру, потім те, що людина набрала руками.
+    for path in (a.preset or []):
+        notes = presets_mod.apply(cfg, presets_mod.load(path))
+        for n in notes:
+            print(f"[preset] {Path(path).name}: {n}", file=sys.stderr)
     if a.config:
         import yaml
         raw = yaml.safe_load(Path(a.config).read_text(encoding="utf-8")) or {}
@@ -74,10 +81,15 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="retouch",
         description="Автоматика шкіри та видалення об'єктів. Вихід — шари.")
-    ap.add_argument("input", help="файл або тека")
+    ap.add_argument("input", nargs="?", help="файл або тека")
     ap.add_argument("-o", "--out", default="out", help="куди писати")
     ap.add_argument("--remove-mask", help="біла маска = що видалити")
     ap.add_argument("--config", help="YAML з параметрами (прапорці мають пріоритет)")
+    ap.add_argument("--preset", action="append", default=None, metavar="FILE",
+                    help="пресет; можна кілька — накладаються зліва направо, "
+                         "прапорці виграють в усіх")
+    ap.add_argument("--schema", action="store_true",
+                    help="вивести схему пресету (для агента) і вийти")
 
     ap.add_argument("--radius", type=float, default=None,
                     help="радіус частотки в px (типово — з ширини обличчя)")
@@ -119,8 +131,18 @@ def main(argv: list[str] | None = None) -> int:
                     help="лише порахувати дефекти, нічого не писати")
 
     a = ap.parse_args(argv)
-    cfg = build_config(a)
+    if a.schema:
+        import json
+        print(json.dumps(presets_mod.schema(), ensure_ascii=False, indent=2))
+        return 0
+    try:
+        cfg = build_config(a)
+    except presets_mod.PresetError as e:
+        print(e, file=sys.stderr)
+        return 1
 
+    if not a.input:
+        ap.error("не вказано вхідний файл або теку")
     src = Path(a.input)
     files = ([p for p in sorted(src.iterdir()) if p.suffix.lower() in SUFFIXES]
              if src.is_dir() else [src])
