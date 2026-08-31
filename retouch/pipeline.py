@@ -19,6 +19,7 @@ from .blemish import DetectParams, detect_blemishes, heal_blemishes
 from .freqsep import freq_merge, freq_split, radius_for
 from .masks import MaskParams, build_skin_mask
 from .develop import DevelopParams, apply_pixels
+from .dodgeburn import DodgeBurnParams, apply as db_apply, coverage as db_cov, gray_map
 from .warp import Field, WarpParams
 
 
@@ -87,6 +88,14 @@ class Config:
     develop: DevelopParams = field(default_factory=DevelopParams)
     """Проявлення: етапи 1-15 конвеєра (spec.md §16). Іде ПЕРШИМ — усе
     подальше рахується по кадру, який людина бачить."""
+
+    dodgeburn: DodgeBurnParams = field(default_factory=DodgeBurnParams)
+    """Вирівнювання низької частоти. Вимкнено, поки strength не задано
+    явно: воно змінює тон і об'єм, а це не те, що робиться мовчки."""
+
+    dodgeburn_on: bool = False
+    """Чи виконувати D&B. Окремим прапорцем, а не «strength > 0», щоб
+    пресет міг задати силу наперед, не вмикаючи етап."""
 
     detect: DetectParams = field(default_factory=DetectParams)
     mask: MaskParams = field(default_factory=MaskParams)
@@ -164,6 +173,8 @@ def run(
               f"через --force-mask", flush=True)
 
     sess.analyze().heal()
+    if cfg.dodgeburn_on:
+        sess.dodge_burn()
 
     img, dtype, skin, source = sess.img, sess.dtype, sess.skin, sess.skin_source
     h, w = img.shape[:2]
@@ -208,6 +219,13 @@ def run(
     masks = {"skin": skin} if skin is not None else {}
     written = layers_mod.write_stack(out_dir, stem, img, out_layers,
                                      result, dtype, masks)
+    # Сіра карта D&B пишеться окремо: це НЕ звичайний шар з альфою, його
+    # треба класти в Soft Light, і режим стоїть у самій назві файлу.
+    # Покласти в Normal — отримати сіру пляму на пів кадру.
+    if sess.db_gray is not None:
+        pg = out_dir / f"{stem}_03_dodgeburn_softlight.png"
+        imageio.write(pg, np.dstack([sess.db_gray] * 3), np.dtype("uint16"))
+        written.append(pg)
     s.done(f"{len(written)} файлів")
 
     if preview:
@@ -265,6 +283,7 @@ class Session:
         self._field = None
         self.cls = None
         self.develop_ignored: list[str] = []
+        self.db_gray = self.db_base = self.db_coverage = None
 
     # --- етапи ---------------------------------------------------------
     def load(self, sink=None) -> "Session":
@@ -480,12 +499,31 @@ class Session:
         s.done(note)
         return self
 
+    def dodge_burn(self, sink=None) -> "Session":
+        """Вирівняти низьку частоту. Іде ПІСЛЯ лікування шкіри.
+
+        Порядок саме такий, бо D&B вирівнює тон, а свіжа пляма — це
+        локальна нерівність тону. Якби D&B ішов першим, він намагався б
+        вирівняти те, що лікування за секунду прибере зовсім, і витратив
+        би на це частину своєї сили.
+        """
+        base = self.result if self.result is not None else self.img
+        s = Stage("dodge-burn", sink)
+        self.db_gray = gray_map(base, self.skin, self.cfg.dodgeburn)
+        self.db_base = base
+        self.db_coverage = db_cov(self.db_gray)
+        self.result = db_apply(base, self.db_gray)
+        s.done(f"сила {self.cfg.dodgeburn.strength}, "
+               f"торкнулися {self.db_coverage.mean():.1%} кадру")
+        return self
+
     def layers(self) -> dict:
         out: dict[str, tuple] = {}
         # База для шару шкіри — кадр ДО видалення об'єктів, якщо воно було.
         # getattr із дефолтом тут не годиться: атрибут існує і дорівнює
         # None, тож дефолт не спрацьовує і в extract_layer їде None.
-        healed = self.remove_base if self.remove_base is not None else self.result
+        healed = (self.db_base if self.db_base is not None else
+                  self.remove_base if self.remove_base is not None else self.result)
         if self.coverage is not None and self.coverage.max() > 0:
             out["skin"] = layers_mod.extract_layer(self.img, healed, self.coverage)
         rc = self.remove_cov
@@ -504,6 +542,13 @@ class Session:
         written = layers_mod.write_stack(out_dir, self.path.stem, self.img,
                                          self.layers(), self.result,
                                          self.dtype, masks)
+        if self.db_gray is not None:
+            # Окремим файлом і з назвою режиму: це НЕ звичайний шар з
+            # альфою, його треба класти в Soft Light. Покласти в
+            # Normal — отримати сіру пляму на пів кадру.
+            p = Path(out_dir) / f"{self.path.stem}_03_dodgeburn_softlight.png"
+            imageio.write(p, np.dstack([self.db_gray] * 3), np.dtype("uint16"))
+            written.append(p)
         if self._field is not None and self._field.touched:
             written.append(self._field.save(
                 Path(out_dir) / f"{self.path.stem}_warp.png"))

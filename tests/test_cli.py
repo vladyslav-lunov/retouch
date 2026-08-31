@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from retouch.blemish import DetectParams  # noqa: E402
-from retouch.cli import build_config  # noqa: E402
+from retouch.cli import build_config, build_parser  # noqa: E402
 from retouch.pipeline import Config  # noqa: E402
 from tests.synth import make_face  # noqa: E402
 
@@ -41,15 +41,16 @@ def _run(*args, expect=0):
 
 
 def _args(**kw):
-    """Namespace як після argparse, з дефолтами None."""
-    import argparse
-    base = dict(config=None, preset=None, radius=None, threshold=None,
-                min_area=None, max_area=None, max_elongation=None, strength=None,
-                limit=None, search_radius=None, mask_erode=None, no_skin_mask=False,
-                force_mask=False, face_model=None, face_detector=None,
-                lama_model=None, raw_decoder=None)
-    base.update(kw)
-    return argparse.Namespace(**base)
+    """Namespace з РЕАЛЬНОГО парсера, а не переписаний тут.
+
+    Перша версія дублювала список полів, і кожен новий прапорець валив
+    тести з єдиної причини — що вони про нього не знали.
+    """
+    ns = build_parser().parse_args([])
+    for k, v in kw.items():
+        assert hasattr(ns, k), f"немає такого прапорця: {k}"
+        setattr(ns, k, v)
+    return ns
 
 
 def _fixture(d: Path) -> Path:

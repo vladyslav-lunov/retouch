@@ -19,6 +19,7 @@ python3 scripts/brief.py IMG.CR3 -o brief   # досьє на кадр ДЛЯ а
 python3 scripts/variants.py IMG.tif presets/*.yaml -o var   # порівняти пресети
 python3 -m retouch.cli IMG.tif --preset p.yaml --preset frame.yaml
 python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml   # ніч
+python3 -m retouch.cli IMG.tif -o out --dodge-burn --db-strength 0.6
 ```
 
 `--preview` кладе поруч із шарами один PNG: загальний план плюс кропи

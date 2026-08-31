@@ -71,6 +71,11 @@ def build_config(a: argparse.Namespace) -> Config:
         if v is not None:
             setattr(targets[where], field, v)
 
+    if a.dodge_burn:
+        cfg.dodgeburn_on = True
+    if a.db_strength is not None:
+        cfg.dodgeburn.strength = a.db_strength
+        cfg.dodgeburn_on = True
     if a.no_skin_mask:
         cfg.use_skin_mask = False
     if a.force_mask:
@@ -78,7 +83,10 @@ def build_config(a: argparse.Namespace) -> Config:
     return cfg
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
+    """Парсер окремо від main(): тести мають брати дефолти звідси, а не
+    дублювати їх у себе. Інакше кожен новий прапорець ламає тести, і
+    ламає з тієї єдиної причини, що вони про нього не знали."""
     ap = argparse.ArgumentParser(
         prog="retouch",
         description="Автоматика шкіри та видалення об'єктів. Вихід — шари.")
@@ -130,12 +138,21 @@ def main(argv: list[str] | None = None) -> int:
                     help="скинути всі проміжні шари")
     ap.add_argument("--dry-run", action="store_true",
                     help="лише порахувати дефекти, нічого не писати")
+    ap.add_argument("--dodge-burn", action="store_true",
+                    help="вирівняти низьку частоту (D&B), spec.md §11 v0.5")
+    ap.add_argument("--db-strength", type=float, default=None,
+                    help="сила D&B 0..1")
     ap.add_argument("--batch", action="store_true",
                     help="пакетний режим: збій на кадрі не зупиняє решту, "
                          "оброблене пропускається, поруч шукається IMG.yaml")
     ap.add_argument("--no-resume", action="store_true",
                     help="у пакетному режимі обробляти й те, що вже зроблено")
 
+    return ap
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = build_parser()
     a = ap.parse_args(argv)
     if a.schema:
         import json

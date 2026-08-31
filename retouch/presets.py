@@ -35,6 +35,7 @@ SECTIONS = {
     "develop": "develop",
     "detect": "detect",
     "mask": "mask",
+    "dodgeburn": "dodgeburn",
     "warp": "warp",
 }
 
@@ -198,6 +199,7 @@ def schema() -> dict:
     """
     from .blemish import DetectParams
     from .develop import DevelopParams
+    from .dodgeburn import DodgeBurnParams
     from .masks import CELEBA_CLASSES, MaskParams
     from .pipeline import Config
     from .warp import WarpParams
@@ -221,6 +223,7 @@ def schema() -> dict:
         "sections": {
             "develop": _describe(DevelopParams),
             "detect": _describe(DetectParams),
+            "dodgeburn": _describe(DodgeBurnParams),
             "mask": _describe(MaskParams),
             "warp": _describe(WarpParams),
             "(top-level)": cfg_fields,
