@@ -16,11 +16,11 @@ python3 -c "import cv2, numpy, rawpy, onnxruntime; print('стек на місц
 ## 0. Тести — спершу вони
 
 ```bash
-python3 tests/test_blemish.py && python3 tests/test_inpaint.py && \
-python3 tests/test_warp.py && python3 tests/test_pipeline.py
+python3 tests/run_all.py
 ```
 
-Чотири рази «усе зелене». Якщо ні — далі йти немає сенсу.
+Тринадцять наборів, 95 тестів, близько хвилини. Якщо не «усе зелене» —
+далі йти немає сенсу.
 
 ---
 

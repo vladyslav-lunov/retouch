@@ -5,11 +5,8 @@
 ## Запуск
 
 ```bash
-python3 tests/test_blemish.py          # тести ядра, мають бути зелені
-python3 tests/test_inpaint.py          # тести видалення об'єктів
-python3 tests/test_warp.py             # тести пластики
-python3 tests/test_pipeline.py         # наскрізні: файл -> шари на диску
-python3 tests/test_presets.py          # пресети: часткові, накладаються, з описами
+python3 tests/run_all.py               # усі набори, мають бути зелені
+python3 tests/test_blemish.py          # окремий набір, якщо треба швидко
 python3 -m retouch.cli IMG.tif -o out --debug
 python3 -m retouch.cli IMG.tif --dry-run    # лише порахувати дефекти
 python3 scripts/bench.py --mp 24            # бюджет часу й пам'яті, spec.md §9
