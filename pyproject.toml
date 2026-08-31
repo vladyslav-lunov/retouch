@@ -1,0 +1,37 @@
+# Пакування. Рантайм-залежності НЕ дублюються тут списком, а читаються з
+# requirements.txt: два списки завжди розходяться, а стеля opencv у
+# requirements.txt стоїть не просто так (див. коментар там).
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retouch-lab"
+version = "0.1.0"
+description = "Автоматика ретуші шкіри та видалення об'єктів. Вихід — шари корекції."
+readme = "README.md"
+requires-python = ">=3.9"
+dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+# RAW читається і без цього — через ImageIO на macOS. rawpy дає керований
+# і відтворюваний демозаїк, а від нього залежить поріг детекції (§4).
+raw = ["rawpy>=0.19"]
+
+[project.scripts]
+# Щоб було `retouch p.tif -o out`, а не `python3 -m retouch.cli`.
+# Модульний виклик лишається робочим — його ніхто не забирає.
+retouch = "retouch.cli:main"
+retouch-ui = "retouch.webui:main"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.package-data]
+# сторінка UI має поїхати в колесо разом з кодом
+retouch = ["static/*.html"]
+
+[tool.setuptools]
+# tests/ і scripts/ у колесо не йдуть: це інструменти розробки, а не
+# частина інструмента. make_fixture і bench запускаються з репозиторію.
+packages = ["retouch"]

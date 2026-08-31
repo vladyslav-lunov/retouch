@@ -3,6 +3,10 @@ __pycache__/
 .venv/
 venv/
 out/
+dist/
+build/
+*.egg-info/
+fixtures/
 models/*.onnx
 models/*.pt
 *.tif
