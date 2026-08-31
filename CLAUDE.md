@@ -33,6 +33,20 @@ pip install --only-binary=:all: -r requirements.txt
 pip install --only-binary=:all: rawpy
 ```
 
+Для моделей (face-parsing, LaMa) — **тільки на Python 3.9-3.12**:
+
+```bash
+pip install --only-binary=:all: "onnxruntime<1.20"
+```
+
+Колеса onnxruntime для Intel macOS з 1.20 збираються під macosx_13_0, а
+тут Monterey 12. Остання придатна версія — 1.19.2 (macOS>=11.0), і для
+cp313 сумісних колес НЕМАЄ ЖОДНОГО. Тобто на Python 3.13 модельна гілка
+конвеєра просто не запуститься. Робоче середовище — Python 3.9: на ньому
+разом стають numpy, opencv, rawpy і onnxruntime без конфліктів
+(перевірено). Це та сама пастка, що зі стелею opencv, тільки дорожча:
+без ONNX немає ні face-parsing, ні LaMa, тобто немає v0.2 і v0.3.
+
 Без rawpy RAW читається через macOS ImageIO. Це працює, але Apple додає
 своє шумозаглушення й різкість у високу частоту, і на тому самому порозі
 знаходиться втричі більше «дефектів» (spec.md §4). Порівнювати прогони

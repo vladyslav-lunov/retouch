@@ -170,6 +170,17 @@ python3 scripts/bench.py --mp 24    # бюджет часу й пам'яті, sp
 python3 scripts/crop_face.py IMG.tif        # вирізати голову (каскад Хаара)
 ```
 
+Моделі йдуть через ONNX, і тут є пастка з версіями. Колеса onnxruntime
+для Intel macOS з 1.20 вимагають macOS 13, а для Python 3.13 сумісних із
+macOS 12 немає взагалі. Тому середовище для моделей — **Python 3.9**:
+
+```bash
+python3 -m venv .venv39 && . .venv39/bin/activate
+pip install --only-binary=:all: 'retouch-lab[raw]' "onnxruntime<1.20"
+```
+
+На ньому разом стають numpy, opencv, rawpy і onnxruntime без конфліктів.
+
 ```bash
 python3 scripts/fetch_models.py     # підказки, звідки брати
 retouch p.tif --face-model models/face.onnx --lama-model models/lama.onnx
