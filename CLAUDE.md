@@ -13,6 +13,7 @@ python3 -m retouch.cli IMG.tif -o out --debug
 python3 -m retouch.cli IMG.tif --dry-run    # лише порахувати дефекти
 python3 scripts/bench.py --mp 24            # бюджет часу й пам'яті, spec.md §9
 python3 scripts/make_fixture.py -o fixtures # макет портрета для ручних прогонів
+python3 scripts/check_face_model.py M.onnx IMG.tif   # перевірити ваги ДО довіри
 python3 -m retouch.cli fixtures/PORTRAIT.tif -o out --preview
 python3 -m retouch.webui                    # локальний UI, порт 8765
 ```

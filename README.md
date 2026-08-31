@@ -186,7 +186,13 @@ pip install --only-binary=:all: "dist/retouch_lab-0.1.0-py3-none-any.whl[raw]" "
 
 ```bash
 python3 scripts/fetch_models.py     # підказки, звідки брати
+python3 scripts/check_face_model.py models/face.onnx PORTRAIT.tif   # звірити
 retouch p.tif --face-model models/face.onnx --lama-model models/lama.onnx
 ```
+
+`check_face_model.py` — не формальність. Порядок класів у різних
+перезаливках BiSeNet буває переставлений, і якщо повірити не
+перевіривши, конвеєр вважатиме шкірою волосся. Скрипт кладе кольорову
+карту класів поруч з оригіналом: видно одразу.
 
 Далі — `spec.md`.
