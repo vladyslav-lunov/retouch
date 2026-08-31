@@ -185,6 +185,61 @@ def cfg_from(d: dict) -> Config:
 
 
 # ---------------------------------------------------------------------------
+# моделі
+# ---------------------------------------------------------------------------
+
+_MODEL_CACHE: dict[tuple, str] = {}
+
+
+def model_role(path: Path) -> str | None:
+    """Що це за модель — за ПІДПИСОМ, а не за назвою файлу.
+
+    Назви нічого не гарантують: ваги перекладають, перейменовують і
+    плутають. Підпис однозначний:
+      два входи (image + mask)        -> lama
+      виходи bbox_*/kps_*             -> детектор облич (YuNet)
+      один вхід [*, 3, H, W], 3 виходи -> face-parsing (BiSeNet)
+
+    Сесію тримаємо в кеші за (шлях, розмір, mtime): відкриття LaMa на
+    198 МБ коштує секунди, а список моделей UI просить часто.
+    """
+    key = (str(path), path.stat().st_size, int(path.stat().st_mtime))
+    if key in _MODEL_CACHE:
+        return _MODEL_CACHE[key] or None
+    role = ""
+    try:
+        import onnxruntime as ort
+        sess = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+        ins, outs = sess.get_inputs(), sess.get_outputs()
+        names = {o.name for o in outs}
+        if len(ins) == 2:
+            role = "lama"
+        elif any(n.startswith(("bbox_", "kps_")) for n in names):
+            role = "detector"
+        else:
+            sh = ins[0].shape
+            if len(sh) == 4 and sh[1] == 3:
+                role = "face"
+    except Exception:                                    # noqa: BLE001
+        role = ""
+    _MODEL_CACHE[key] = role
+    return role or None
+
+
+def scan_models(d: str | Path = "models") -> dict:
+    """Що лежить у теці моделей і на що воно годиться."""
+    d = Path(d)
+    out: dict[str, list] = {"face": [], "detector": [], "lama": [], "unknown": []}
+    if not d.is_dir():
+        return out
+    for p in sorted(d.glob("*.onnx")):
+        role = model_role(p) or "unknown"
+        out[role].append({"path": str(p), "name": p.name,
+                          "mb": round(p.stat().st_size / 2**20, 1)})
+    return out
+
+
+# ---------------------------------------------------------------------------
 # картинки
 # ---------------------------------------------------------------------------
 
@@ -423,6 +478,8 @@ class Handler(BaseHTTPRequestHandler):
                                   "text/html; charset=utf-8")
             if u.path == "/api/state":
                 return self._json(APP.state())
+            if u.path == "/api/models":
+                return self._json(scan_models(q.get("dir", "models")))
             if u.path == "/api/browse":
                 return self._json(self._browse(q.get("dir", "")))
             if u.path == "/api/blobs":
@@ -615,6 +672,10 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def serve(port: int = 8765, open_browser: bool = True) -> None:
+    # Прогріваємо кеш моделей одразу: перше сканування відкриває LaMa на
+    # 198 МБ і коштує секунд десять. Краще заплатити їх, поки людина
+    # відкриває браузер, ніж коли вона вже клацнула по списку.
+    threading.Thread(target=scan_models, daemon=True).start()
     httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     url = f"http://127.0.0.1:{port}/"
     print(f"retouch-lab UI: {url}\nCtrl+C — зупинити")

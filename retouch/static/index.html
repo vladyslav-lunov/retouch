@@ -18,6 +18,8 @@ button.pri{background:var(--acc);border-color:var(--acc);color:#0d1117;font-weig
 input[type=text],input[type=number]{background:#12141a;border:1px solid var(--line);
   border-radius:5px;padding:5px 7px;width:100%}
 input[type=range]{width:100%;accent-color:var(--acc)}
+.sel{flex:1;background:#12141a;border:1px solid var(--line);border-radius:5px;
+  padding:5px 7px}
 h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);
   margin:18px 0 8px;font-weight:600}
 h2:first-child{margin-top:0}
@@ -123,9 +125,12 @@ kbd{background:#232830;border:1px solid var(--line);border-radius:4px;
     <input type="range" id="mask_erode" min="0" max="24" step="1" value="6">
     <span class="val" id="mask_erode_v">6</span></div>
   <div class="row"><label>face-parsing</label>
-    <input type="text" id="face_model" placeholder="models/resnet18.onnx"></div>
+    <select id="face_model" class="sel"><option value="">евристика</option></select></div>
   <div class="row"><label>детектор</label>
-    <input type="text" id="face_detector" placeholder="models/yunet.onnx"></div>
+    <select id="face_detector" class="sel"><option value="">без кропа</option></select></div>
+  <div class="row"><label>інпейнт</label>
+    <select id="lama_model" class="sel"><option value="">Telea</option></select></div>
+  <div class="hint" id="models_hint">шукаю моделі в models/…</div>
   <div class="row"><label>RAW через</label>
     <select id="raw_decoder" style="flex:1;background:#12141a;border:1px solid var(--line);
       border-radius:5px;padding:5px 7px">
@@ -166,7 +171,7 @@ const post = (u, b) => api(u, {method:'POST', headers:{'Content-Type':'applicati
                                body: JSON.stringify(b||{})});
 const PARAMS = ['threshold','radius','min_area','max_area','max_elongation',
                 'strength','search_radius','limit','mask_erode','raw_decoder',
-                'face_model','face_detector'];
+                'face_model','face_detector','lama_model'];
 let S = {}, tab = 'view', keep = null, cropAt = null, painting = false, brush = 'add';
 
 function params(){
@@ -579,5 +584,27 @@ function waitDone(){
     if (!S.busy){ clearInterval(t); draw(); }
   }, 500);
 }
+/* ---------- моделі: знаходимо самі, шляхів не набирати ---------- */
+async function loadModels(){
+  const m = await api('/api/models');
+  const fill = (id, list, none) => {
+    const el = $('#'+id);
+    el.innerHTML = `<option value="">${none}</option>` +
+      list.map(x => `<option value="${x.path}">${x.name} · ${x.mb} МБ</option>`).join('');
+    if (list.length) el.value = list[0].path;   // найперша — зазвичай легша
+  };
+  fill('face_model', m.face, 'евристика (без моделі)');
+  fill('face_detector', m.detector, 'без кропа обличчя');
+  fill('lama_model', m.lama, 'Telea (без моделі)');
+  const n = m.face.length + m.detector.length + m.lama.length;
+  $('#models_hint').innerHTML = n
+    ? `знайдено ${n} моделей у models/ — розпізнано за підписом, не за назвою`
+    : `у models/ нічого немає. Без face-parsing маска евристична, і на
+       вуличному кадрі вона непридатна — див. README.`;
+  if (!m.lama.length) $('#models_hint').innerHTML +=
+    `<br>Без LaMa видалення працює через Telea: дрібне прибере, велику
+     дірку розмаже.`;
+}
+loadModels();
 tick().then(draw);
 </script>
