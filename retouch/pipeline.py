@@ -489,6 +489,11 @@ class Session:
             strength=self.cfg.strength,
             limit=None if keep_ids is not None else self.cfg.limit)
         self.result = freq_merge(self.low, self.high2)
+        # Усе, що йшло ПІСЛЯ лікування, рахувалося поверх іншого кадру.
+        # Лишити його — значить показати шари, зняті з неіснуючого стану:
+        # база шару в layers() вказувала б на масив до перелікування.
+        self.tool_layers = []
+        self.db_gray = self.db_base = self.db_coverage = None
         s.done(f"торкнулися {self.coverage.mean():.3%} кадру")
         return self
 
@@ -523,7 +528,11 @@ class Session:
         вирівняти те, що лікування за секунду прибере зовсім, і витратив
         би на це частину своєї сили.
         """
-        base = self.result if self.result is not None else self.img
+        # Повторний прогін (UI сунув повзунок) має рахуватися від кадру
+        # ДО D&B, а не від уже вирівняного: інакше сила накопичується і
+        # друге натискання дає не те, що показує повзунок.
+        base = (self.db_base if self.db_base is not None else
+                self.result if self.result is not None else self.img)
         s = Stage("dodge-burn", sink)
         self.db_gray = gray_map(base, self.skin, self.cfg.dodgeburn)
         self.db_base = base
@@ -540,6 +549,13 @@ class Session:
         робити тут нічого. Мовчки не робимо нічого замість того, щоб
         застосувати навмання (§1).
         """
+        # Повторний прогін починається з кадру ДО інструментів. Разом з
+        # ним скидається D&B: він рахувався поверх старого набору, і
+        # лишити його — значить показувати вирівнювання чужого кадру.
+        if self.tool_layers:
+            self.result = self.tool_layers[0][1]
+            self.tool_layers = []
+            self.db_gray = self.db_base = self.db_coverage = None
         if not self.cfg.tools:
             return self
         if self.cls is None:

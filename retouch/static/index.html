@@ -77,6 +77,11 @@ tr.on td{background:#1b2430}
 .pick .raw{color:var(--warn)}
 .tag{display:inline-block;padding:1px 6px;border-radius:4px;background:#232830;
   color:var(--dim);font-size:11px;margin-left:6px}
+/* У мітці стоїть МАШИННЕ ім'я — те, що людина напише в YAML. h2 робить
+   верхній регістр, і виходило EYE_VESSELS: скопіювавши, отримаєш
+   «невідомий інструмент». Тому регістр тут явно нормальний. */
+h2 .tag{text-transform:none;letter-spacing:0;font-family:ui-monospace,
+  SFMono-Regular,Menlo,monospace}
 .crops{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .spin{display:inline-block;width:11px;height:11px;border:2px solid var(--line);
   border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite;
@@ -84,6 +89,28 @@ tr.on td{background:#1b2430}
 @keyframes sp{to{transform:rotate(360deg)}}
 kbd{background:#232830;border:1px solid var(--line);border-radius:4px;
   padding:0 5px;font-size:11px}
+/* Поля нових вкладок будуються зі схеми, тому їх кількість заздалегідь
+   невідома: сітка, що сама вирішує, скільки колонок влізе. */
+.flds{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));
+  gap:10px;margin-bottom:12px}
+.fld{background:var(--panel);border:1px solid var(--line);border-radius:7px;
+  padding:8px 10px}
+.fld label{display:block;color:var(--ink);font-size:12px;margin-bottom:5px;
+  font-weight:500}
+.fld .doc{color:var(--dim);font-size:11px;margin-top:5px;line-height:1.35}
+.fld.set{border-color:var(--acc)}
+.fld input[type=checkbox]{accent-color:var(--acc);width:15px;height:15px}
+.bar{display:flex;gap:8px;align-items:center;margin:0 0 12px}
+/* .pick розкладає рядок у флекс-ряд — тут навпаки: назва, причина й
+   список розділів мають іти один під одним, інакше причина стискається
+   в колонку на три слова й читати її неможливо. */
+.plist div{display:block;padding:8px 10px;border-bottom:1px solid var(--line);
+  cursor:pointer}
+.plist div:hover{background:#232830}
+.plist .why{color:var(--dim);font-size:11.5px;margin-top:3px;white-space:pre-wrap}
+.plist b{font-weight:600}
+pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
+  padding:10px 12px;overflow:auto;font-size:12px;color:var(--dim);margin:0 0 12px}
 </style>
 
 <div class="wrap">
@@ -153,11 +180,15 @@ kbd{background:#232830;border:1px solid var(--line);border-radius:4px;
   <div class="tabs">
     <button data-t="view" class="on">Перегляд</button>
     <button data-t="crops">1:1</button>
+    <button data-t="develop">Проявлення</button>
     <button data-t="mask">Маска</button>
+    <button data-t="tools">Інструменти</button>
+    <button data-t="db">Світлотінь</button>
     <button data-t="remove">Видалення</button>
     <button data-t="warp">Пластика</button>
     <button data-t="spots">Плями</button>
     <button data-t="sweep">Калібрування</button>
+    <button data-t="presets">Пресети</button>
   </div>
   <div id="msg"></div>
   <div id="pane"></div>
@@ -228,6 +259,9 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
 
 function draw(){
   const p = $('#pane');
+  // Пресети читаються без кадру: агент присилає їх наперед, і подивитися,
+  // що він запропонував, хочеться до того, як щось відкрито.
+  if (tab === 'presets') return drawPresets(p);
   if (!S.loaded){ p.innerHTML = '<div class="hint">Відкрий 16-бітний TIFF зліва.</div>'; return; }
   if (tab === 'view') return drawView(p);
   if (tab === 'crops') return drawCrops(p);
@@ -236,6 +270,10 @@ function draw(){
   if (tab === 'warp') return drawWarp(p);
   if (tab === 'spots') return drawSpots(p);
   if (tab === 'sweep') return drawSweep(p);
+  if (tab === 'develop') return drawSection(p, 'develop');
+  if (tab === 'db') return drawSection(p, 'db');
+  if (tab === 'tools') return drawSection(p, 'tools');
+  if (tab === 'presets') return drawPresets(p);
 }
 
 function card(kind, cap){
@@ -520,6 +558,244 @@ async function drawSpots(p){
     cropAt = [b.x, b.y];
     document.querySelector('.tabs button[data-t=crops]').click();
   });
+}
+
+/* ---------- схема: форма будується з дата-класів ---------- */
+/* Жодного поля тут не написано руками. Схема приходить з тих самих
+   дата-класів, які читає агент (`--schema`), тому вкладка не може
+   відстати від коду: нове поле в DevelopParams з'являється тут саме. */
+let SCHEMA = null;
+async function schema(){
+  if (!SCHEMA) SCHEMA = await api('/api/schema');
+  return SCHEMA;
+}
+const fid = (sec, key) => 'f_' + (sec + '_' + key).replace(/\W/g, '_');
+const defTxt = d => d === null ? '—' : (Array.isArray(d) ? (d.length ? d.join(', ') : '—')
+                                                         : String(d));
+
+function ctrl(sec, key, meta, cur){
+  const id = fid(sec, key), t = meta.type, on = cur !== undefined;
+  const v = on ? cur : '';
+  let inp;
+  if (t === 'bool')
+    inp = `<input type="checkbox" id="${id}" ${v === true ? 'checked' : ''}>`;
+  else if (t.startsWith('tuple') || t.startsWith('list'))
+    inp = `<input type="text" id="${id}" value="${Array.isArray(v) ? v.join(', ') : esc(String(v))}"
+             placeholder="${esc(defTxt(meta.default))}">`;
+  else if (t === 'int' || t === 'float')
+    inp = `<input type="number" step="${t === 'int' ? 1 : 0.01}" id="${id}"
+             value="${v}" placeholder="${esc(defTxt(meta.default))}">`;
+  else
+    inp = `<input type="text" id="${id}" value="${esc(String(v))}"
+             placeholder="${esc(defTxt(meta.default))}">`;
+  return `<div class="fld${on ? ' set' : ''}"><label for="${id}">${key}</label>${inp}
+    <div class="doc">${esc(meta.doc)}</div></div>`;
+}
+
+/* Порожнє поле означає «не задано», а не «нуль»: пресет частковий, і
+   різниця між «не чіпаю» і «ставлю 0» тут змістова. Тому очищення поля
+   ВИДАЛЯЄ ключ, а не пише в нього null. */
+function bindFields(sec, fields, put){
+  for (const key of Object.keys(fields)){
+    const el = $('#' + fid(sec, key)), t = fields[key].type;
+    if (!el) continue;
+    el.onchange = () => {
+      let v;
+      if (t === 'bool') v = el.checked;
+      else if (el.value.trim() === '') v = undefined;
+      else if (t.startsWith('tuple') || t.startsWith('list'))
+        v = el.value.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+      else if (t === 'int') v = parseInt(el.value, 10);
+      else if (t === 'float') v = parseFloat(el.value);
+      else v = el.value;
+      put(key, v);
+    };
+  }
+}
+
+/* Видалити ключ = переслати пресет без нього. Сервер зливає, а не
+   замінює, тож «прибрати» інакше не сказати. */
+function dropKey(path){
+  const d = JSON.parse(JSON.stringify(S.preset || {}));
+  let node = d;
+  for (const k of path.slice(0, -1)){ if (!node[k]) return d; node = node[k]; }
+  delete node[path[path.length - 1]];
+  return d;
+}
+async function pset(body){
+  const r = await post('/api/preset', body);
+  if (r.error){ $('#msg').innerHTML = `<div class="note bad">${esc(r.error)}</div>`; return; }
+  await tick(); draw();
+}
+const setAt = (sec, key, v) => v === undefined
+  ? pset({data: dropKey([sec, key]), replace: true})
+  : pset({data: {[sec]: {[key]: v}}});
+
+async function drawSection(p, which){
+  // Схему й список пресетів треба спитати в сервера, і поки відповідь
+  // іде, панель показувала б ВМІСТ ПОПЕРЕДНЬОЇ вкладки під новим
+  // заголовком. Виглядає як «кнопка не працює», тому позначаємо чекання
+  // одразу, синхронно, до першого await.
+  p.innerHTML = '<div class="hint"><span class="spin"></span>читаю схему…</div>';
+  const sc = await schema();
+  if (which === 'develop') return drawDevelop(p, sc);
+  if (which === 'db') return drawDB(p, sc);
+  return drawTools(p, sc);
+}
+
+/* ---------- проявлення ---------- */
+function drawDevelop(p, sc){
+  const cur = (S.preset || {}).develop || {};
+  const ign = S.develop_ignored || [];
+  p.innerHTML = `<div class="hint">Перший етап конвеєра: усе подальше рахується
+    по кадру, який ти тут бачиш. Частина параметрів має сенс ЛИШЕ при декодуванні
+    RAW — на TIFF вони не спрацюють, і про це буде сказано, а не промовчано.
+    Кроп і поворот міняють геометрію, тому «Проявити» перечитує файл і скидає
+    правлену маску, поле пластики й маску видалення.</div>
+    ${ign.length ? `<div class="note">Не для TIFF, проігноровано:
+      ${esc(ign.join(', '))}</div>` : ''}
+    <div class="bar"><button id="godev" class="pri">Проявити</button>
+      <span class="hint" style="margin:0">${S.raw_decoder
+        ? 'RAW через ' + esc(S.raw_decoder) : 'не RAW — працюють кроп, поворот, контраст, крива'}</span></div>
+    <div class="flds">${Object.entries(sc.sections.develop)
+      .map(([k, m]) => ctrl('develop', k, m, cur[k])).join('')}</div>`;
+  bindFields('develop', sc.sections.develop, (k, v) => setAt('develop', k, v));
+  $('#godev').onclick = async () => {
+    await post('/api/develop', {params: params()}); await tick(); waitDone();
+  };
+}
+
+/* ---------- світлотінь ---------- */
+function drawDB(p, sc){
+  const cur = (S.preset || {}).dodgeburn || {};
+  const on = !!(S.preset || {}).dodgeburn_on;
+  p.innerHTML = `<div class="hint">Вирівнювання НИЗЬКОЇ частоти: текстура не
+    чіпається взагалі. Віддається окремим файлом у режимі Soft Light — 50% сірого
+    там нейтральні, тобто шар з нульовою силою нічого не змінює точно, а не майже.
+    Іде після лікування: свіжа пляма — це теж локальна нерівність тону, і
+    вирівнювати те, що зараз приберуть, значить витратити на це силу.</div>
+    <div class="bar">
+      <label style="display:flex;gap:7px;align-items:center;cursor:pointer">
+        <input type="checkbox" id="db_on" ${on ? 'checked' : ''}
+          style="accent-color:var(--acc);width:15px;height:15px"> увімкнути</label>
+      <button id="godb" class="pri" ${S.has_result ? '' : 'disabled'}>Порахувати</button>
+      <span class="hint" style="margin:0">${S.db
+        ? `торкнулися ${(S.db.touched * 100).toFixed(1)}% кадру, сила ${S.db.strength}`
+        : (S.has_result ? 'ще не рахувалось' : 'спершу «Перегнати» зліва')}</span>
+    </div>
+    <div class="flds">${Object.entries(sc.sections.dodgeburn)
+      .map(([k, m]) => ctrl('dodgeburn', k, m, cur[k])).join('')}</div>`;
+  bindFields('dodgeburn', sc.sections.dodgeburn, (k, v) => setAt('dodgeburn', k, v));
+  $('#db_on').onchange = e => e.target.checked
+    ? pset({data: {dodgeburn_on: true}})
+    : pset({data: dropKey(['dodgeburn_on']), replace: true});
+  $('#godb').onclick = async () => {
+    await post('/api/stage', {stage: 'dodgeburn', params: params()});
+    await tick(); waitDone();
+  };
+}
+
+/* ---------- дрібні інструменти ---------- */
+const TOOL_RU = {eye_vessels: 'судини в очах', teeth: 'зуби',
+                 mattify: 'матування', skin_tone: 'тон шкіри'};
+
+function toolState(){
+  const t = (S.preset || {}).tools;
+  if (Array.isArray(t)) { const o = {}; for (const n of t) o[n] = {}; return o; }
+  return t && typeof t === 'object' ? t : {};
+}
+
+function drawTools(p, sc){
+  const st = toolState();
+  const names = Object.keys(sc.sections).filter(k => k.startsWith('tools.'))
+                                        .map(k => k.slice(6));
+  const done = S.tool_layers || [], touched = S.tool_touched || {};
+  p.innerHTML = `<div class="hint">Кожен інструмент працює СТРОГО всередині свого
+    класу face-parsing і віддається окремим шаром, тобто вимикається поодинці вже
+    в Photoshop. Порядок галочок — порядок застосування.</div>
+    ${S.has_cls ? '' : `<div class="note">Карти класів немає: без face-parsing
+      невідомо, де око, а де рот. Обери модель зліва й перегони — інакше
+      інструменти нічого не зроблять і мовчки пропустяться.</div>`}
+    <div class="bar"><button id="gotools" class="pri"
+      ${S.has_result && S.has_cls ? '' : 'disabled'}>Застосувати</button>
+      <span class="hint" style="margin:0">${done.length
+        ? done.map(n => `${TOOL_RU[n] || n} ${((touched[n] || 0) * 100).toFixed(2)}%`).join(' · ')
+        : 'ще не застосовувались'}</span></div>
+    ${names.map(n => {
+      const on = n in st, opts = (typeof st[n] === 'object' && st[n]) || {};
+      return `<h2 style="display:flex;gap:8px;align-items:center">
+        <label style="display:flex;gap:7px;align-items:center;cursor:pointer;
+          text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)">
+          <input type="checkbox" data-tool="${n}" ${on ? 'checked' : ''}
+            style="accent-color:var(--acc);width:15px;height:15px">
+          ${TOOL_RU[n] || n}</label>
+        <span class="tag">${n}</span></h2>
+        <div class="flds"${on ? '' : ' style="opacity:.45"'}>
+        ${Object.entries(sc.sections['tools.' + n])
+          .map(([k, m]) => ctrl('tool_' + n, k, m, opts[k])).join('')}</div>`;
+    }).join('')}`;
+  for (const n of names)
+    bindFields('tool_' + n, sc.sections['tools.' + n], (k, v) => v === undefined
+      ? pset({data: dropKey(['tools', n, k]), replace: true})
+      : pset({data: {tools: {[n]: {[k]: v}}}}));
+  p.querySelectorAll('[data-tool]').forEach(e => e.onchange = () => {
+    const n = e.dataset.tool;
+    // Вимкнення — саме видалення ключа, а не `false`: інакше пресет ніс
+    // би «не роби цього», і накласти його на зйомку, де інструмент
+    // потрібен, стало б неможливо.
+    return e.checked ? pset({data: {tools: {[n]: {}}}})
+                     : pset({data: dropKey(['tools', n]), replace: true});
+  });
+  $('#gotools').onclick = async () => {
+    await post('/api/stage', {stage: 'tools', params: params()});
+    await tick(); waitDone();
+  };
+}
+
+/* ---------- пресети ---------- */
+async function drawPresets(p){
+  p.innerHTML = '<div class="hint"><span class="spin"></span>читаю presets/…</div>';
+  const list = await api('/api/presets');
+  const cur = S.preset || {}, notes = S.preset_notes || [];
+  const keys = Object.keys(cur).filter(k => !['name', 'why', 'for'].includes(k));
+  p.innerHTML = `<div class="hint">Пресет частковий: задає лише те, що змінює, і
+    накладається поверх попереднього. Поле <b>чому</b> — головне: коли агент дав
+    десять варіантів, у числах вони виглядають однаково.</div>
+    ${notes.length ? `<div class="note">${esc(notes.join('\n'))}</div>` : ''}
+    <div class="grid" style="grid-template-columns:1fr 1fr;align-items:start">
+      <div><h2>Активний${S.preset_name ? ' · ' + esc(S.preset_name) : ''}</h2>
+        ${keys.length
+          ? `<pre class="yaml">${esc(JSON.stringify(cur, null, 2))}</pre>`
+          : '<div class="hint">Порожній — усе на дефолтах дата-класів.</div>'}
+        <div class="bar"><button id="pclear">Очистити</button></div>
+        <h2>Зберегти</h2>
+        <div class="row"><input type="text" id="pfile" placeholder="назва файлу"
+          value="${esc((S.name || 'preset').replace(/\.[^.]+$/, ''))}"></div>
+        <div class="row"><input type="text" id="pwhy" placeholder="чому саме так"></div>
+        <div class="row"><button id="psave" class="pri" style="width:100%"
+          ${keys.length ? '' : 'disabled'}>Записати в presets/</button></div></div>
+      <div><h2>У теці presets/</h2>
+        <div class="pick plist" style="max-height:none">${list.length ? list.map((r, i) =>
+          `<div data-p="${esc(r.path)}"><b>${esc(r.name)}</b>
+            <span class="tag">${esc(r.dir || r.file)}</span>
+            ${r.error ? `<div class="why" style="color:var(--bad)">${esc(r.error)}</div>`
+                      : `<div class="why">${esc(r.why || '—')}</div>
+                         <div class="why">${(r.keys || []).join(', ')}</div>`}</div>`
+          ).join('') : '<div style="padding:9px;color:var(--dim)">порожньо</div>'}</div>
+        <div class="hint" style="margin-top:8px">Клац — накласти поверх активного.</div>
+      </div></div>`;
+  p.querySelectorAll('[data-p]').forEach(e =>
+    e.onclick = () => pset({path: e.dataset.p}));
+  $('#pclear').onclick = () => pset({clear: true});
+  $('#psave').onclick = async () => {
+    const r = await post('/api/preset/save',
+      {file: $('#pfile').value || 'preset', why: $('#pwhy').value,
+       name: $('#pfile').value || undefined});
+    $('#msg').innerHTML = r.error
+      ? `<div class="note bad">${esc(r.error)}</div>`
+      : `<div class="note" style="border-left-color:var(--ok)">записано ${esc(r.path)}</div>`;
+    draw();
+  };
 }
 
 /* ---------- калібрування ---------- */

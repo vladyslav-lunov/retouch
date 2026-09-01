@@ -106,18 +106,26 @@ def test_full_stack_reconstructs_with_all_layers():
 
     with tempfile.TemporaryDirectory() as t:
         d = Path(t)
-        cfg = Config(force_mask=True, dodgeburn_on=True)
+        cfg = Config(force_mask=True, dodgeburn_on=True,
+                     tools=("mattify", "teeth"))
         cfg.dodgeburn.strength = 0.5
         sess = Session(_fixture(d), cfg).load().analyze().heal()
-        # інструменти потребують карти класів; без моделі їх пропускають,
-        # і тоді перевіряємо стопку без них — вона все одно має зійтись
+        # Карту класів кладемо руками: ваг у репозиторії немає, а без cls
+        # інструменти пропускаються — і тест перевіряв би стопку з одного
+        # шару, тобто саме ту ситуацію, в якій зіткнення індексів НЕ
+        # відтворюється. Заради чого він і написаний.
+        sess.cls = _cls_map(sess)
         sess.run_tools()
         sess.dodge_burn()
+        assert len(sess.tool_layers) >= 2, (
+            "інструменти не дали шарів — перевіряти нумерацію нема на чому")
         out = d / "out"
         sess.write(out)
 
         names = sorted(p.name for p in out.iterdir())
         print(f"  {', '.join(names)}")
+        assert len(list(out.glob("T_[0-9][0-9]_*.png"))) >= 4, (
+            "шарів менше, ніж етапів: щось не записалось")
         idx = [n.split("_")[1] for n in names if n[-4:] == ".png" and n[1:3].isdigit()
                or (len(n.split("_")) > 1 and n.split("_")[1].isdigit())]
         assert len(idx) == len(set(idx)), f"однакові індекси у шарах: {idx}"
@@ -181,6 +189,96 @@ def test_warp_resets_downstream():
         sess.analyze().heal()
         print(f"  після перерахунку: {len(sess.blobs)} плям")
         assert sess.result is not None
+
+
+# ---------------------------------------------------------------------------
+# повторний прогін етапу
+# ---------------------------------------------------------------------------
+
+def _cls_map(sess):
+    """Правдоподібна карта класів без ваг: смуга шкіри поперек обличчя."""
+    from retouch.masks import CELEBA_CLASSES
+    inv = {v: k for k, v in CELEBA_CLASSES.items()}
+    h, w = sess.img.shape[:2]
+    cls = np.full((h, w), inv["background"], np.int32)
+    cls[h // 4:3 * h // 4, w // 4:3 * w // 4] = inv["skin"]
+    cls[h // 2:h // 2 + h // 20, w // 2:w // 2 + w // 12] = inv["mouth"]
+    return cls
+
+
+def test_dodge_burn_twice_gives_the_same_frame():
+    """Повзунок у UI сунуть десять разів підряд.
+
+    Якщо етап рахується від власного результату, друге натискання дає
+    подвійну силу при тому самому числі на повзунку — тобто UI показує
+    одне, а кадр інше.
+    """
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        cfg = Config(force_mask=True, dodgeburn_on=True)
+        sess = Session(_fixture(d), cfg).load().analyze().heal()
+        first = sess.dodge_burn().result.copy()
+        second = sess.dodge_burn().result
+        delta = float(np.abs(first - second).max() / QUANT)
+        print(f"  розбіжність між першим і другим прогоном: {delta:.2f} кванта")
+        assert delta < 0.5, "D&B накопичується сам на собі"
+
+
+def test_tools_twice_do_not_stack():
+    """Те саме для інструментів, плюс шари не мають дублюватись."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        cfg = Config(force_mask=True, tools=("mattify",))
+        sess = Session(_fixture(d), cfg).load().analyze().heal()
+        sess.cls = _cls_map(sess)
+        first = sess.run_tools().result.copy()
+        n1 = len(sess.tool_layers)
+        second = sess.run_tools().result
+        delta = float(np.abs(first - second).max() / QUANT)
+        print(f"  шарів {n1} -> {len(sess.tool_layers)}, "
+              f"розбіжність {delta:.2f} кванта")
+        assert len(sess.tool_layers) == n1, "шари продублювались"
+        assert delta < 0.5, "інструмент наклався сам на себе"
+
+
+def test_turning_every_tool_off_undoes_them():
+    """Знята галочка має ПРИБРАТИ ефект, а не лишити його останнім."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        cfg = Config(force_mask=True, tools=("mattify",))
+        sess = Session(_fixture(d), cfg).load().analyze().heal()
+        sess.cls = _cls_map(sess)
+        healed = sess.result.copy()
+        sess.run_tools()
+        touched = float(np.abs(sess.result - healed).max() / QUANT)
+        sess.cfg.tools = ()
+        sess.run_tools()
+        back = float(np.abs(sess.result - healed).max() / QUANT)
+        print(f"  інструмент змінив {touched:.0f} квантів, після вимкнення "
+              f"лишилось {back:.2f}")
+        assert touched > 1, "інструмент нічого не зробив — тест порожній"
+        assert back < 0.5 and not sess.tool_layers, "ефект лишився після вимкнення"
+
+
+def test_reheal_drops_stale_downstream_layers():
+    """Перелікування робить карти інструментів і D&B недійсними.
+
+    Вони рахувалися поверх іншого кадру, а база шару в layers() береться
+    саме з них: лишити їх — записати шар, знятий з неіснуючого стану.
+    """
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        cfg = Config(force_mask=True, tools=("mattify",), dodgeburn_on=True)
+        sess = Session(_fixture(d), cfg).load().analyze().heal()
+        sess.cls = _cls_map(sess)
+        sess.run_tools().dodge_burn()
+        print(f"  до: шарів {len(sess.tool_layers)}, D&B {sess.db_gray is not None}")
+        sess.cfg.detect.threshold = 0.02
+        sess.analyze().heal()
+        print(f"  після перелікування: шарів {len(sess.tool_layers)}, "
+              f"D&B {sess.db_gray is not None}")
+        assert not sess.tool_layers and sess.db_gray is None, (
+            "лишились шари, зняті з кадру до перелікування")
 
 
 if __name__ == "__main__":

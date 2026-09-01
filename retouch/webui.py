@@ -37,6 +37,7 @@ import numpy as np
 from .blemish import DetectParams
 from .imageio import RAW_SUFFIXES, InputError
 from .masks import MaskParams
+from . import presets as presets_mod
 from .pipeline import Config, Session
 from .warp import WarpParams
 
@@ -64,6 +65,13 @@ class App:
         self.remove_mask: np.ndarray | None = None   # що видаляти
         self.proxy: np.ndarray | None = None         # зменшена копія для пластики
         self.written: list[str] = []
+        # Розділи, яких немає серед повзунків зліва: проявлення, D&B,
+        # інструменти. Тримаємо їх пресетом, а не двадцятьма полями
+        # форми, бо це той самий словник, що пише агент і що лягає у
+        # файл — один формат на UI, CLI і агента (spec.md §1.2).
+        self.preset: dict = {}
+        self.preset_notes: list[str] = []
+        self.preset_name: str = ""
 
     # --- прогрес --------------------------------------------------------
     def sink(self, ev: dict) -> None:
@@ -81,6 +89,10 @@ class App:
         d = {
             "busy": self.busy, "stages": self.stages, "error": self.error,
             "sweep": self.sweep, "written": self.written, "loaded": s is not None,
+            # Пресет — стан ЗАСТОСУНКУ, а не кадру: агент присилає його
+            # наперед, і вкладка «Пресети» читається до відкриття файлу.
+            "preset": self.preset, "preset_notes": self.preset_notes,
+            "preset_name": self.preset_name,
         }
         if s is None:
             return d
@@ -107,6 +119,13 @@ class App:
             "skin_classes": list(s.cfg.mask.skin_classes),
             "has_cls": s.cls is not None,
             "keep": (None if self.keep_ids is None else sorted(self.keep_ids)),
+            "develop_ignored": list(getattr(s, "develop_ignored", []) or []),
+            "tool_layers": [t[0] for t in s.tool_layers],
+            "tool_touched": {t[0]: round(float((t[3] > 0).mean()), 5)
+                             for t in s.tool_layers},
+            "db": (None if s.db_gray is None else
+                   {"touched": round(float(s.db_coverage.mean()), 5),
+                    "strength": s.cfg.dodgeburn.strength}),
             "params": {
                 "threshold": s.cfg.detect.threshold, "radius": s.cfg.hf_radius,
                 "min_area": s.cfg.detect.min_area, "max_area": s.cfg.detect.max_area,
@@ -142,8 +161,13 @@ class App:
 APP = App()
 
 
-def cfg_from(d: dict) -> Config:
-    """Параметри з форми. Дефолти беруться з дата-класів, як і в CLI."""
+def cfg_from(d: dict, preset: dict | None = None) -> Config:
+    """Параметри з форми плюс пресет поверх. Дефолти — з дата-класів.
+
+    Порядок саме такий: спершу повзунки, потім пресет. Повзунків мало і
+    вони покривають лікування; усе інше — проявлення, D&B, інструменти —
+    приходить пресетом, і руками там правиться той самий словник.
+    """
     def num(key, cast, default=None):
         v = d.get(key, "")
         if v in ("", None):
@@ -181,6 +205,8 @@ def cfg_from(d: dict) -> Config:
         raw_decoder=(d.get("raw_decoder") or None),
         force_mask=True,      # у UI попередження показується, а не зупиняє
     )
+    if preset:
+        APP.preset_notes = presets_mod.apply(c, preset)
     return c
 
 
@@ -312,6 +338,33 @@ def crop(sess: Session, kind: str, cx: int, cy: int, size: int) -> np.ndarray:
     return before
 
 
+def list_presets(root: str = "presets") -> list[dict]:
+    """Пресети з теки, з `why` у списку.
+
+    `why` показуємо одразу, а не за кліком: коли агент дав десять
+    варіантів, у числах вони виглядають однаково, і вибрати можна лише
+    за причиною (spec.md §1.2).
+    """
+    d = Path(root).expanduser()
+    out = []
+    if not d.exists():
+        return out
+    for f in sorted(d.rglob("*.y*ml")) + sorted(d.rglob("*.json")):
+        row = {"path": str(f), "file": f.name,
+               "dir": str(f.parent.relative_to(d)) if f.parent != d else ""}
+        try:
+            data = presets_mod.load(f)
+            row["name"] = str(data.get("name") or f.stem)
+            row["why"] = str(data.get("why") or "").strip()
+            row["for"] = str(data.get("for") or "").strip()
+            row["keys"] = sorted(k for k in data
+                                 if k not in ("name", "why", "for"))
+        except presets_mod.PresetError as e:
+            row["name"], row["error"] = f.stem, str(e)
+        out.append(row)
+    return out
+
+
 # ---------------------------------------------------------------------------
 # дії
 # ---------------------------------------------------------------------------
@@ -333,7 +386,7 @@ def apply_painted(sess: Session, painted: np.ndarray | None) -> None:
 
 
 def do_open(path: str, params: dict) -> None:
-    APP.sess = Session(path, cfg_from(params)).load()
+    APP.sess = Session(path, cfg_from(params, APP.preset)).load()
     APP.painted, APP.keep_ids, APP.sweep, APP.written = None, None, None, []
     APP.proxy = None
     APP.sess.analyze(APP.sink)
@@ -343,7 +396,7 @@ def do_rerun(params: dict, keep_ids=None) -> None:
     """Перегнати відкритий кадр з іншими параметрами."""
     sess = APP.sess
     old_radius = sess.cfg.hf_radius
-    sess.cfg = cfg_from(params)
+    sess.cfg = cfg_from(params, APP.preset)
     if sess.cfg.hf_radius != old_radius:
         sess.low = sess.high = None      # радіус змінився — частотку наново
     apply_painted(sess, APP.painted)
@@ -370,7 +423,7 @@ def do_sweep(params: dict, thresholds: list[float]) -> None:
     rows = []
     for t in thresholds:
         p = dict(params, threshold=t)
-        sess.cfg = cfg_from(p)
+        sess.cfg = cfg_from(p, APP.preset)
         apply_painted(sess, APP.painted)
         sess.analyze(APP.sink)
         sess.heal(None, APP.sink)
@@ -384,7 +437,7 @@ def do_sweep(params: dict, thresholds: list[float]) -> None:
     # Повертаємо кадр до порога, який стоїть у формі. Інакше сеанс мовчки
     # лишався б на ОСТАННЬОМУ з проміряних (зазвичай найжорсткішому), і
     # наступне «Зберегти» записало б не те, що людина бачила в панелі.
-    sess.cfg = cfg_from(params)
+    sess.cfg = cfg_from(params, APP.preset)
     apply_painted(sess, APP.painted)
     sess.analyze(APP.sink)
     sess.heal(APP.keep_ids, APP.sink)
@@ -419,6 +472,54 @@ def do_remove() -> None:
     if APP.remove_mask is None or not APP.remove_mask.any():
         raise RuntimeError("маска видалення порожня — намалюй, що прибрати")
     APP.sess.remove(APP.remove_mask, APP.sink)
+
+
+def do_develop(params: dict) -> None:
+    """Перечитати кадр із новим проявленням.
+
+    Саме перечитати, а не перерахувати: проявлення живе в `load()`, бо
+    половина його параметрів — це параметри ДЕКОДЕРА RAW, і застосувати
+    їх після декодування нічим. Кроп і поворот міняють геометрію, тому
+    все, що прив'язане до пікселів старого кадру, скидається: правлена
+    маска, поле пластики й маска видалення вказували б не туди.
+    """
+    sess = APP.sess
+    path = sess.path
+    APP.painted = APP.remove_mask = APP.proxy = None
+    APP.keep_ids = APP.sweep = None
+    APP.written = []
+    APP.sess = Session(path, cfg_from(params, APP.preset)).load(APP.sink)
+    APP.sess.analyze(APP.sink)
+
+
+def do_stage(stage: str, params: dict) -> None:
+    """Дорахувати один етап поверх уже полікованого кадру.
+
+    Окремою кнопкою, а не всередині «Перегнати»: лікування на 26 Мп
+    коштує хвилини, а посунути силу D&B хочеться десять разів підряд.
+    Обидва етапи ідемпотентні — рахуються від кадру ДО себе, тож
+    повторне натискання дає те, що показує повзунок, а не суму.
+    """
+    sess = APP.sess
+    if stage not in ("tools", "dodgeburn"):
+        # Спершу назва, потім стан: інакше друкарська помилка в назві
+        # відповідала б «спершу Перегнати», і шукали б її не там.
+        raise ValueError(f"невідомий етап: {stage}")
+    sess.cfg = cfg_from(params, APP.preset)
+    if sess.result is None:
+        raise RuntimeError("спершу «Перегнати» — етап іде поверх лікування")
+    if stage == "tools":
+        sess.run_tools(APP.sink)
+        if sess.cfg.dodgeburn_on:
+            sess.dodge_burn(APP.sink)      # інструменти скинули стару карту
+    elif stage == "dodgeburn":
+        if sess.cfg.dodgeburn_on:
+            sess.dodge_burn(APP.sink)
+        else:
+            # вимкнули галочку — прибрати результат, а не лишити його
+            if sess.db_base is not None:
+                sess.result = sess.db_base
+            sess.db_gray = sess.db_base = sess.db_coverage = None
 
 
 def do_write(out_dir: str, preview: bool) -> None:
@@ -478,6 +579,14 @@ class Handler(BaseHTTPRequestHandler):
                                   "text/html; charset=utf-8")
             if u.path == "/api/state":
                 return self._json(APP.state())
+            if u.path == "/api/schema":
+                # Та сама схема, що йде агентові через `--schema`. Форма
+                # нових вкладок будується з неї, а не пишеться руками:
+                # інакше поле в дата-класі й поле в UI розходяться на
+                # першій же зміні.
+                return self._json(presets_mod.schema())
+            if u.path == "/api/presets":
+                return self._json(list_presets(q.get("dir", "presets")))
             if u.path == "/api/models":
                 return self._json(scan_models(q.get("dir", "models")))
             if u.path == "/api/browse":
@@ -578,6 +687,30 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json({"error": "спершу відкрий кадр"}, 409)
                 APP.job(do_remove)
                 return self._json({"ok": True})
+            if u.path == "/api/preset":
+                return self._json(self._preset(d))
+            if u.path == "/api/preset/save":
+                data = dict(d.get("data") or APP.preset)
+                if d.get("name"):
+                    data = {"name": d["name"], **data}
+                if d.get("why"):
+                    data = {**data, "why": d["why"]}
+                out = Path(d.get("path") or "presets").expanduser()
+                if out.is_dir() or not out.suffix:
+                    out = out / f"{d.get('file') or 'preset'}.yaml"
+                return self._json({"ok": True,
+                                   "path": str(presets_mod.save(out, data))})
+            if u.path == "/api/develop":
+                if APP.sess is None:
+                    return self._json({"error": "спершу відкрий кадр"}, 409)
+                APP.job(lambda: do_develop(d.get("params", {})))
+                return self._json({"ok": True})
+            if u.path == "/api/stage":
+                if APP.sess is None:
+                    return self._json({"error": "спершу відкрий кадр"}, 409)
+                st = d.get("stage", "")
+                APP.job(lambda: do_stage(st, d.get("params", {})))
+                return self._json({"ok": True})
             if u.path == "/api/write":
                 if APP.sess is None or APP.sess.result is None:
                     return self._json({"error": "нема чого писати"}, 409)
@@ -587,6 +720,32 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"error": "немає такого"}, 404)
         except Exception as e:                               # noqa: BLE001
             return self._json({"error": f"{type(e).__name__}: {e}"}, 500)
+
+    def _preset(self, d: dict) -> dict:
+        """Прочитати, накласти або замінити пресет UI.
+
+        Накладаємо, а не замінюємо, коли прийшов файл: у фотографа є
+        пресет на зйомку і уточнення на кадр, і саме їх послідовність —
+        сенс формату (spec.md §1.2). Замінити цілком просить `replace`.
+        """
+        if d.get("path"):
+            try:
+                data = presets_mod.load(Path(d["path"]).expanduser())
+            except presets_mod.PresetError as e:
+                return {"error": str(e)}
+            APP.preset_name = str(data.get("name") or Path(d["path"]).stem)
+        else:
+            data = d.get("data") or {}
+            APP.preset_name = str(data.get("name") or APP.preset_name)
+        APP.preset = (dict(data) if d.get("replace")
+                      else presets_mod.merge(APP.preset, data))
+        if d.get("clear"):
+            APP.preset, APP.preset_name = {}, ""
+        # Прогнати крізь Config, щоб зауваження показалися ЗАРАЗ, а не
+        # мовчки спливли при наступному прогоні.
+        APP.preset_notes = presets_mod.apply(Config(), APP.preset)
+        return {"ok": True, "preset": APP.preset, "notes": APP.preset_notes,
+                "name": APP.preset_name}
 
     def _warp(self, d: dict) -> dict:
         """Один мазок пластики. Координати приходять у пікселях КАДРУ."""

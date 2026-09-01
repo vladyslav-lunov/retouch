@@ -5,7 +5,11 @@
   3. пензель віддає правки як +1/-1 поверх автоматичної маски, а не
      замість неї;
   4. стан не бреше: busy, помилки й попередження доходять до клієнта;
-  5. запити без відкритого кадру відмовляють зрозуміло, а не падають.
+  5. запити без відкритого кадру відмовляють зрозуміло, а не падають;
+  6. форма нових вкладок будується зі СХЕМИ, тому схема має віддаватися
+     цілою й у тій самій формі, що читає агент;
+  7. пресет у UI — той самий словник, що в файлі: накладається, а не
+     замінює, і зауваження доходять одразу, а не при наступному прогоні.
 
 Сервер піднімається на випадковому порту й глушиться в кінці — тести не
 мають чіпати той, що, можливо, працює поруч.
@@ -206,12 +210,166 @@ def _teardown():
         _SRV = None
 
 
+# ---------------------------------------------------------------------------
+# схема, пресети, нові етапи
+# ---------------------------------------------------------------------------
+
+def test_schema_endpoint_feeds_the_form():
+    """Вкладки «Проявлення», «Світлотінь» і «Інструменти» малюються з цього.
+
+    Порожній розділ означає порожню вкладку, і помітили б ми це лише
+    відкривши браузер — тому перевіряємо тут.
+    """
+    _start()
+    code, body, _ = _get("/api/schema")
+    sc = json.loads(body)
+    need = ["develop", "dodgeburn", "tools.teeth", "tools.mattify",
+            "tools.eye_vessels", "tools.skin_tone"]
+    print("  розділи: " + ", ".join(f"{k}({len(sc['sections'][k])})" for k in need))
+    assert code == 200
+    for k in need:
+        assert sc["sections"].get(k), f"розділ {k} порожній — вкладка буде порожня"
+        for name, meta in sc["sections"][k].items():
+            assert meta["doc"].strip(), f"{k}.{name} без опису — поле буде без підпису"
+    assert sc.get("example"), "приклад для агента зник зі схеми"
+
+
+def test_preset_stacks_and_reports_notes():
+    """Накладається, а не замінює; помилку показує ЗАРАЗ."""
+    _start()
+    _post("/api/preset", {"clear": True})
+    _post("/api/preset", {"data": {"tools": {"teeth": {"strength": 0.4}}}})
+    code, r = _post("/api/preset", {"data": {"tools": {"mattify": {}},
+                                             "dodgeburn_on": True}})
+    print(f"  після двох накладань: {r['preset']}")
+    assert code == 200
+    assert r["preset"]["tools"]["teeth"] == {"strength": 0.4}, "друге затерло перше"
+    assert "mattify" in r["preset"]["tools"] and r["preset"]["dodgeburn_on"]
+
+    _, bad = _post("/api/preset", {"data": {"tools": {"teeth": {"нема": 1}}}})
+    print(f"  зауваження: {bad['notes']}")
+    assert bad["notes"], "невідомий параметр проковтнуло мовчки"
+
+    _, cleared = _post("/api/preset", {"clear": True})
+    assert cleared["preset"] == {}, "очищення не спрацювало"
+
+
+def test_preset_list_shows_why():
+    """Вибрати з десяти пресетів агента можна лише за причиною."""
+    _start()
+    rows = json.loads(_get("/api/presets?dir=presets")[1])
+    if not rows:
+        print("  у presets/ порожньо — перевіряти нема на чому")
+        return
+    print("  " + "; ".join(f"{r['name']}: {len(r.get('why',''))} симв." for r in rows))
+    for r in rows:
+        assert r.get("name"), "пресет без назви — у списку буде порожній рядок"
+        assert "error" in r or r.get("keys") is not None
+
+
+def test_preset_save_roundtrip():
+    """Записаний з UI пресет має читатися назад тим самим модулем."""
+    _start()
+    from retouch import presets as pm
+    with tempfile.TemporaryDirectory() as t:
+        _post("/api/preset", {"clear": True})
+        _post("/api/preset", {"data": {"detect": {"threshold": 0.019}}})
+        code, r = _post("/api/preset/save",
+                        {"path": t, "file": "ui", "why": "перевірка запису"})
+        back = pm.load(r["path"])
+        print(f"  {Path(r['path']).name}: {back}")
+        assert code == 200 and back["detect"]["threshold"] == 0.019
+        assert back["why"] == "перевірка запису", "причина не дійшла до файлу"
+        _post("/api/preset", {"clear": True})
+
+
+def test_develop_tab_rereads_the_frame():
+    """Кроп міняє геометрію, тому проявлення — це перечитування файлу."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        p = _fixture(Path(t))
+        _post("/api/open", {"path": str(p), "params": {}})
+        st = _wait_idle()
+        w0, h0 = st["w"], st["h"]
+        _post("/api/preset", {"clear": True})
+        _post("/api/preset", {"data": {"develop": {"crop": [0.1, 0.1, 0.8, 0.8]}}})
+        code, r = _post("/api/develop", {"params": {}})
+        st = _wait_idle()
+        print(f"  {w0}x{h0} -> {st['w']}x{st['h']}, помилка: {st['error']}")
+        assert code == 200 and r.get("ok") and not st["error"]
+        assert (st["w"], st["h"]) != (w0, h0), "кроп не застосувався"
+        # crop — це (x0, y0, x1, y1) у частках, тобто рамка, а не розмір
+        assert st["w"] == int(w0 * 0.8) - int(w0 * 0.1), st["w"]
+        assert st["h"] == int(h0 * 0.8) - int(h0 * 0.1), st["h"]
+        _post("/api/preset", {"clear": True})
+
+
+def test_dodgeburn_stage_runs_and_can_be_switched_off():
+    """Етап рахується поверх лікування і знімається галочкою назад."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        p = _fixture(Path(t))
+        _post("/api/open", {"path": str(p), "params": {}})
+        _wait_idle()
+        _post("/api/rerun", {"params": {}})
+        _wait_idle()
+        _post("/api/preset", {"clear": True})
+        _post("/api/preset", {"data": {"dodgeburn_on": True,
+                                       "dodgeburn": {"strength": 0.5}}})
+        _post("/api/stage", {"stage": "dodgeburn", "params": {}})
+        st = _wait_idle()
+        print(f"  увімкнено: {st['db']}, помилка {st['error']}")
+        assert st["db"] and st["db"]["touched"] > 0, "D&B нічого не торкнувся"
+
+        _post("/api/preset", {"clear": True})
+        _post("/api/stage", {"stage": "dodgeburn", "params": {}})
+        st = _wait_idle()
+        print(f"  вимкнено: {st['db']}")
+        assert st["db"] is None, "знята галочка лишила результат у кадрі"
+
+
+def test_tools_stage_without_class_map_says_so():
+    """Без face-parsing інструменти пропускаються — але стан це показує."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        p = _fixture(Path(t))
+        _post("/api/open", {"path": str(p), "params": {}})
+        _wait_idle()
+        _post("/api/rerun", {"params": {}})
+        st = _wait_idle()
+        _post("/api/preset", {"clear": True})
+        _post("/api/preset", {"data": {"tools": {"mattify": {}}}})
+        _post("/api/stage", {"stage": "tools", "params": {}})
+        st = _wait_idle()
+        print(f"  has_cls={st['has_cls']}, шарів {st['tool_layers']}, "
+              f"помилка {st['error']}")
+        assert not st["error"], "без карти класів має пропустити, а не впасти"
+        assert st["has_cls"] is False and st["tool_layers"] == []
+        _post("/api/preset", {"clear": True})
+
+
+def test_unknown_stage_is_reported():
+    """Друкарська помилка в назві етапу не має тихо нічого не робити."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        p = _fixture(Path(t))
+        _post("/api/open", {"path": str(p), "params": {}})
+        _wait_idle()
+        _post("/api/stage", {"stage": "нема-такого", "params": {}})
+        st = _wait_idle()
+        print(f"  помилка: {st['error']}")
+        assert st["error"] and "нема-такого" in st["error"]
+
+
 if __name__ == "__main__":
     fails = 0
-    order = ["test_page_and_state_respond", "test_requests_without_frame_refuse_clearly",
-             "test_model_role_is_detected_by_signature", "test_open_analyze_heal_and_views",
-             "test_crop_is_native_size", "test_brush_edits_layer_over_auto_mask",
-             "test_blobs_listing_is_sorted_by_contrast", "test_unknown_route_is_404"]
+    # Порядок — той, у якому тести написані: вони ділять один сервер і
+    # один відкритий кадр, тож «відкрити» має йти раніше за «полікувати».
+    # Але СПИСКОМ імен його тримати не можна: доданий тест мовчки не
+    # запускався б, і набір лишався б зеленим, нічого не перевіривши.
+    # Рівно на цьому вже наступили в test_cli.
+    order = [n for n, f in list(globals().items())
+             if n.startswith("test_") and callable(f)]
     try:
         for name in order:
             print(f"\n{name}")

@@ -71,14 +71,22 @@ def merge(*presets: dict) -> dict:
     `detect.min_area`, у результаті буде обидва. Поверхневе злиття
     втратило б перший — а саме цей випадок і є «стиль зйомки плюс
     уточнення кадру».
+
+    Рекурсивно, а не на один рівень: `tools` вкладений двічі
+    (`tools.teeth.strength`), і зупинка на першому рівні затирала б
+    налаштування зйомки цілим інструментом заради однієї правки кадру.
+
+    Список замінюється цілком, а не зливається: крива, набір класів і
+    рамка кропа — це неподільні значення, і «злити» дві криві поточково
+    означало б отримати третю, якої не просив ніхто.
     """
     out: dict = {}
     for p in presets:
         for k, v in (p or {}).items():
             if isinstance(v, dict) and isinstance(out.get(k), dict):
-                out[k] = {**out[k], **v}
+                out[k] = merge(out[k], v)     # рекурсивно, не на один рівень
             else:
-                out[k] = v
+                out[k] = v                    # список — ціле: крива, набір класів
     return out
 
 
@@ -94,6 +102,9 @@ def apply(cfg, data: dict, strict: bool = False) -> list[str]:
     for key, value in data.items():
         if key in ("name", "why", "for", "author", "created"):
             continue                                   # метадані, не параметри
+        if key == "tools":
+            notes += _apply_tools(cfg, value)
+            continue
         if key in SECTIONS:
             target = getattr(cfg, SECTIONS[key], None)
             if target is None:
@@ -114,6 +125,66 @@ def apply(cfg, data: dict, strict: bool = False) -> list[str]:
             notes.append(f"{key}: невідомий ключ")
     if strict and notes:
         raise PresetError("пресет має проблеми:\n  " + "\n  ".join(notes))
+    return notes
+
+
+def _apply_tools(cfg, value) -> list[str]:
+    """Розділ `tools` у тій формі, в якій його природно пише агент.
+
+    Схема показує інструменти вкладеними (`tools.teeth.strength`), і саме
+    так їх і треба приймати. До цієї функції два очевидні прочитання
+    схеми мовчки не спрацьовували: `tools.teeth:` окремим ключем ішов у
+    «невідомий ключ», а `tools: {teeth: {...}}` клав словник у
+    `cfg.tools` — інструмент після цього запускався з ДЕФОЛТАМИ, і
+    зовні це виглядало як застосований пресет. Мовчазний неправильний
+    результат гірший за помилку (§1).
+
+    Приймаємо три форми:
+      tools: [teeth, mattify]              — увімкнути з дефолтами
+      tools: {teeth: {strength: 0.4}}      — увімкнути й налаштувати
+      tools: {teeth: false}                — вимкнути, не чіпаючи решти
+
+    Порядок ключів — це порядок застосування, тому йдемо по словнику як
+    є: YAML зберігає порядок документа, і фотограф бачить у файлі те, що
+    відбудеться насправді.
+    """
+    from .tools import TOOLS
+
+    notes: list[str] = []
+    if isinstance(value, (list, tuple)):
+        value = {str(name): {} for name in value}
+    if not isinstance(value, dict):
+        return [f"tools: очікував список або словник, а там {type(value).__name__}"]
+
+    names = list(cfg.tools)
+    params = {k: dict(v) for k, v in (cfg.tool_params or {}).items()}
+    for name, opts in value.items():
+        if name not in TOOLS:
+            notes.append(f"tools.{name}: невідомий інструмент; є "
+                         f"{', '.join(sorted(TOOLS))}")
+            continue
+        if opts is False or opts is None:
+            if name in names:
+                names.remove(name)
+            continue
+        if name not in names:
+            names.append(name)
+        if opts is True or opts == {}:
+            continue
+        if not isinstance(opts, dict):
+            notes.append(f"tools.{name}: очікував словник параметрів, "
+                         f"а там {type(opts).__name__}")
+            continue
+        fields = {f.name for f in dataclasses.fields(TOOLS[name][1])}
+        bucket = params.setdefault(name, {})
+        for k, v in opts.items():
+            if k not in fields:
+                notes.append(f"tools.{name}.{k}: невідомий параметр; є "
+                             f"{', '.join(sorted(fields))}")
+                continue
+            bucket[k] = v
+    cfg.tools = tuple(names)
+    cfg.tool_params = params
     return notes
 
 
@@ -221,7 +292,23 @@ def schema() -> dict:
             "пресет ЧАСТКОВИЙ: задавай лише те, що змінюєш",
             "пресети накладаються зліва направо, пізніший виграє",
             "невідомі ключі не валять роботу, але потрапляють у зауваження",
+            "розділи 'tools.*' нижче — це ВКЛАДЕНИЙ розділ 'tools': "
+            "ключ 'tools.teeth' пиши як tools: {teeth: {...}}",
+            "інструмент вимикається значенням false: tools: {teeth: false}",
+            "порядок ключів у 'tools' — це порядок застосування",
         ],
+        "example": {
+            "name": "студія, м'яке світло",
+            "why": "Поріг піднято, бо на цьому світлі 0.012 ловило пори. "
+                   "Зуби ледь-ледь: вони й так світлі, сильніше дасть вставну "
+                   "щелепу. D&B увімкнено — тіні під вилицями рвані.",
+            "for": "студійний портрет, один софтбокс зліва",
+            "detect": {"threshold": 0.016},
+            "mask": {"skin_classes": ["skin", "nose"]},
+            "tools": {"teeth": {"strength": 0.35}, "mattify": {}},
+            "dodgeburn_on": True,
+            "dodgeburn": {"strength": 0.4},
+        },
         "sections": {
             "develop": _describe(DevelopParams),
             "detect": _describe(DetectParams),
