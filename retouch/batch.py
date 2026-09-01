@@ -104,10 +104,16 @@ def process(
     limit: int | None = None,
     preview: bool = False,
     debug: bool = False,
+    use_xmp: bool = False,
     on_item=None,
 ) -> Report:
     """Прогнати теку. cfg_factory() має віддавати СВІЖИЙ Config на кожен
-    кадр — інакше пресет одного кадру протече в наступний."""
+    кадр — інакше пресет одного кадру протече в наступний.
+
+    use_xmp — шукати сайдкар Camera Raw до КОЖНОГО кадру. Тут це
+    доречніше, ніж деінде: у теці зі зйомки в кожного кадру свій кроп і
+    своя експозиція, і саме вони роблять покадрову різницю, якої пресет
+    на зйомку дати не може."""
     out_dir = Path(out_dir)
     rep = Report()
     files = find_inputs(src)
@@ -127,11 +133,28 @@ def process(
         t0 = time.time()
         try:
             cfg = cfg_factory() if cfg_factory else Config()
-            stack = [base_preset or {}]
+            # Порядок той самий, що в CLI: XMP — база (це те, що
+            # фотограф уже вирішив у проявнику), далі стиль зйомки, далі
+            # уточнення кадру. Перекривати XMP пресетом можна, навпаки —
+            # ні, інакше стиль на теку не діяв би на кадрах із сайдкаром.
+            stack: list[dict] = []
+            marks: list[str] = []
+            if use_xmp:
+                from . import xmp as xmp_mod
+                try:
+                    pre, _rep, where = xmp_mod.from_image(path)
+                except xmp_mod.XmpError as e:
+                    pre, where = None, ""
+                    item.note = f"XMP: {e}"
+                if pre:
+                    stack.append(pre)
+                    marks.append(Path(where).name if where else "xmp")
+            stack.append(base_preset or {})
             side = sidecar_for(path)
             if side:
                 stack.append(presets_mod.load(side))
-                item.preset = side.name
+                marks.append(side.name)
+            item.preset = " + ".join(marks)
             merged = presets_mod.merge(*stack)
             if merged:
                 presets_mod.apply(cfg, merged)

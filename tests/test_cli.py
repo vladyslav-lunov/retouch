@@ -157,6 +157,60 @@ def test_full_run_writes_expected_files():
         assert "[heal]" in r.stdout
 
 
+def test_xmp_is_the_base_and_preset_beats_it():
+    """XMP — це те, що фотограф уже вирішив, тобто база, а не уточнення.
+
+    Пресет зйомки має його перекривати: інакше «застосуй мій стиль до
+    всієї теки» працювало б лише на кадрах без сайдкара.
+    """
+    side = Path(__file__).resolve().parent / "fixtures" / "acr_sidecar.xmp"
+    with tempfile.TemporaryDirectory() as t:
+        only_xmp = build_config(_args(xmp=str(side)))
+        pre = Path(t) / "p.yaml"
+        pre.write_text("develop:\n  contrast: 0.4\n", encoding="utf-8")
+        both = build_config(_args(xmp=str(side), preset=[str(pre)]))
+    print(f"  лише XMP: contrast={only_xmp.develop.contrast}, "
+          f"crop={only_xmp.develop.crop}")
+    print(f"  XMP + пресет: contrast={both.develop.contrast}, "
+          f"crop={both.develop.crop}")
+    assert abs(only_xmp.develop.contrast - 0.12) < 1e-9, "XMP не застосувався"
+    assert both.develop.contrast == 0.4, "пресет не переміг XMP"
+    assert both.develop.crop, "пресет затер кроп, якого не згадував"
+
+
+def test_xmp_auto_finds_the_sidecar_and_prints_the_report():
+    """Без значення прапорця сайдкар шукається поруч із кадром.
+
+    Звіт має піти у stderr ЗАВЖДИ: мовчазне «наближено» — головний ризик
+    цієї гілки (PLAN.md §5).
+    """
+    side = Path(__file__).resolve().parent / "fixtures" / "acr_sidecar.xmp"
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        img = _fixture(d)
+        (d / "T.xmp").write_text(side.read_text(encoding="utf-8"), encoding="utf-8")
+        r = _run(str(img), "-o", str(d / "out"), "--xmp", "--force-mask")
+    lines = [l for l in r.stderr.splitlines() if l.startswith("[xmp]")]
+    print("  " + "\n  ".join(lines[:3]))
+    print(f"  рядків звіту: {len(lines)}")
+    assert r.returncode == 0, r.stderr[-400:]
+    assert any("≈" in l for l in lines), "у звіті немає «наближено»"
+    assert any("×" in l for l in lines), "у звіті немає «не застосовано»"
+
+
+def test_missing_xmp_does_not_stop_the_run():
+    """Сайдкара немає — кажемо про це і працюємо далі, а не падаємо."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        img = _fixture(d)
+        r = _run(str(img), "-o", str(d / "out"), "--xmp", "--force-mask")
+        print(f"  код {r.returncode}; "
+              f"{[l for l in r.stderr.splitlines() if '[xmp]' in l]}")
+        assert r.returncode == 0, "відсутній XMP зупинив прогін"
+        assert any("[xmp]" in l for l in r.stderr.splitlines()), (
+            "промовчали про те, що XMP просили, а не знайшли")
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

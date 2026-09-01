@@ -689,6 +689,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"ok": True})
             if u.path == "/api/preset":
                 return self._json(self._preset(d))
+            if u.path == "/api/xmp":
+                return self._json(self._xmp(d))
             if u.path == "/api/preset/save":
                 data = dict(d.get("data") or APP.preset)
                 if d.get("name"):
@@ -746,6 +748,36 @@ class Handler(BaseHTTPRequestHandler):
         APP.preset_notes = presets_mod.apply(Config(), APP.preset)
         return {"ok": True, "preset": APP.preset, "notes": APP.preset_notes,
                 "name": APP.preset_name}
+
+    def _xmp(self, d: dict) -> dict:
+        """Прочитати налаштування Camera Raw і накласти те, що вміємо.
+
+        Звіт повертається завжди і повністю: у цій гілці мовчазне
+        «наближено» — головний ризик (PLAN.md §5), тому «×» видно поруч
+        з «=» і «≈», а не ховається за «докладніше».
+        """
+        from . import xmp as xmp_mod
+
+        src = d.get("path") or (str(APP.sess.path) if APP.sess else "")
+        if not src:
+            return {"error": "нема кадру і не задано шляху до XMP"}
+        try:
+            if str(src).lower().endswith(".xmp"):
+                pre, rep = xmp_mod.to_preset(xmp_mod.read(src))
+                where = str(src)
+            else:
+                pre, rep, where = xmp_mod.from_image(src)
+        except xmp_mod.XmpError as e:
+            return {"error": str(e)}
+        if pre is None:
+            return {"error": f"поруч із {Path(src).name} немає ні сайдкара, "
+                             f"ні вбудованого блоку XMP"}
+        APP.preset = presets_mod.merge(APP.preset, pre)
+        APP.preset_name = str(pre.get("name") or APP.preset_name)
+        APP.preset_notes = presets_mod.apply(Config(), APP.preset)
+        return {"ok": True, "preset": APP.preset, "source": where,
+                "notes": APP.preset_notes, "summary": rep.summary(),
+                "exact": rep.exact, "approx": rep.approx, "ignored": rep.ignored}
 
     def _warp(self, d: dict) -> dict:
         """Один мазок пластики. Координати приходять у пікселях КАДРУ."""

@@ -17,6 +17,8 @@ python3 -m retouch.webui                    # локальний UI, порт 87
 python3 -m retouch.webui IMG.tif --port 8771 --no-browser
 python3 -m retouch.cli --schema             # схема пресету для агента
 python3 scripts/brief.py IMG.CR3 -o brief   # досьє на кадр ДЛЯ агента
+python3 -m retouch.cli IMG.tif -o out --xmp          # взяти налаштування ACR
+python3 -m retouch.cli SHOOT/ -o out --batch --xmp   # сайдкар до кожного кадру
 python3 scripts/variants.py IMG.tif presets/*.yaml -o var   # порівняти пресети
 python3 -m retouch.cli IMG.tif --preset p.yaml --preset frame.yaml
 python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml   # ніч
@@ -114,6 +116,9 @@ cp313 сумісних колес НЕМАЄ ЖОДНОГО. Тобто на Pyt
 - набір тестів не має перелічувати свої тести списком імен. У
   `test_cli` і `test_webui` на цьому вже наступили двічі: доданий тест
   мовчки не запускався, а набір лишався зеленим;
+- XMP читається у три яруси, і ярус не можна завищувати: те, чого ми не
+  вміємо, іде у звіт списком «не застосовано», а не підробляється схожим
+  ефектом. Мовчазне «наближено» гірше за відсутнє (spec.md §19);
 - «шкіра» — це рішення фотографа, а не властивість пікселя. Перш ніж
   ускладнювати детектор, спитати, чи не знімається проблема галочкою
   в наборі класів (§15).

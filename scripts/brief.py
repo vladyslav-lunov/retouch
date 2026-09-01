@@ -131,6 +131,25 @@ def main(argv=None) -> int:
             if frac > 1e-4:
                 classes[name] = round(frac, 4)
 
+    # --- що фотограф уже вирішив у проявнику -------------------------------
+    # Агенту це потрібніше за будь-який наш вимір: він має пропонувати
+    # ПОВЕРХ рішень фотографа, а не замість них. Тут же видно, чого ми з
+    # цих рішень не вміємо — щоб агент не будував на них своє.
+    xmp_block = None
+    try:
+        from retouch import xmp as xmp_mod
+        pre, rep, where = xmp_mod.from_image(a.input)
+        if pre is not None:
+            xmp_block = {
+                "source": where,
+                "applied_exactly": rep.exact,
+                "applied_approximately": rep.approx,
+                "read_but_not_applied": rep.ignored,
+                "preset": pre.get("develop", {}),
+            }
+    except Exception as e:                                    # noqa: BLE001
+        xmp_block = {"error": f"{type(e).__name__}: {e}"}
+
     brief = {
         "frame": {"file": Path(a.input).name, "w": w, "h": h,
                   "mp": round(w * h / 1e6, 1),
@@ -144,6 +163,7 @@ def main(argv=None) -> int:
         "detection": {"radius_px": round(sess.radius, 2),
                       "blobs_at_default": len(sess.blobs),
                       "sweep": sweep},
+        "camera_raw": xmp_block,
         "warnings": [x for x in [sess.warn] if x],
         "files": files,
         "how_to_read": {
@@ -151,6 +171,9 @@ def main(argv=None) -> int:
             "crops": "про ретуш: текстура і плями в масштабі 1:1. "
                      "На зменшеному їх не видно — §1.",
             "sweep": "поріг детекції підбирають ЗА ЦИМИ ЧИСЛАМИ, а не по картинці.",
+            "camera_raw": "що фотограф уже зробив в ACR. Пропонуй ПОВЕРХ цього. "
+                          "read_but_not_applied — те, чого ми не вміємо: "
+                          "не спирайся на нього, кадр цього не отримав.",
         },
     }
     (d / f"{stem}_brief.json").write_text(
@@ -180,6 +203,14 @@ def main(argv=None) -> int:
           "", "| поріг | плям | дотиків |", "|---|---|---|"]
     for r in sweep:
         L.append(f"| {r['threshold']} | {r['blobs']} | {r['touched']:.3%} |")
+    if xmp_block and "error" not in xmp_block:
+        L += ["", "## Camera Raw", "", f"джерело: `{xmp_block['source']}`", ""]
+        for sign, key in (("=", "applied_exactly"), ("≈", "applied_approximately"),
+                          ("×", "read_but_not_applied")):
+            for k_, v in xmp_block[key].items():
+                L.append(f"- `{sign}` **{k_}**: {v}")
+        L += ["", "Пропонуй ПОВЕРХ цього. Рядки з `×` кадр НЕ отримав — "
+              "не будуй на них своє рішення."]
     if brief["warnings"]:
         L += ["", "## Попередження", ""] + [f"- {x.splitlines()[0]}" for x in brief["warnings"]]
     L += ["", "## Файли", ""]

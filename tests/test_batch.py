@@ -138,6 +138,58 @@ def test_report_counts_are_consistent():
         assert all(i.seconds >= 0 for i in rep.items)
 
 
+def test_xmp_is_read_per_frame():
+    """У теці зі зйомки в кожного кадру свій кроп — це те, чого пресет
+    на зйомку дати не може."""
+    side = (Path(__file__).resolve().parent / "fixtures" / "acr_sidecar.xmp"
+            ).read_text(encoding="utf-8")
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        src = _shoot(d, n=3, broken=False)
+        for name in ("IMG_001", "IMG_003"):
+            (src / f"{name}.xmp").write_text(side, encoding="utf-8")
+        rep = batch.process(src, d / "out", cfg_factory=_cfg, use_xmp=True)
+        sizes = {}
+        for item in rep.done:
+            flat = d / "out" / f"{item.path.stem}_99_flat.tif"
+            im = cv2.imread(str(flat), cv2.IMREAD_UNCHANGED)
+            sizes[item.path.stem] = (im.shape[1], im.shape[0])
+        marks = {i.path.stem: i.preset for i in rep.items}
+        print(f"  розміри: {sizes}")
+        print(f"  джерела: {marks}")
+    assert sizes["IMG_001"] == sizes["IMG_003"], "однакові XMP дали різні кадри"
+    assert sizes["IMG_002"] != sizes["IMG_001"], (
+        "кадр без сайдкара теж кроплено — XMP протік між кадрами")
+    assert "xmp" in marks["IMG_001"].lower(), "у звіті не видно, звідки взято"
+    assert not marks["IMG_002"], "кадру без сайдкара приписано джерело"
+
+
+def test_shoot_preset_beats_xmp():
+    """Стиль на зйомку має діяти й на кадрах із сайдкаром."""
+    side = (Path(__file__).resolve().parent / "fixtures" / "acr_sidecar.xmp"
+            ).read_text(encoding="utf-8")
+    seen = []
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        src = _shoot(d, n=2, broken=False)
+        for f in sorted(src.glob("*.tif")):
+            f.with_suffix(".xmp").write_text(side, encoding="utf-8")
+        batch.process(src, d / "out", cfg_factory=_cfg, use_xmp=True,
+                      base_preset={"develop": {"contrast": 0.4}},
+                      on_item=lambda i, r: seen.append(i))
+        # contrast з XMP = 0.12, з пресету зйомки = 0.4; має перемогти пресет
+        cfg = _cfg()
+        from retouch import presets as pm
+        from retouch import xmp as xm
+        pre, _r, _w = xm.from_image(sorted(src.glob("*.tif"))[0])
+        pm.apply(cfg, pm.merge(pre, {"develop": {"contrast": 0.4}}))
+        print(f"  contrast після накладання: {cfg.develop.contrast}, "
+              f"кроп з XMP лишився: {bool(cfg.develop.crop)}")
+    assert cfg.develop.contrast == 0.4, "пресет зйомки не переміг XMP"
+    assert cfg.develop.crop, "пресет зйомки затер кроп, якого не згадував"
+    assert all(i.status == "done" for i in seen), [i.note for i in seen]
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

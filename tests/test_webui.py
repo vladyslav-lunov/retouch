@@ -361,6 +361,41 @@ def test_unknown_stage_is_reported():
         assert st["error"] and "нема-такого" in st["error"]
 
 
+def test_xmp_import_merges_and_reports():
+    """Кнопка «Взяти з XMP»: накладає те, що вміємо, і показує решту."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        p = _fixture(d)
+        side = Path(__file__).resolve().parent / "fixtures" / "acr_sidecar.xmp"
+        (d / "T.xmp").write_text(side.read_text(encoding="utf-8"), encoding="utf-8")
+        _post("/api/open", {"path": str(p), "params": {}})
+        _wait_idle()
+        _post("/api/preset", {"clear": True})
+        code, r = _post("/api/xmp", {})
+        print(f"  {r.get('summary')}")
+        print(f"  у пресет: {sorted((r.get('preset') or {}).get('develop', {}))}")
+        assert code == 200 and not r.get("error"), r
+        assert r["preset"]["develop"]["crop"], "кроп не дійшов"
+        assert r["approx"] and r["ignored"], (
+            "звіт без «наближено» або без «не застосовано» — "
+            "саме вони й роблять його чесним")
+        assert not r["notes"], f"пресет з XMP дав зауваження: {r['notes']}"
+        _post("/api/preset", {"clear": True})
+
+
+def test_xmp_without_sidecar_says_so():
+    """Немає сайдкара — зрозуміла відмова, а не порожній успіх."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        p = _fixture(Path(t))
+        _post("/api/open", {"path": str(p), "params": {}})
+        _wait_idle()
+        code, r = _post("/api/xmp", {})
+        print(f"  -> {code}: {str(r.get('error'))[:60]}")
+        assert r.get("error") and not r.get("ok")
+
+
 if __name__ == "__main__":
     fails = 0
     # Порядок — той, у якому тести написані: вони ділять один сервер і

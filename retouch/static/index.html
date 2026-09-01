@@ -753,6 +753,18 @@ function drawTools(p, sc){
 }
 
 /* ---------- пресети ---------- */
+/* JSON.stringify розкладає кожне число кривої в окремий рядок, і крива
+   на дванадцять точок займає пів екрана, виштовхуючи все інше. Тому
+   масиви самих чисел (і масиви таких масивів) складаємо в рядок. */
+function compactJson(o){
+  let t = JSON.stringify(o, null, 2), prev;
+  do { prev = t;
+    t = t.replace(/\[\s*\n\s*((?:-?[\d.eE+-]+|\[[^\[\]]*\])(?:,\s*\n?\s*(?:-?[\d.eE+-]+|\[[^\[\]]*\]))*)\s*\n\s*\]/g,
+      (m, inner) => '[' + inner.replace(/\s+/g, ' ').trim() + ']');
+  } while (t !== prev);
+  return t;
+}
+
 async function drawPresets(p){
   p.innerHTML = '<div class="hint"><span class="spin"></span>читаю presets/…</div>';
   const list = await api('/api/presets');
@@ -762,12 +774,14 @@ async function drawPresets(p){
     накладається поверх попереднього. Поле <b>чому</b> — головне: коли агент дав
     десять варіантів, у числах вони виглядають однаково.</div>
     ${notes.length ? `<div class="note">${esc(notes.join('\n'))}</div>` : ''}
+    <div id="xmprep"></div>
     <div class="grid" style="grid-template-columns:1fr 1fr;align-items:start">
       <div><h2>Активний${S.preset_name ? ' · ' + esc(S.preset_name) : ''}</h2>
         ${keys.length
-          ? `<pre class="yaml">${esc(JSON.stringify(cur, null, 2))}</pre>`
+          ? `<pre class="yaml">${esc(compactJson(cur))}</pre>`
           : '<div class="hint">Порожній — усе на дефолтах дата-класів.</div>'}
-        <div class="bar"><button id="pclear">Очистити</button></div>
+        <div class="bar"><button id="pclear">Очистити</button>
+          <button id="pxmp" ${S.loaded ? '' : 'disabled'}>Взяти з XMP</button></div>
         <h2>Зберегти</h2>
         <div class="row"><input type="text" id="pfile" placeholder="назва файлу"
           value="${esc((S.name || 'preset').replace(/\.[^.]+$/, ''))}"></div>
@@ -787,6 +801,26 @@ async function drawPresets(p){
   p.querySelectorAll('[data-p]').forEach(e =>
     e.onclick = () => pset({path: e.dataset.p}));
   $('#pclear').onclick = () => pset({clear: true});
+  $('#pxmp').onclick = async () => {
+    const r = await post('/api/xmp', {});
+    if (r.error){ $('#xmprep').innerHTML = `<div class="note bad">${esc(r.error)}</div>`; return; }
+    // «×» показуємо поруч із рештою, а не за «докладніше». Те, чого ми
+    // НЕ зробили, — найважливіша частина цього звіту: інакше кадр
+    // виглядає проявленим як в ACR, а це не так.
+    const rows = (o, sign, cls) => Object.entries(o || {})
+      .map(([k, v]) => `<div><b style="color:${cls}">${sign}</b> ${esc(k)}: ${esc(v)}</div>`)
+      .join('');
+    $('#xmprep').innerHTML =
+      `<div class="note" style="border-left-color:var(--ok)"><b>${esc(r.summary)}</b>
+        <div class="hint" style="margin:4px 0 8px">${esc(r.source)}</div>
+        ${rows(r.exact, '=', 'var(--ok)')}
+        ${rows(r.approx, '≈', 'var(--warn)')}
+        ${rows(r.ignored, '×', 'var(--bad)')}</div>`;
+    await tick();
+    const keep = $('#xmprep').innerHTML;
+    await drawPresets($('#pane'));
+    $('#xmprep').innerHTML = keep;
+  };
   $('#psave').onclick = async () => {
     const r = await post('/api/preset/save',
       {file: $('#pfile').value || 'preset', why: $('#pwhy').value,

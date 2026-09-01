@@ -46,6 +46,34 @@ def build_config(a: argparse.Namespace) -> Config:
     дефолт", дефолти прапорців — None, а справжні лишаються в дата-класах.
     """
     cfg = Config()
+    # XMP — найперший: це те, що фотограф уже вирішив у проявнику, тобто
+    # база, а не уточнення. Пресет зйомки й прапорці мають його
+    # перекривати, а не навпаки.
+    auto_on_dir = (a.xmp == "auto" and a.input
+                   and Path(a.input).expanduser().is_dir())
+    if getattr(a, "xmp", None) and not auto_on_dir:
+        # На теці автопошук нічого не значить: сайдкар лежить біля КАДРУ,
+        # і в пакеті його читає batch.process для кожного окремо.
+        from . import xmp as xmp_mod
+        try:
+            src = a.xmp if a.xmp != "auto" else None
+            if src:
+                pre, rep = xmp_mod.to_preset(xmp_mod.read(src))
+            else:
+                pre, rep, src = xmp_mod.from_image(a.input)
+            if pre is None:
+                print("[xmp] сайдкара немає і вбудованого блоку теж",
+                      file=sys.stderr)
+            else:
+                presets_mod.apply(cfg, pre)
+                # Звіт друкується ЗАВЖДИ і повністю. Мовчазне «наближено»
+                # — головний ризик цієї гілки (PLAN.md §5).
+                print(f"[xmp] {src}\n[xmp] {rep.summary()}", file=sys.stderr)
+                for line in rep.lines():
+                    print(f"[xmp] {line}", file=sys.stderr)
+        except xmp_mod.XmpError as e:
+            print(f"[xmp] {e}", file=sys.stderr)
+
     # Пресети йдуть ПЕРЕД yaml і прапорцями: спершу стиль зйомки, потім
     # уточнення кадру, потім те, що людина набрала руками.
     for path in (a.preset or []):
@@ -99,6 +127,10 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--preset", action="append", default=None, metavar="FILE",
                     help="пресет; можна кілька — накладаються зліва направо, "
                          "прапорці виграють в усіх")
+    ap.add_argument("--xmp", nargs="?", const="auto", default=None, metavar="FILE",
+                    help="прочитати налаштування Camera Raw; без значення — "
+                         "шукати сайдкар поруч із кадром. Застосовується те, "
+                         "що можемо, решта йде у звіт")
     ap.add_argument("--schema", action="store_true",
                     help="вивести схему пресету (для агента) і вийти")
 
@@ -196,10 +228,15 @@ def main(argv: list[str] | None = None) -> int:
                   f"{extra}{'  ' + item.note if item.note else ''}", flush=True)
 
         base = presets_mod.merge(*[presets_mod.load(p) for p in (a.preset or [])])
+        # У пакеті XMP читається ПОКАДРОВО, всередині process(). Тут його
+        # знімаємо: build_config шукав би сайдкар поруч із ТЕКОЮ і на
+        # кожному кадрі повідомляв, що не знайшов.
+        per_frame = argparse.Namespace(**{**vars(a), "xmp": None})
         rep = batch_mod.process(
-            src, a.out, base_preset=base, cfg_factory=lambda: build_config(a),
+            src, a.out, base_preset=base,
+            cfg_factory=lambda: build_config(per_frame),
             resume=not a.no_resume, preview=a.preview, debug=a.debug,
-            on_item=show)
+            use_xmp=bool(a.xmp), on_item=show)
         print("\n" + rep.text())
         return 1 if rep.failed else 0
 
