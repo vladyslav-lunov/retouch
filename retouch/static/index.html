@@ -125,6 +125,12 @@ pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
   <div id="info" class="hint"></div>
 
   <h2>Детекція</h2>
+  <div class="row"><label>ціль, % шкіри</label>
+    <input type="range" id="target_coverage" min="0" max="0.12" step="0.005" value="0">
+    <span class="val" id="target_coverage_v">вимк</span></div>
+  <div class="hint">Поріг контрасту між кадрами НЕ переноситься: на 44 реальних
+    кадрах фіксовані 0.012 дали від 0% до 24% торкнутої шкіри. Ціль переноситься —
+    постав 3%, і поріг підбереться під кадр сам.</div>
   <div class="row"><label>поріг</label>
     <input type="range" id="threshold" min="0.004" max="0.04" step="0.001" value="0.012">
     <span class="val" id="threshold_v">0.012</span></div>
@@ -200,7 +206,7 @@ const $ = s => document.querySelector(s);
 const api = async (u, o) => (await fetch(u, o)).json();
 const post = (u, b) => api(u, {method:'POST', headers:{'Content-Type':'application/json'},
                                body: JSON.stringify(b||{})});
-const PARAMS = ['threshold','radius','min_area','max_area','max_elongation',
+const PARAMS = ['threshold','target_coverage','radius','min_area','max_area','max_elongation',
                 'strength','search_radius','limit','mask_erode','raw_decoder',
                 'face_model','face_detector','lama_model'];
 let S = {}, tab = 'view', keep = null, cropAt = null, painting = false, brush = 'add';
@@ -209,14 +215,20 @@ function params(){
   const p = {};
   for (const k of PARAMS){
     const v = $('#'+k).value;
-    if (v !== '' && !(k === 'radius' && +v === 0)) p[k] = v;
+    // 0 у цих двох означає «не задано», а не нуль: радіус тоді
+    // рахується з ширини обличчя, ціль — вимкнена й працює поріг
+    if (v !== '' && !((k === 'radius' || k === 'target_coverage') && +v === 0))
+      p[k] = v;
   }
   return p;
 }
 for (const k of PARAMS){
   const el = $('#'+k), v = $('#'+k+'_v');
   if (v) el.oninput = () => v.textContent =
-    (k === 'radius' && +el.value === 0) ? 'авто' : el.value;
+    (k === 'radius' && +el.value === 0) ? 'авто' :
+    (k === 'target_coverage')
+      ? (+el.value === 0 ? 'вимк' : (+el.value * 100).toFixed(1) + '%')
+      : el.value;
 }
 
 /* ---------- стан ---------- */

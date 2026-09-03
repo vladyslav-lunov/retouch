@@ -30,6 +30,7 @@ _OVERRIDES = (
     ("raw_decoder", "cfg", "raw_decoder"),
     ("lama_model", "cfg", "lama_model"),
     ("threshold", "detect", "threshold"),
+    ("target_coverage", "detect", "target_coverage"),
     ("min_area", "detect", "min_area"),
     ("max_area", "detect", "max_area"),
     ("max_elongation", "detect", "max_elongation"),
@@ -138,7 +139,12 @@ def build_parser() -> argparse.ArgumentParser:
                     help="радіус частотки в px (типово — з ширини обличчя)")
     ap.add_argument("--threshold", type=float, default=None,
                     help=f"поріг контрасту дефекту, менше = агресивніше "
-                         f"(типово {_D.threshold}, див. spec.md §6.2)")
+                         f"(типово {_D.threshold}, див. spec.md §6.2). "
+                         f"МІЖ КАДРАМИ НЕ ПЕРЕНОСИТЬСЯ — див. --target-coverage")
+    ap.add_argument("--target-coverage", type=float, default=None,
+                    help="замість порога — ціль: яка частка ШКІРИ має бути "
+                         "торкнута (напр. 0.03). Поріг підбирається під кадр. "
+                         "Саме це переноситься між кадрами, а не поріг")
     ap.add_argument("--min-area", type=int, default=None,
                     help=f"типово {_D.min_area}")
     ap.add_argument("--max-area", type=int, default=None,

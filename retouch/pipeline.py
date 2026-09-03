@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import cv2
@@ -302,6 +302,8 @@ class Session:
         self.tool_layers: list = []
         self.blob_classes: list = []
         self.detect_warn: str | None = None
+        self.threshold_curve: list = []
+        self.threshold_note: str | None = None
 
     # --- етапи ---------------------------------------------------------
     def load(self, sink=None) -> "Session":
@@ -460,6 +462,9 @@ class Session:
             self.radius = radius
             s.done(f"radius={radius:.1f}px")
 
+        if self.cfg.detect.target_coverage is not None:
+            self.solve_threshold(self.cfg.detect.target_coverage, sink)
+
         s = Stage("detect", sink)
         self.labels, self.blobs = detect_blemishes(self.high, self.skin,
                                                    self.cfg.detect)
@@ -473,6 +478,65 @@ class Session:
         if self.detect_warn:
             print(f"[detect] УВАГА: {self.detect_warn}", flush=True)
         return self
+
+    # Драбина порогів для підбору. Не бісекція: крива корисна сама по
+    # собі — її видно в звіті, і по ній зрозуміло, наскільки кадр
+    # чутливий до порога взагалі.
+    THRESHOLD_LADDER = (0.008, 0.010, 0.012, 0.014, 0.018, 0.022, 0.028, 0.035)
+
+    def solve_threshold(self, target: float, sink=None) -> float:
+        """Підібрати поріг під ЦІЛЬОВУ частку торкнутої шкіри.
+
+        Навіщо взагалі: поріг контрасту між кадрами не переноситься. На
+        44 реальних кадрах однієї людини фіксовані 0.012 дали від 0% до
+        24% торкнутої шкіри — у робочу зону потрапило 15 кадрів із 44, а
+        14 пішли в згладжування (spec.md §6.2). Частка торкнутого —
+        навпаки, означає те саме на будь-якому кадрі, бо це відповідь на
+        питання «скільки шкіри ми переписали».
+
+        Рахуємо чесно, лікуванням, а не оцінкою по площі плям: альфа
+        дотику ширша за саму пляму приблизно вчетверо, і на цій різниці
+        ціль перестала б означати те, що написано в її назві.
+        """
+        st = Stage("solve-threshold", sink)
+        skin_px = float(self.skin.sum()) if self.skin is not None else 0.0
+        if skin_px <= 0:
+            st.done("маски немає — підбирати нема під що")
+            return self.cfg.detect.threshold
+
+        curve, chosen = [], None
+        for t in self.THRESHOLD_LADDER:
+            p = replace(self.cfg.detect, threshold=t, target_coverage=None)
+            lbl, blobs = detect_blemishes(self.high, self.skin, p)
+            _h2, cov = heal_blemishes(self.high, lbl, blobs, self.skin,
+                                      search_radius=self.cfg.search_radius,
+                                      strength=self.cfg.strength)
+            frac = float((cov > 0).sum()) / skin_px
+            curve.append({"threshold": t, "blobs": len(blobs),
+                          "touched_of_skin": round(frac, 5)})
+            if frac <= target:
+                chosen = t
+                break              # драбина зростає — далі буде лише менше
+
+        self.threshold_curve = curve
+        if chosen is None:
+            # Навіть найжорсткіший поріг дає більше цілі. Це не привід
+            # мовчки поставити його: кадр просто такий, і сказати про це
+            # чесніше, ніж вдати, що ціль досягнута.
+            chosen = self.THRESHOLD_LADDER[-1]
+            self.threshold_note = (
+                f"ціль {target:.1%} не досягнута навіть на {chosen}: "
+                f"вийшло {curve[-1]['touched_of_skin']:.1%}. Кадр із дуже "
+                f"вираженою текстурою — дивись на кроп 1:1, перш ніж вірити "
+                f"результату")
+            print(f"[solve-threshold] УВАГА: {self.threshold_note}", flush=True)
+        else:
+            self.threshold_note = None
+        self.cfg.detect = replace(self.cfg.detect, threshold=chosen)
+        st.done(f"ціль {target:.1%} -> поріг {chosen} "
+                f"({curve[-1]['touched_of_skin']:.2%} шкіри, "
+                f"{len(curve)} проб)")
+        return chosen
 
     def _blob_classes(self) -> list[tuple[str, int]]:
         """Розподіл знайдених плям по класах face-parsing.

@@ -3679,5 +3679,91 @@
       ]
     }
   ],
-  "skipped": []
+  "aggregate": [
+    {
+      "threshold": 0.008,
+      "blobs_median": 98.5,
+      "blobs_min": 0,
+      "blobs_max": 1182,
+      "touched_of_skin_median": 0.08269,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.4436,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.01,
+      "blobs_median": 61.0,
+      "blobs_min": 0,
+      "blobs_max": 874,
+      "touched_of_skin_median": 0.05537,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.3313,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.012,
+      "blobs_median": 43.0,
+      "blobs_min": 0,
+      "blobs_max": 716,
+      "touched_of_skin_median": 0.03968,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.23924,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.014,
+      "blobs_median": 32.5,
+      "blobs_min": 0,
+      "blobs_max": 594,
+      "touched_of_skin_median": 0.03108,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.21569,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.018,
+      "blobs_median": 17.0,
+      "blobs_min": 0,
+      "blobs_max": 398,
+      "touched_of_skin_median": 0.01357,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.18996,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.022,
+      "blobs_median": 8.5,
+      "blobs_min": 0,
+      "blobs_max": 323,
+      "touched_of_skin_median": 0.00894,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.16647,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.025,
+      "blobs_median": 5.5,
+      "blobs_min": 0,
+      "blobs_max": 267,
+      "touched_of_skin_median": 0.00475,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.14004,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    }
+  ],
+  "skipped": [],
+  "n_frames": 44,
+  "settings": {
+    "skin_classes": "(дефолт)",
+    "preset": null,
+    "face_model": "models/resnet18.onnx",
+    "raw_decoder": null
+  }
 }

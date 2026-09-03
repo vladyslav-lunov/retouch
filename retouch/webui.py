@@ -119,6 +119,8 @@ class App:
             "blob_classes": [{"name": n, "n": c} for n, c in
                              (getattr(s, "blob_classes", None) or [])],
             "detect_warn": getattr(s, "detect_warn", None),
+            "threshold_curve": getattr(s, "threshold_curve", []),
+            "threshold_note": getattr(s, "threshold_note", None),
             "skin_classes": list(s.cfg.mask.skin_classes),
             "has_cls": s.cls is not None,
             "keep": (None if self.keep_ids is None else sorted(self.keep_ids)),
@@ -131,6 +133,7 @@ class App:
                     "strength": s.cfg.dodgeburn.strength}),
             "params": {
                 "threshold": s.cfg.detect.threshold, "radius": s.cfg.hf_radius,
+                "target_coverage": s.cfg.detect.target_coverage,
                 "min_area": s.cfg.detect.min_area, "max_area": s.cfg.detect.max_area,
                 "max_elongation": s.cfg.detect.max_elongation,
                 "strength": s.cfg.strength, "limit": s.cfg.limit,
@@ -184,6 +187,7 @@ def cfg_from(d: dict, preset: dict | None = None) -> Config:
     detect = DetectParams(
         scales=dp.scales,
         threshold=num("threshold", float, dp.threshold),
+        target_coverage=num("target_coverage", float, dp.target_coverage),
         min_area=num("min_area", int, dp.min_area),
         max_area=num("max_area", int, dp.max_area),
         max_elongation=num("max_elongation", float, dp.max_elongation),

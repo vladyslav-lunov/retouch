@@ -353,6 +353,90 @@ def test_no_warning_when_the_class_is_not_treated_as_skin():
             "попередили про клас, який і так не лікується")
 
 
+# ---------------------------------------------------------------------------
+# поріг під ціль
+# ---------------------------------------------------------------------------
+
+def _noisy(d: Path, spots: int, seed: int, noise: float) -> Path:
+    """Кадр із заданою кількістю дефектів і заданою «текстурою шкіри».
+
+    Шум тут — не прикраса: саме він відрізняє кадр, на якому поріг 0.012
+    працює, від кадру, на якому той самий поріг ловить пори й переходить
+    у згладжування (spec.md §6.2).
+    """
+    img, _s, _t = make_face(h=1200, w=900, face_w=700, n_spots=spots, seed=seed)
+    if noise:
+        rng = np.random.default_rng(seed)
+        img = np.clip(img + rng.normal(0, noise, img.shape).astype(np.float32), 0, 1)
+    p = d / f"N{seed}_{int(noise*1000)}.tif"
+    cv2.imwrite(str(p), (img * 65535 + 0.5).astype(np.uint16))
+    return p
+
+
+def test_target_coverage_beats_a_fixed_threshold_across_frames():
+    """Ціль переноситься між кадрами, поріг — ні.
+
+    Це головний висновок калібрування на 44 реальних кадрах: з
+    фіксованим 0.012 у робочу зону потрапило 15, а 14 пішли в
+    згладжування. Тут те саме на двох кадрах із різною текстурою.
+    """
+    from retouch.blemish import DetectParams
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        frames = [_noisy(d, 12, 3, 0.0), _noisy(d, 12, 4, 0.012)]
+
+        fixed, targeted = [], []
+        for f in frames:
+            s1 = Session(f, Config(force_mask=True)).load().analyze().heal()
+            fixed.append(float((s1.coverage > 0).sum()) / float(s1.skin.sum()))
+            cfg = Config(force_mask=True,
+                         detect=DetectParams(target_coverage=0.03))
+            s2 = Session(f, cfg).load().analyze().heal()
+            targeted.append((float((s2.coverage > 0).sum()) / float(s2.skin.sum()),
+                             s2.cfg.detect.threshold))
+
+        spread_fixed = max(fixed) / max(min(fixed), 1e-9)
+        spread_targ = max(c for c, _t in targeted) / max(
+            min(c for c, _t in targeted), 1e-9)
+        print(f"  фіксований поріг: торкнуто {[f'{c:.2%}' for c in fixed]}, "
+              f"розкид ×{spread_fixed:.1f}")
+        print(f"  під ціль 3%:      торкнуто "
+              f"{[f'{c:.2%} @{t}' for c, t in targeted]}, розкид ×{spread_targ:.1f}")
+        assert spread_targ < spread_fixed, (
+            "ціль не зменшила розкид — сенсу в підборі немає")
+        for cov, _t in targeted:
+            assert cov <= 0.045, f"ціль 3% не втримана: {cov:.2%}"
+
+
+def test_solver_says_so_when_the_target_is_unreachable():
+    """Кадр буває просто такий. Мовчки поставити найжорсткіший поріг і
+    вдати, що ціль досягнута, — це те саме мовчазне «наближено» (§1)."""
+    from retouch.blemish import DetectParams
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        f = _noisy(d, 30, 7, 0.03)          # суцільна текстура
+        cfg = Config(force_mask=True,
+                     detect=DetectParams(target_coverage=0.0005))
+        sess = Session(f, cfg).load().analyze()
+        print(f"  поріг {sess.cfg.detect.threshold}, "
+              f"нота: {(sess.threshold_note or '—')[:70]}")
+        assert sess.threshold_note, "недосяжна ціль пройшла мовчки"
+        assert sess.cfg.detect.threshold == Session.THRESHOLD_LADDER[-1]
+
+
+def test_solver_leaves_the_threshold_alone_when_no_target():
+    """Без цілі поводимось як раніше — жодних сюрпризів у старих пресетах."""
+    from retouch.blemish import DetectParams
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        cfg = Config(force_mask=True, detect=DetectParams(threshold=0.019))
+        sess = Session(_fixture(d), cfg).load().analyze()
+        print(f"  поріг лишився {sess.cfg.detect.threshold}, "
+              f"крива {sess.threshold_curve}")
+        assert sess.cfg.detect.threshold == 0.019
+        assert not sess.threshold_curve, "підбір запустився без цілі"
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

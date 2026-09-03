@@ -116,6 +116,15 @@ def main(argv=None) -> int:
         files[name] = jpg(name, arr)
 
     # --- виміри -----------------------------------------------------------
+    # Який поріг ЦЕЙ кадр просить під розумну ціль. Агентові це
+    # потрібніше за саму криву: поріг між кадрами не переноситься, і
+    # писати в пресет треба число, підібране під кадр (spec.md §6.2).
+    recommended = None
+    try:
+        recommended = sess.solve_threshold(0.03)
+    except Exception as e:                                    # noqa: BLE001
+        print(f"[brief] підбір порога не вийшов: {e}", flush=True)
+
     sweep = []
     for t in SWEEP:
         lbl, blobs = detect_blemishes(sess.high, sess.skin, DetectParams(threshold=t))
@@ -167,6 +176,9 @@ def main(argv=None) -> int:
                       # однаково. Клас каже, ЩО знайдено.
                       "blobs_by_class": dict(sess.blob_classes),
                       "warning": sess.detect_warn,
+                      "recommended_threshold": recommended,
+                      "recommended_for_coverage": 0.03,
+                      "threshold_note": sess.threshold_note,
                       "sweep": sweep},
         "camera_raw": xmp_block,
         "warnings": [x for x in [sess.warn] if x],
@@ -210,6 +222,11 @@ def main(argv=None) -> int:
                  ", ".join(f"{n} {c}" for n, c in sess.blob_classes))
     if sess.detect_warn:
         L.append(f"- **УВАГА**: {sess.detect_warn}")
+    if recommended:
+        L.append(f"- **поріг під ціль 3% шкіри: `{recommended}`** — пиши в "
+                 f"пресет саме його, дефолт 0.012 між кадрами не переноситься")
+    if sess.threshold_note:
+        L.append(f"- **УВАГА**: {sess.threshold_note}")
     L += ["", "| поріг | плям | дотиків |", "|---|---|---|"]
     for r in sweep:
         L.append(f"| {r['threshold']} | {r['blobs']} | {r['touched']:.3%} |")
