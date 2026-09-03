@@ -310,6 +310,8 @@ class Session:
         self.faces: list = []
         self.face_w: float | None = None
         self.face_w_source: str = "guess"
+        self.radius_clamped: bool = False
+        self.radius_warn: str | None = None
         self.search_radius_px: int = 0
 
     # --- етапи ---------------------------------------------------------
@@ -475,6 +477,14 @@ class Session:
         self.search_radius_px = self._search_radius(fw)
         radius = self.cfg.hf_radius or radius_for(self.img.shape, self.skin,
                                                   face_w=self.face_w)
+        # Підлога радіуса — це не деталь реалізації, а межа застосовності.
+        # Нижче 2 px частотка вже не відділяє дефект від пікселя, тобто
+        # калібрувальне співвідношення «обличчя 1200 -> радіус 6» просто
+        # перестає діяти. На реальній зйомці таких кадрів 16 із 44, і
+        # мовчки віддати результат на них означало б удати, що він
+        # порівнянний з рештою.
+        self.radius_clamped = (self.cfg.hf_radius is None and fw > 0
+                               and 6.0 * fw / self.BASE_FACE < 2.0)
         if self.low is None or radius != self.radius:
             s = Stage("freq-split", sink)
             self.low, self.high = freq_split(self.img, radius)
@@ -496,6 +506,16 @@ class Session:
         self.detect_warn = self._check_blob_classes()
         if self.detect_warn:
             print(f"[detect] УВАГА: {self.detect_warn}", flush=True)
+        if self.radius_clamped:
+            self.radius_warn = (
+                f"обличчя {fw:.0f} px — радіус мав би бути "
+                f"{6.0 * fw / self.BASE_FACE:.2f} px, але нижче 2 px частотка "
+                f"вже не відділяє дефект від пікселя. Взято 2.0. Результат "
+                f"на цьому кадрі НЕ порівнянний з кадрами, де обличчя "
+                f"більше за 400 px")
+            print(f"[freq-split] УВАГА: {self.radius_warn}", flush=True)
+        else:
+            self.radius_warn = None
         return self
 
     # Драбина порогів для підбору. Не бісекція: крива корисна сама по

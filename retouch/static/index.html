@@ -263,6 +263,7 @@ async function tick(){
   if (S.warn)  m += `<div class="note">${esc(S.warn)}</div>`;
   if (S.telea_warn) m += `<div class="note">${esc(S.telea_warn)}</div>`;
   if (S.detect_warn) m += `<div class="note">${esc(S.detect_warn)}</div>`;
+  if (S.radius_warn) m += `<div class="note">${esc(S.radius_warn)}</div>`;
   if (S.written && S.written.length)
     m += `<div class="note" style="border-left-color:var(--ok)">Записано:\n` +
          esc(S.written.join('\n')) + `</div>`;

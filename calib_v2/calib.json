@@ -97,8 +97,8 @@
         {
           "threshold": 0.008,
           "blobs": 38,
-          "touched_of_skin": 0.10818,
-          "touched_of_frame": 0.000218,
+          "touched_of_skin": 0.07858,
+          "touched_of_frame": 0.000158,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 36,
@@ -108,8 +108,8 @@
         {
           "threshold": 0.01,
           "blobs": 20,
-          "touched_of_skin": 0.06182,
-          "touched_of_frame": 0.000125,
+          "touched_of_skin": 0.03865,
+          "touched_of_frame": 7.8e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 20
@@ -118,8 +118,8 @@
         {
           "threshold": 0.012,
           "blobs": 10,
-          "touched_of_skin": 0.03901,
-          "touched_of_frame": 7.9e-05,
+          "touched_of_skin": 0.0168,
+          "touched_of_frame": 3.4e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 10
@@ -128,8 +128,8 @@
         {
           "threshold": 0.014,
           "blobs": 8,
-          "touched_of_skin": 0.03214,
-          "touched_of_frame": 6.5e-05,
+          "touched_of_skin": 0.02839,
+          "touched_of_frame": 5.7e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 8
@@ -138,8 +138,8 @@
         {
           "threshold": 0.018,
           "blobs": 7,
-          "touched_of_skin": 0.02399,
-          "touched_of_frame": 4.8e-05,
+          "touched_of_skin": 0.0198,
+          "touched_of_frame": 4e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 7
@@ -173,84 +173,84 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01066,
-      "radius_px": 4.33,
+      "radius_px": 2.34,
       "face_w": 468.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 329,
-          "touched_of_skin": 0.22875,
-          "touched_of_frame": 0.002439,
+          "blobs": 108,
+          "touched_of_skin": 0.06069,
+          "touched_of_frame": 0.000647,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 10,
-            "skin": 319
+            "skin": 105,
+            "nose": 3
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 233,
-          "touched_of_skin": 0.16496,
-          "touched_of_frame": 0.001759,
+          "blobs": 44,
+          "touched_of_skin": 0.02971,
+          "touched_of_frame": 0.000317,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 8,
-            "skin": 225
+            "skin": 42,
+            "nose": 2
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 155,
-          "touched_of_skin": 0.11655,
-          "touched_of_frame": 0.001243,
+          "blobs": 16,
+          "touched_of_skin": 0.01764,
+          "touched_of_frame": 0.000188,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 7,
-            "skin": 148
+            "skin": 14,
+            "nose": 2
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 98,
-          "touched_of_skin": 0.07712,
-          "touched_of_frame": 0.000822,
-          "suspect_share": 0.0,
-          "by_class": {
-            "nose": 6,
-            "skin": 92
-          }
-        },
-        {
-          "threshold": 0.018,
-          "blobs": 46,
-          "touched_of_skin": 0.04147,
-          "touched_of_frame": 0.000442,
-          "suspect_share": 0.0,
-          "by_class": {
-            "nose": 3,
-            "skin": 43
-          }
-        },
-        {
-          "threshold": 0.022,
-          "blobs": 20,
-          "touched_of_skin": 0.02303,
-          "touched_of_frame": 0.000246,
-          "suspect_share": 0.0,
-          "by_class": {
-            "nose": 2,
-            "skin": 18
-          }
-        },
-        {
-          "threshold": 0.025,
           "blobs": 9,
-          "touched_of_skin": 0.01712,
-          "touched_of_frame": 0.000183,
+          "touched_of_skin": 0.01369,
+          "touched_of_frame": 0.000146,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 7,
             "nose": 2
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 8,
+          "touched_of_skin": 0.00822,
+          "touched_of_frame": 8.8e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 5,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 8,
+          "touched_of_skin": 0.0048,
+          "touched_of_frame": 5.1e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 4,
+            "nose": 4
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 6,
+          "touched_of_skin": 0.00328,
+          "touched_of_frame": 3.5e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3,
+            "nose": 3
           }
         }
       ]
@@ -261,83 +261,81 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01199,
-      "radius_px": 3.36,
+      "radius_px": 2.0,
       "face_w": 386.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 350,
-          "touched_of_skin": 0.20374,
-          "touched_of_frame": 0.002444,
+          "blobs": 77,
+          "touched_of_skin": 0.04515,
+          "touched_of_frame": 0.000542,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 332,
-            "nose": 18
-          }
-        },
-        {
-          "threshold": 0.01,
-          "blobs": 221,
-          "touched_of_skin": 0.12762,
-          "touched_of_frame": 0.001531,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 201,
-            "nose": 20
-          }
-        },
-        {
-          "threshold": 0.012,
-          "blobs": 137,
-          "touched_of_skin": 0.09233,
-          "touched_of_frame": 0.001107,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 124,
-            "nose": 13
-          }
-        },
-        {
-          "threshold": 0.014,
-          "blobs": 82,
-          "touched_of_skin": 0.06861,
-          "touched_of_frame": 0.000823,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 73,
-            "nose": 9
-          }
-        },
-        {
-          "threshold": 0.018,
-          "blobs": 31,
-          "touched_of_skin": 0.04661,
-          "touched_of_frame": 0.000559,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 25,
+            "skin": 71,
             "nose": 6
           }
         },
         {
-          "threshold": 0.022,
-          "blobs": 18,
-          "touched_of_skin": 0.03156,
-          "touched_of_frame": 0.000379,
+          "threshold": 0.01,
+          "blobs": 32,
+          "touched_of_skin": 0.01835,
+          "touched_of_frame": 0.00022,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 16,
-            "nose": 2
+            "skin": 27,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 20,
+          "touched_of_skin": 0.01808,
+          "touched_of_frame": 0.000217,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 19,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 18,
+          "touched_of_skin": 0.02011,
+          "touched_of_frame": 0.000241,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 17,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 12,
+          "touched_of_skin": 0.01198,
+          "touched_of_frame": 0.000144,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 12
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 4,
+          "touched_of_skin": 0.00356,
+          "touched_of_frame": 4.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 4
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 17,
-          "touched_of_skin": 0.02665,
-          "touched_of_frame": 0.00032,
+          "blobs": 2,
+          "touched_of_skin": 0.00149,
+          "touched_of_frame": 1.8e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 17
+            "skin": 2
           }
         }
       ]
@@ -348,84 +346,81 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01097,
-      "radius_px": 4.21,
+      "radius_px": 2.0,
       "face_w": 400.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 108,
-          "touched_of_skin": 0.08427,
-          "touched_of_frame": 0.000925,
+          "blobs": 32,
+          "touched_of_skin": 0.01283,
+          "touched_of_frame": 0.000141,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 105,
+            "skin": 29,
             "nose": 3
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 70,
-          "touched_of_skin": 0.05053,
-          "touched_of_frame": 0.000555,
+          "blobs": 28,
+          "touched_of_skin": 0.01413,
+          "touched_of_frame": 0.000155,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 66,
+            "skin": 24,
             "nose": 4
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 44,
-          "touched_of_skin": 0.0434,
-          "touched_of_frame": 0.000476,
+          "blobs": 29,
+          "touched_of_skin": 0.01088,
+          "touched_of_frame": 0.000119,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 40,
-            "nose": 4
+            "skin": 26,
+            "nose": 3
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 40,
-          "touched_of_skin": 0.03537,
-          "touched_of_frame": 0.000388,
+          "blobs": 26,
+          "touched_of_skin": 0.00932,
+          "touched_of_frame": 0.000102,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 36,
-            "nose": 4
+            "skin": 25,
+            "nose": 1
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 30,
-          "touched_of_skin": 0.02368,
-          "touched_of_frame": 0.00026,
+          "blobs": 22,
+          "touched_of_skin": 0.00854,
+          "touched_of_frame": 9.4e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 27,
-            "nose": 3
+            "skin": 22
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 24,
-          "touched_of_skin": 0.02058,
-          "touched_of_frame": 0.000226,
+          "blobs": 20,
+          "touched_of_skin": 0.0088,
+          "touched_of_frame": 9.7e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 21,
-            "nose": 3
+            "skin": 20
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 23,
-          "touched_of_skin": 0.01823,
-          "touched_of_frame": 0.0002,
+          "blobs": 15,
+          "touched_of_skin": 0.00814,
+          "touched_of_frame": 8.9e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 19,
-            "nose": 4
+            "skin": 15
           }
         }
       ]
@@ -436,69 +431,36 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00499,
-      "radius_px": 3.08,
+      "radius_px": 2.0,
       "face_w": 340.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 164,
-          "touched_of_skin": 0.1934,
-          "touched_of_frame": 0.000965,
+          "blobs": 35,
+          "touched_of_skin": 0.03929,
+          "touched_of_frame": 0.000196,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 158,
-            "nose": 6
-          }
-        },
-        {
-          "threshold": 0.01,
-          "blobs": 94,
-          "touched_of_skin": 0.11166,
-          "touched_of_frame": 0.000557,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 90,
-            "nose": 4
-          }
-        },
-        {
-          "threshold": 0.012,
-          "blobs": 51,
-          "touched_of_skin": 0.062,
-          "touched_of_frame": 0.000309,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 47,
-            "nose": 4
-          }
-        },
-        {
-          "threshold": 0.014,
-          "blobs": 22,
-          "touched_of_skin": 0.03245,
-          "touched_of_frame": 0.000162,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 20,
+            "skin": 33,
             "nose": 2
           }
         },
         {
-          "threshold": 0.018,
-          "blobs": 7,
-          "touched_of_skin": 0.01406,
-          "touched_of_frame": 7e-05,
+          "threshold": 0.01,
+          "blobs": 10,
+          "touched_of_skin": 0.01784,
+          "touched_of_frame": 8.9e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 6,
+            "skin": 9,
             "nose": 1
           }
         },
         {
-          "threshold": 0.022,
+          "threshold": 0.012,
           "blobs": 6,
-          "touched_of_skin": 0.01071,
-          "touched_of_frame": 5.3e-05,
+          "touched_of_skin": 0.012,
+          "touched_of_frame": 6e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 5,
@@ -506,14 +468,44 @@
           }
         },
         {
-          "threshold": 0.025,
-          "blobs": 5,
-          "touched_of_skin": 0.00847,
-          "touched_of_frame": 4.2e-05,
+          "threshold": 0.014,
+          "blobs": 6,
+          "touched_of_skin": 0.00921,
+          "touched_of_frame": 4.6e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 1,
-            "skin": 4
+            "skin": 5,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 2,
+          "touched_of_skin": 0.0037,
+          "touched_of_frame": 1.8e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 1,
+          "touched_of_skin": 0.00219,
+          "touched_of_frame": 1.1e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 1,
+          "touched_of_skin": 0.00168,
+          "touched_of_frame": 8e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 1
           }
         }
       ]
@@ -688,85 +680,75 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.02213,
-      "radius_px": 5.84,
+      "radius_px": 3.17,
       "face_w": 635.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 66,
-          "touched_of_skin": 0.02667,
-          "touched_of_frame": 0.00059,
+          "blobs": 13,
+          "touched_of_skin": 0.00689,
+          "touched_of_frame": 0.000153,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 6,
-            "skin": 60
+            "nose": 5,
+            "skin": 8
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 27,
-          "touched_of_skin": 0.02035,
-          "touched_of_frame": 0.00045,
+          "blobs": 9,
+          "touched_of_skin": 0.00478,
+          "touched_of_frame": 0.000106,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 3,
-            "skin": 24
+            "skin": 6,
+            "nose": 3
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 17,
-          "touched_of_skin": 0.01551,
-          "touched_of_frame": 0.000343,
+          "blobs": 9,
+          "touched_of_skin": 0.0027,
+          "touched_of_frame": 6e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 4,
-            "skin": 13
+            "skin": 5,
+            "nose": 4
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 13,
-          "touched_of_skin": 0.0119,
-          "touched_of_frame": 0.000263,
+          "blobs": 2,
+          "touched_of_skin": 0.00072,
+          "touched_of_frame": 1.6e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 4,
-            "skin": 9
+            "nose": 2
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 9,
-          "touched_of_skin": 0.00628,
-          "touched_of_frame": 0.000139,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
           "suspect_share": 0.0,
-          "by_class": {
-            "nose": 3,
-            "skin": 6
-          }
+          "by_class": {}
         },
         {
           "threshold": 0.022,
-          "blobs": 8,
-          "touched_of_skin": 0.00415,
-          "touched_of_frame": 9.2e-05,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
           "suspect_share": 0.0,
-          "by_class": {
-            "nose": 4,
-            "skin": 4
-          }
+          "by_class": {}
         },
         {
           "threshold": 0.025,
-          "blobs": 6,
-          "touched_of_skin": 0.00266,
-          "touched_of_frame": 5.9e-05,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
           "suspect_share": 0.0,
-          "by_class": {
-            "nose": 2,
-            "skin": 4
-          }
+          "by_class": {}
         }
       ]
     },
@@ -776,62 +758,50 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.02003,
-      "radius_px": 6.17,
+      "radius_px": 3.35,
       "face_w": 670.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 23,
-          "touched_of_skin": 0.01396,
-          "touched_of_frame": 0.00028,
+          "blobs": 1,
+          "touched_of_skin": 0.00027,
+          "touched_of_frame": 5e-06,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 21,
-            "nose": 2
+            "skin": 1
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 12,
-          "touched_of_skin": 0.00753,
-          "touched_of_frame": 0.000151,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
           "suspect_share": 0.0,
-          "by_class": {
-            "skin": 11,
-            "nose": 1
-          }
+          "by_class": {}
         },
         {
           "threshold": 0.012,
-          "blobs": 7,
-          "touched_of_skin": 0.00422,
-          "touched_of_frame": 8.5e-05,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
           "suspect_share": 0.0,
-          "by_class": {
-            "skin": 5,
-            "nose": 2
-          }
+          "by_class": {}
         },
         {
           "threshold": 0.014,
-          "blobs": 5,
-          "touched_of_skin": 0.00248,
-          "touched_of_frame": 5e-05,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
           "suspect_share": 0.0,
-          "by_class": {
-            "skin": 3,
-            "nose": 2
-          }
+          "by_class": {}
         },
         {
           "threshold": 0.018,
-          "blobs": 2,
-          "touched_of_skin": 0.00044,
-          "touched_of_frame": 9e-06,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
           "suspect_share": 0.0,
-          "by_class": {
-            "skin": 2
-          }
+          "by_class": {}
         },
         {
           "threshold": 0.022,
@@ -950,8 +920,8 @@
         {
           "threshold": 0.012,
           "blobs": 22,
-          "touched_of_skin": 0.00611,
-          "touched_of_frame": 0.00013,
+          "touched_of_skin": 0.00637,
+          "touched_of_frame": 0.000135,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 22
@@ -960,8 +930,8 @@
         {
           "threshold": 0.014,
           "blobs": 6,
-          "touched_of_skin": 0.00123,
-          "touched_of_frame": 2.6e-05,
+          "touched_of_skin": 0.00144,
+          "touched_of_frame": 3.1e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 6
@@ -970,8 +940,8 @@
         {
           "threshold": 0.018,
           "blobs": 7,
-          "touched_of_skin": 0.00099,
-          "touched_of_frame": 2.1e-05,
+          "touched_of_skin": 0.00142,
+          "touched_of_frame": 3e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 7
@@ -980,8 +950,8 @@
         {
           "threshold": 0.022,
           "blobs": 7,
-          "touched_of_skin": 0.00092,
-          "touched_of_frame": 1.9e-05,
+          "touched_of_skin": 0.00106,
+          "touched_of_frame": 2.2e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 7
@@ -990,8 +960,8 @@
         {
           "threshold": 0.025,
           "blobs": 3,
-          "touched_of_skin": 0.00038,
-          "touched_of_frame": 8e-06,
+          "touched_of_skin": 0.0005,
+          "touched_of_frame": 1.1e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 3
@@ -1005,78 +975,77 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00749,
-      "radius_px": 3.15,
+      "radius_px": 2.0,
       "face_w": 351.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 309,
-          "touched_of_skin": 0.26464,
-          "touched_of_frame": 0.001981,
+          "blobs": 188,
+          "touched_of_skin": 0.15355,
+          "touched_of_frame": 0.001149,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 308,
-            "nose": 1
+            "skin": 188
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 216,
-          "touched_of_skin": 0.24505,
-          "touched_of_frame": 0.001835,
+          "blobs": 139,
+          "touched_of_skin": 0.10734,
+          "touched_of_frame": 0.000804,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 216
+            "skin": 139
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 175,
-          "touched_of_skin": 0.21968,
-          "touched_of_frame": 0.001645,
+          "blobs": 106,
+          "touched_of_skin": 0.07616,
+          "touched_of_frame": 0.00057,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 175
+            "skin": 106
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 150,
-          "touched_of_skin": 0.18597,
-          "touched_of_frame": 0.001392,
+          "blobs": 82,
+          "touched_of_skin": 0.0543,
+          "touched_of_frame": 0.000406,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 150
+            "skin": 82
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 105,
-          "touched_of_skin": 0.12081,
-          "touched_of_frame": 0.000904,
+          "blobs": 32,
+          "touched_of_skin": 0.02276,
+          "touched_of_frame": 0.00017,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 105
+            "skin": 32
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 76,
-          "touched_of_skin": 0.08305,
-          "touched_of_frame": 0.000622,
+          "blobs": 19,
+          "touched_of_skin": 0.02069,
+          "touched_of_frame": 0.000155,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 76
+            "skin": 19
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 57,
-          "touched_of_skin": 0.06278,
-          "touched_of_frame": 0.00047,
+          "blobs": 15,
+          "touched_of_skin": 0.01514,
+          "touched_of_frame": 0.000113,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 57
+            "skin": 15
           }
         }
       ]
@@ -1087,84 +1056,84 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00732,
-      "radius_px": 3.35,
+      "radius_px": 2.0,
       "face_w": 370.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 203,
-          "touched_of_skin": 0.24645,
-          "touched_of_frame": 0.001803,
+          "blobs": 107,
+          "touched_of_skin": 0.08903,
+          "touched_of_frame": 0.000651,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 185,
-            "nose": 18
-          }
-        },
-        {
-          "threshold": 0.01,
-          "blobs": 150,
-          "touched_of_skin": 0.19967,
-          "touched_of_frame": 0.001461,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 129,
-            "nose": 21
-          }
-        },
-        {
-          "threshold": 0.012,
-          "blobs": 135,
-          "touched_of_skin": 0.15334,
-          "touched_of_frame": 0.001122,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 114,
-            "nose": 21
-          }
-        },
-        {
-          "threshold": 0.014,
-          "blobs": 103,
-          "touched_of_skin": 0.10591,
-          "touched_of_frame": 0.000775,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 86,
+            "skin": 90,
             "nose": 17
           }
         },
         {
-          "threshold": 0.018,
-          "blobs": 44,
-          "touched_of_skin": 0.05403,
-          "touched_of_frame": 0.000395,
+          "threshold": 0.01,
+          "blobs": 49,
+          "touched_of_skin": 0.04571,
+          "touched_of_frame": 0.000334,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 37,
-            "nose": 7
+            "skin": 39,
+            "nose": 10
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 28,
+          "touched_of_skin": 0.02455,
+          "touched_of_frame": 0.00018,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 20,
+            "nose": 8
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 14,
+          "touched_of_skin": 0.01436,
+          "touched_of_frame": 0.000105,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 8,
+            "nose": 6
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 10,
+          "touched_of_skin": 0.00822,
+          "touched_of_frame": 6e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 6,
+            "nose": 4
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 28,
-          "touched_of_skin": 0.0288,
-          "touched_of_frame": 0.000211,
+          "blobs": 4,
+          "touched_of_skin": 0.00319,
+          "touched_of_frame": 2.3e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 21,
-            "nose": 7
+            "nose": 3,
+            "skin": 1
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 17,
-          "touched_of_skin": 0.02003,
-          "touched_of_frame": 0.000147,
+          "blobs": 3,
+          "touched_of_skin": 0.00242,
+          "touched_of_frame": 1.8e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 11,
-            "nose": 6
+            "nose": 2,
+            "skin": 1
           }
         }
       ]
@@ -1175,84 +1144,83 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00582,
-      "radius_px": 2.58,
+      "radius_px": 2.0,
       "face_w": 365.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 74,
-          "touched_of_skin": 0.11566,
-          "touched_of_frame": 0.000673,
+          "blobs": 52,
+          "touched_of_skin": 0.05857,
+          "touched_of_frame": 0.000341,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 50,
-            "nose": 24
+            "nose": 24,
+            "skin": 28
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 52,
-          "touched_of_skin": 0.08075,
-          "touched_of_frame": 0.00047,
+          "blobs": 46,
+          "touched_of_skin": 0.03809,
+          "touched_of_frame": 0.000222,
           "suspect_share": 0.0,
           "by_class": {
             "nose": 22,
-            "skin": 30
+            "skin": 24
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 42,
-          "touched_of_skin": 0.0579,
-          "touched_of_frame": 0.000337,
+          "blobs": 33,
+          "touched_of_skin": 0.02946,
+          "touched_of_frame": 0.000171,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 20,
-            "skin": 22
+            "skin": 18,
+            "nose": 15
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 39,
-          "touched_of_skin": 0.04152,
-          "touched_of_frame": 0.000242,
+          "blobs": 19,
+          "touched_of_skin": 0.01644,
+          "touched_of_frame": 9.6e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 19,
-            "nose": 20
-          }
-        },
-        {
-          "threshold": 0.018,
-          "blobs": 21,
-          "touched_of_skin": 0.02102,
-          "touched_of_frame": 0.000122,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 11,
+            "skin": 9,
             "nose": 10
           }
         },
         {
-          "threshold": 0.022,
-          "blobs": 13,
-          "touched_of_skin": 0.01222,
-          "touched_of_frame": 7.1e-05,
+          "threshold": 0.018,
+          "blobs": 15,
+          "touched_of_skin": 0.01427,
+          "touched_of_frame": 8.3e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 7,
+            "skin": 9,
             "nose": 6
           }
         },
         {
-          "threshold": 0.025,
-          "blobs": 10,
-          "touched_of_skin": 0.01263,
-          "touched_of_frame": 7.4e-05,
+          "threshold": 0.022,
+          "blobs": 5,
+          "touched_of_skin": 0.0073,
+          "touched_of_frame": 4.2e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 6,
-            "nose": 4
+            "skin": 4,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 3,
+          "touched_of_skin": 0.00417,
+          "touched_of_frame": 2.4e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3
           }
         }
       ]
@@ -1263,69 +1231,69 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00775,
-      "radius_px": 2.27,
+      "radius_px": 2.23,
       "face_w": 446.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 318,
-          "touched_of_skin": 0.23678,
-          "touched_of_frame": 0.001836,
+          "blobs": 315,
+          "touched_of_skin": 0.19289,
+          "touched_of_frame": 0.001496,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 298,
+            "skin": 295,
             "nose": 20
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 225,
-          "touched_of_skin": 0.16451,
-          "touched_of_frame": 0.001276,
+          "blobs": 218,
+          "touched_of_skin": 0.15461,
+          "touched_of_frame": 0.001199,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 210,
+            "skin": 203,
             "nose": 15
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 160,
-          "touched_of_skin": 0.11739,
-          "touched_of_frame": 0.00091,
+          "blobs": 156,
+          "touched_of_skin": 0.11249,
+          "touched_of_frame": 0.000872,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 151,
+            "skin": 147,
             "nose": 9
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 120,
-          "touched_of_skin": 0.08803,
-          "touched_of_frame": 0.000683,
+          "blobs": 118,
+          "touched_of_skin": 0.08604,
+          "touched_of_frame": 0.000667,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 111,
+            "skin": 109,
             "nose": 9
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 71,
-          "touched_of_skin": 0.05592,
-          "touched_of_frame": 0.000434,
+          "blobs": 69,
+          "touched_of_skin": 0.0532,
+          "touched_of_frame": 0.000413,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 64,
-            "nose": 7
+            "skin": 63,
+            "nose": 6
           }
         },
         {
           "threshold": 0.022,
           "blobs": 55,
-          "touched_of_skin": 0.03844,
-          "touched_of_frame": 0.000298,
+          "touched_of_skin": 0.03787,
+          "touched_of_frame": 0.000294,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 51,
@@ -1335,8 +1303,8 @@
         {
           "threshold": 0.025,
           "blobs": 45,
-          "touched_of_skin": 0.03184,
-          "touched_of_frame": 0.000247,
+          "touched_of_skin": 0.03164,
+          "touched_of_frame": 0.000245,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 41,
@@ -1351,69 +1319,69 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00745,
-      "radius_px": 2.24,
+      "radius_px": 2.23,
       "face_w": 446.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 282,
-          "touched_of_skin": 0.24083,
-          "touched_of_frame": 0.001794,
+          "blobs": 280,
+          "touched_of_skin": 0.19458,
+          "touched_of_frame": 0.001449,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 267,
+            "skin": 265,
             "nose": 15
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 184,
-          "touched_of_skin": 0.16365,
-          "touched_of_frame": 0.001219,
+          "blobs": 180,
+          "touched_of_skin": 0.13673,
+          "touched_of_frame": 0.001018,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 179,
+            "skin": 175,
             "nose": 5
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 132,
-          "touched_of_skin": 0.12157,
-          "touched_of_frame": 0.000906,
+          "blobs": 129,
+          "touched_of_skin": 0.1036,
+          "touched_of_frame": 0.000772,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 126,
+            "skin": 123,
             "nose": 6
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 103,
-          "touched_of_skin": 0.09307,
-          "touched_of_frame": 0.000693,
+          "blobs": 102,
+          "touched_of_skin": 0.08307,
+          "touched_of_frame": 0.000619,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 97,
+            "skin": 96,
             "nose": 6
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 76,
-          "touched_of_skin": 0.06035,
-          "touched_of_frame": 0.00045,
+          "blobs": 75,
+          "touched_of_skin": 0.05931,
+          "touched_of_frame": 0.000442,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 71,
+            "skin": 70,
             "nose": 5
           }
         },
         {
           "threshold": 0.022,
           "blobs": 53,
-          "touched_of_skin": 0.03671,
-          "touched_of_frame": 0.000273,
+          "touched_of_skin": 0.03642,
+          "touched_of_frame": 0.000271,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 50,
@@ -1422,12 +1390,12 @@
         },
         {
           "threshold": 0.025,
-          "blobs": 45,
-          "touched_of_skin": 0.02847,
-          "touched_of_frame": 0.000212,
+          "blobs": 44,
+          "touched_of_skin": 0.02805,
+          "touched_of_frame": 0.000209,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 43,
+            "skin": 42,
             "nose": 2
           }
         }
@@ -1439,84 +1407,84 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01981,
-      "radius_px": 7.82,
+      "radius_px": 3.21,
       "face_w": 642.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 643,
-          "touched_of_skin": 0.29498,
-          "touched_of_frame": 0.005843,
+          "blobs": 839,
+          "touched_of_skin": 0.23357,
+          "touched_of_frame": 0.004626,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 602,
-            "nose": 41
+            "skin": 773,
+            "nose": 66
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 588,
-          "touched_of_skin": 0.26988,
-          "touched_of_frame": 0.005345,
+          "blobs": 673,
+          "touched_of_skin": 0.21111,
+          "touched_of_frame": 0.004181,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 556,
-            "nose": 32
+            "skin": 616,
+            "nose": 57
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 518,
-          "touched_of_skin": 0.23924,
-          "touched_of_frame": 0.004739,
+          "blobs": 537,
+          "touched_of_skin": 0.1767,
+          "touched_of_frame": 0.0035,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 490,
-            "nose": 28
+            "skin": 494,
+            "nose": 43
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 483,
-          "touched_of_skin": 0.21569,
-          "touched_of_frame": 0.004272,
+          "blobs": 430,
+          "touched_of_skin": 0.14117,
+          "touched_of_frame": 0.002796,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 453,
-            "nose": 30
+            "skin": 393,
+            "nose": 37
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 387,
-          "touched_of_skin": 0.18996,
-          "touched_of_frame": 0.003763,
+          "blobs": 269,
+          "touched_of_skin": 0.0914,
+          "touched_of_frame": 0.00181,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 352,
-            "nose": 35
+            "skin": 248,
+            "nose": 21
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 323,
-          "touched_of_skin": 0.16647,
-          "touched_of_frame": 0.003297,
+          "blobs": 168,
+          "touched_of_skin": 0.06444,
+          "touched_of_frame": 0.001276,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 300,
-            "nose": 23
+            "skin": 152,
+            "nose": 16
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 267,
-          "touched_of_skin": 0.14004,
-          "touched_of_frame": 0.002774,
+          "blobs": 122,
+          "touched_of_skin": 0.04493,
+          "touched_of_frame": 0.00089,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 243,
-            "nose": 24
+            "skin": 112,
+            "nose": 10
           }
         }
       ]
@@ -1527,84 +1495,84 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.02546,
-      "radius_px": 3.62,
+      "radius_px": 3.54,
       "face_w": 708.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 1010,
-          "touched_of_skin": 0.26503,
-          "touched_of_frame": 0.006748,
+          "blobs": 999,
+          "touched_of_skin": 0.24922,
+          "touched_of_frame": 0.006345,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 971,
-            "nose": 39
+            "skin": 959,
+            "nose": 40
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 750,
-          "touched_of_skin": 0.20575,
-          "touched_of_frame": 0.005238,
+          "blobs": 737,
+          "touched_of_skin": 0.19378,
+          "touched_of_frame": 0.004934,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 711,
-            "nose": 39
+            "skin": 699,
+            "nose": 38
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 532,
-          "touched_of_skin": 0.15191,
-          "touched_of_frame": 0.003868,
+          "blobs": 531,
+          "touched_of_skin": 0.14204,
+          "touched_of_frame": 0.003616,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 503,
+            "skin": 502,
             "nose": 29
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 398,
-          "touched_of_skin": 0.13882,
-          "touched_of_frame": 0.003534,
+          "blobs": 386,
+          "touched_of_skin": 0.11852,
+          "touched_of_frame": 0.003017,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 374,
-            "nose": 24
+            "skin": 364,
+            "nose": 22
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 236,
-          "touched_of_skin": 0.10044,
-          "touched_of_frame": 0.002557,
+          "blobs": 227,
+          "touched_of_skin": 0.09618,
+          "touched_of_frame": 0.002449,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 224,
-            "nose": 12
+            "skin": 216,
+            "nose": 11
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 157,
-          "touched_of_skin": 0.08118,
-          "touched_of_frame": 0.002067,
+          "blobs": 155,
+          "touched_of_skin": 0.07567,
+          "touched_of_frame": 0.001926,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 147,
-            "nose": 10
+            "skin": 146,
+            "nose": 9
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 121,
-          "touched_of_skin": 0.06696,
-          "touched_of_frame": 0.001705,
+          "blobs": 119,
+          "touched_of_skin": 0.06412,
+          "touched_of_frame": 0.001633,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 116,
-            "nose": 5
+            "skin": 115,
+            "nose": 4
           }
         }
       ]
@@ -1615,84 +1583,84 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.02796,
-      "radius_px": 4.38,
+      "radius_px": 3.02,
       "face_w": 605.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 1085,
-          "touched_of_skin": 0.30646,
-          "touched_of_frame": 0.008569,
+          "blobs": 982,
+          "touched_of_skin": 0.22108,
+          "touched_of_frame": 0.006182,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 1018,
-            "nose": 67
+            "skin": 899,
+            "nose": 83
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 874,
-          "touched_of_skin": 0.25861,
-          "touched_of_frame": 0.007231,
+          "blobs": 729,
+          "touched_of_skin": 0.17018,
+          "touched_of_frame": 0.004758,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 807,
-            "nose": 67
+            "skin": 659,
+            "nose": 70
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 716,
-          "touched_of_skin": 0.21407,
-          "touched_of_frame": 0.005986,
+          "blobs": 547,
+          "touched_of_skin": 0.13628,
+          "touched_of_frame": 0.00381,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 654,
-            "nose": 62
+            "skin": 488,
+            "nose": 59
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 594,
-          "touched_of_skin": 0.17639,
-          "touched_of_frame": 0.004932,
+          "blobs": 408,
+          "touched_of_skin": 0.11589,
+          "touched_of_frame": 0.00324,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 541,
-            "nose": 53
+            "skin": 360,
+            "nose": 48
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 398,
-          "touched_of_skin": 0.13277,
-          "touched_of_frame": 0.003712,
+          "blobs": 214,
+          "touched_of_skin": 0.07059,
+          "touched_of_frame": 0.001974,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 358,
-            "nose": 40
+            "skin": 194,
+            "nose": 20
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 265,
-          "touched_of_skin": 0.08952,
-          "touched_of_frame": 0.002503,
+          "blobs": 145,
+          "touched_of_skin": 0.05034,
+          "touched_of_frame": 0.001408,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 235,
-            "nose": 30
+            "skin": 132,
+            "nose": 13
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 208,
-          "touched_of_skin": 0.08083,
-          "touched_of_frame": 0.00226,
+          "blobs": 91,
+          "touched_of_skin": 0.03808,
+          "touched_of_frame": 0.001065,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 188,
-            "nose": 20
+            "skin": 80,
+            "nose": 11
           }
         }
       ]
@@ -1703,84 +1671,84 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01442,
-      "radius_px": 3.08,
+      "radius_px": 2.85,
       "face_w": 569.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 1182,
-          "touched_of_skin": 0.4436,
-          "touched_of_frame": 0.006397,
+          "blobs": 1138,
+          "touched_of_skin": 0.37624,
+          "touched_of_frame": 0.005426,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 1128,
-            "nose": 54
+            "skin": 1088,
+            "nose": 50
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 872,
-          "touched_of_skin": 0.3313,
-          "touched_of_frame": 0.004778,
+          "blobs": 789,
+          "touched_of_skin": 0.27829,
+          "touched_of_frame": 0.004013,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 841,
-            "nose": 31
+            "skin": 767,
+            "nose": 22
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 617,
-          "touched_of_skin": 0.22405,
-          "touched_of_frame": 0.003231,
+          "blobs": 538,
+          "touched_of_skin": 0.1886,
+          "touched_of_frame": 0.00272,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 594,
-            "nose": 23
+            "skin": 521,
+            "nose": 17
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 434,
-          "touched_of_skin": 0.17183,
-          "touched_of_frame": 0.002478,
+          "blobs": 363,
+          "touched_of_skin": 0.12614,
+          "touched_of_frame": 0.001819,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 422,
-            "nose": 12
-          }
-        },
-        {
-          "threshold": 0.018,
-          "blobs": 216,
-          "touched_of_skin": 0.0884,
-          "touched_of_frame": 0.001275,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 209,
+            "skin": 356,
             "nose": 7
           }
         },
         {
-          "threshold": 0.022,
-          "blobs": 120,
-          "touched_of_skin": 0.04818,
-          "touched_of_frame": 0.000695,
+          "threshold": 0.018,
+          "blobs": 180,
+          "touched_of_skin": 0.0719,
+          "touched_of_frame": 0.001037,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 116,
-            "nose": 4
+            "skin": 175,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 100,
+          "touched_of_skin": 0.03639,
+          "touched_of_frame": 0.000525,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 95,
+            "nose": 5
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 81,
-          "touched_of_skin": 0.0298,
-          "touched_of_frame": 0.00043,
+          "blobs": 60,
+          "touched_of_skin": 0.02111,
+          "touched_of_frame": 0.000304,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 75,
-            "nose": 6
+            "skin": 55,
+            "nose": 5
           }
         }
       ]
@@ -1791,83 +1759,83 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01289,
-      "radius_px": 2.91,
+      "radius_px": 2.77,
       "face_w": 555.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 978,
-          "touched_of_skin": 0.40708,
-          "touched_of_frame": 0.005249,
+          "blobs": 951,
+          "touched_of_skin": 0.36444,
+          "touched_of_frame": 0.004699,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 941,
-            "nose": 37
+            "skin": 912,
+            "nose": 39
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 701,
-          "touched_of_skin": 0.28605,
-          "touched_of_frame": 0.003688,
+          "blobs": 636,
+          "touched_of_skin": 0.25026,
+          "touched_of_frame": 0.003227,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 677,
-            "nose": 24
+            "skin": 616,
+            "nose": 20
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 473,
-          "touched_of_skin": 0.1981,
-          "touched_of_frame": 0.002554,
+          "blobs": 432,
+          "touched_of_skin": 0.16502,
+          "touched_of_frame": 0.002128,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 460,
-            "nose": 13
+            "skin": 420,
+            "nose": 12
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 329,
-          "touched_of_skin": 0.14456,
-          "touched_of_frame": 0.001864,
+          "blobs": 290,
+          "touched_of_skin": 0.12052,
+          "touched_of_frame": 0.001554,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 322,
-            "nose": 7
+            "skin": 285,
+            "nose": 5
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 160,
-          "touched_of_skin": 0.07282,
-          "touched_of_frame": 0.000939,
+          "blobs": 141,
+          "touched_of_skin": 0.06294,
+          "touched_of_frame": 0.000812,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 157,
+            "skin": 138,
             "nose": 3
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 83,
-          "touched_of_skin": 0.03634,
-          "touched_of_frame": 0.000469,
+          "blobs": 74,
+          "touched_of_skin": 0.03068,
+          "touched_of_frame": 0.000396,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 79,
+            "skin": 70,
             "nose": 4
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 56,
-          "touched_of_skin": 0.023,
-          "touched_of_frame": 0.000297,
+          "blobs": 44,
+          "touched_of_skin": 0.01816,
+          "touched_of_frame": 0.000234,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 53,
+            "skin": 41,
             "nose": 3
           }
         }
@@ -1879,83 +1847,83 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00821,
-      "radius_px": 2.48,
+      "radius_px": 2.4,
       "face_w": 480.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 345,
-          "touched_of_skin": 0.26506,
-          "touched_of_frame": 0.002175,
+          "blobs": 334,
+          "touched_of_skin": 0.21977,
+          "touched_of_frame": 0.001804,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 23,
-            "skin": 322
+            "skin": 310,
+            "nose": 24
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 215,
-          "touched_of_skin": 0.16451,
-          "touched_of_frame": 0.00135,
+          "blobs": 196,
+          "touched_of_skin": 0.14772,
+          "touched_of_frame": 0.001212,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 201,
-            "nose": 14
-          }
-        },
-        {
-          "threshold": 0.012,
-          "blobs": 139,
-          "touched_of_skin": 0.10958,
-          "touched_of_frame": 0.000899,
-          "suspect_share": 0.0,
-          "by_class": {
-            "skin": 128,
+            "skin": 185,
             "nose": 11
           }
         },
         {
-          "threshold": 0.014,
-          "blobs": 106,
-          "touched_of_skin": 0.07801,
-          "touched_of_frame": 0.00064,
+          "threshold": 0.012,
+          "blobs": 130,
+          "touched_of_skin": 0.10055,
+          "touched_of_frame": 0.000825,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 100,
-            "nose": 6
+            "skin": 121,
+            "nose": 9
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 99,
+          "touched_of_skin": 0.06829,
+          "touched_of_frame": 0.00056,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 94,
+            "nose": 5
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 30,
-          "touched_of_skin": 0.02844,
-          "touched_of_frame": 0.000233,
+          "blobs": 25,
+          "touched_of_skin": 0.02567,
+          "touched_of_frame": 0.000211,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 28,
+            "skin": 23,
             "nose": 2
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 15,
-          "touched_of_skin": 0.01673,
-          "touched_of_frame": 0.000137,
+          "blobs": 11,
+          "touched_of_skin": 0.01383,
+          "touched_of_frame": 0.000113,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 14,
+            "skin": 10,
             "nose": 1
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 7,
-          "touched_of_skin": 0.01148,
-          "touched_of_frame": 9.4e-05,
+          "blobs": 6,
+          "touched_of_skin": 0.01048,
+          "touched_of_frame": 8.6e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 6,
+            "skin": 5,
             "nose": 1
           }
         }
@@ -1972,53 +1940,53 @@
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 327,
-          "touched_of_skin": 0.26283,
-          "touched_of_frame": 0.002094,
+          "blobs": 328,
+          "touched_of_skin": 0.2242,
+          "touched_of_frame": 0.001786,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 310,
+            "skin": 311,
             "nose": 17
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 222,
-          "touched_of_skin": 0.1749,
-          "touched_of_frame": 0.001393,
+          "blobs": 221,
+          "touched_of_skin": 0.17101,
+          "touched_of_frame": 0.001362,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 208,
+            "skin": 207,
             "nose": 14
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 150,
-          "touched_of_skin": 0.11519,
-          "touched_of_frame": 0.000918,
+          "blobs": 149,
+          "touched_of_skin": 0.11387,
+          "touched_of_frame": 0.000907,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 145,
+            "skin": 144,
             "nose": 5
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 110,
-          "touched_of_skin": 0.08014,
-          "touched_of_frame": 0.000638,
+          "blobs": 109,
+          "touched_of_skin": 0.0788,
+          "touched_of_frame": 0.000628,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 107,
+            "skin": 106,
             "nose": 3
           }
         },
         {
           "threshold": 0.018,
           "blobs": 45,
-          "touched_of_skin": 0.03781,
-          "touched_of_frame": 0.000301,
+          "touched_of_skin": 0.0382,
+          "touched_of_frame": 0.000304,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 43,
@@ -2038,12 +2006,12 @@
         },
         {
           "threshold": 0.025,
-          "blobs": 12,
-          "touched_of_skin": 0.01212,
-          "touched_of_frame": 9.7e-05,
+          "blobs": 13,
+          "touched_of_skin": 0.01241,
+          "touched_of_frame": 9.9e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 11,
+            "skin": 12,
             "nose": 1
           }
         }
@@ -2061,8 +2029,8 @@
         {
           "threshold": 0.008,
           "blobs": 375,
-          "touched_of_skin": 0.28556,
-          "touched_of_frame": 0.002194,
+          "touched_of_skin": 0.261,
+          "touched_of_frame": 0.002005,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 355,
@@ -2072,8 +2040,8 @@
         {
           "threshold": 0.01,
           "blobs": 256,
-          "touched_of_skin": 0.18923,
-          "touched_of_frame": 0.001454,
+          "touched_of_skin": 0.17391,
+          "touched_of_frame": 0.001336,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 239,
@@ -2083,8 +2051,8 @@
         {
           "threshold": 0.012,
           "blobs": 175,
-          "touched_of_skin": 0.12868,
-          "touched_of_frame": 0.000989,
+          "touched_of_skin": 0.12626,
+          "touched_of_frame": 0.00097,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 162,
@@ -2143,58 +2111,58 @@
       "h": 4180,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00553,
-      "radius_px": 2.21,
+      "radius_px": 2.33,
       "face_w": 467.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 17,
-          "touched_of_skin": 0.03163,
-          "touched_of_frame": 0.000175,
+          "blobs": 21,
+          "touched_of_skin": 0.04072,
+          "touched_of_frame": 0.000225,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 8,
-            "skin": 9
+            "nose": 10,
+            "skin": 11
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 11,
-          "touched_of_skin": 0.01752,
-          "touched_of_frame": 9.7e-05,
+          "blobs": 15,
+          "touched_of_skin": 0.02369,
+          "touched_of_frame": 0.000131,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 4,
-            "skin": 7
+            "nose": 6,
+            "skin": 9
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 8,
-          "touched_of_skin": 0.01089,
-          "touched_of_frame": 6e-05,
+          "blobs": 6,
+          "touched_of_skin": 0.01311,
+          "touched_of_frame": 7.2e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 4,
-            "skin": 4
+            "nose": 3,
+            "skin": 3
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 5,
-          "touched_of_skin": 0.00751,
-          "touched_of_frame": 4.1e-05,
+          "blobs": 7,
+          "touched_of_skin": 0.00937,
+          "touched_of_frame": 5.2e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 3,
-            "nose": 2
+            "nose": 3,
+            "skin": 4
           }
         },
         {
           "threshold": 0.018,
           "blobs": 3,
-          "touched_of_skin": 0.00422,
-          "touched_of_frame": 2.3e-05,
+          "touched_of_skin": 0.00488,
+          "touched_of_frame": 2.7e-05,
           "suspect_share": 0.0,
           "by_class": {
             "nose": 2,
@@ -2203,19 +2171,19 @@
         },
         {
           "threshold": 0.022,
-          "blobs": 1,
-          "touched_of_skin": 0.00144,
-          "touched_of_frame": 8e-06,
+          "blobs": 2,
+          "touched_of_skin": 0.00243,
+          "touched_of_frame": 1.3e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "nose": 1
+            "nose": 2
           }
         },
         {
           "threshold": 0.025,
           "blobs": 1,
-          "touched_of_skin": 0.00106,
-          "touched_of_frame": 6e-06,
+          "touched_of_skin": 0.00135,
+          "touched_of_frame": 7e-06,
           "suspect_share": 0.0,
           "by_class": {
             "nose": 1
@@ -2235,8 +2203,8 @@
         {
           "threshold": 0.008,
           "blobs": 40,
-          "touched_of_skin": 0.16604,
-          "touched_of_frame": 0.000407,
+          "touched_of_skin": 0.15976,
+          "touched_of_frame": 0.000392,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 31,
@@ -2317,54 +2285,54 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01394,
-      "radius_px": 3.29,
+      "radius_px": 3.4,
       "face_w": 680.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 57,
-          "touched_of_skin": 0.07524,
-          "touched_of_frame": 0.001048,
+          "blobs": 59,
+          "touched_of_skin": 0.06471,
+          "touched_of_frame": 0.000902,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 57
+            "skin": 59
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 36,
-          "touched_of_skin": 0.0588,
-          "touched_of_frame": 0.000819,
+          "blobs": 41,
+          "touched_of_skin": 0.04231,
+          "touched_of_frame": 0.00059,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 36
+            "skin": 41
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 28,
-          "touched_of_skin": 0.04199,
-          "touched_of_frame": 0.000585,
+          "blobs": 30,
+          "touched_of_skin": 0.04424,
+          "touched_of_frame": 0.000617,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 28
+            "skin": 30
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 26,
-          "touched_of_skin": 0.03002,
-          "touched_of_frame": 0.000418,
+          "blobs": 24,
+          "touched_of_skin": 0.03051,
+          "touched_of_frame": 0.000425,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 26
+            "skin": 24
           }
         },
         {
           "threshold": 0.018,
           "blobs": 15,
-          "touched_of_skin": 0.01308,
-          "touched_of_frame": 0.000182,
+          "touched_of_skin": 0.01484,
+          "touched_of_frame": 0.000207,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 15
@@ -2372,22 +2340,22 @@
         },
         {
           "threshold": 0.022,
-          "blobs": 6,
-          "touched_of_skin": 0.00474,
-          "touched_of_frame": 6.6e-05,
+          "blobs": 5,
+          "touched_of_skin": 0.00556,
+          "touched_of_frame": 7.7e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 6
+            "skin": 5
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 4,
-          "touched_of_skin": 0.00235,
-          "touched_of_frame": 3.3e-05,
+          "blobs": 5,
+          "touched_of_skin": 0.00304,
+          "touched_of_frame": 4.2e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 4
+            "skin": 5
           }
         }
       ]
@@ -2398,36 +2366,36 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01342,
-      "radius_px": 3.08,
+      "radius_px": 3.06,
       "face_w": 612.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 25,
-          "touched_of_skin": 0.03434,
-          "touched_of_frame": 0.000461,
+          "blobs": 26,
+          "touched_of_skin": 0.0339,
+          "touched_of_frame": 0.000455,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 22,
+            "skin": 23,
             "nose": 3
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 17,
-          "touched_of_skin": 0.0244,
-          "touched_of_frame": 0.000327,
+          "blobs": 16,
+          "touched_of_skin": 0.02397,
+          "touched_of_frame": 0.000322,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 15,
+            "skin": 14,
             "nose": 2
           }
         },
         {
           "threshold": 0.012,
           "blobs": 18,
-          "touched_of_skin": 0.01736,
-          "touched_of_frame": 0.000233,
+          "touched_of_skin": 0.01641,
+          "touched_of_frame": 0.00022,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 16,
@@ -2436,20 +2404,20 @@
         },
         {
           "threshold": 0.014,
-          "blobs": 15,
-          "touched_of_skin": 0.01189,
-          "touched_of_frame": 0.00016,
+          "blobs": 14,
+          "touched_of_skin": 0.01154,
+          "touched_of_frame": 0.000155,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 13,
+            "skin": 12,
             "nose": 2
           }
         },
         {
           "threshold": 0.018,
           "blobs": 8,
-          "touched_of_skin": 0.00597,
-          "touched_of_frame": 8e-05,
+          "touched_of_skin": 0.00587,
+          "touched_of_frame": 7.9e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 6,
@@ -2458,20 +2426,20 @@
         },
         {
           "threshold": 0.022,
-          "blobs": 9,
-          "touched_of_skin": 0.00394,
-          "touched_of_frame": 5.3e-05,
+          "blobs": 7,
+          "touched_of_skin": 0.00319,
+          "touched_of_frame": 4.3e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 7,
+            "skin": 5,
             "nose": 2
           }
         },
         {
           "threshold": 0.025,
           "blobs": 4,
-          "touched_of_skin": 0.0021,
-          "touched_of_frame": 2.8e-05,
+          "touched_of_skin": 0.00204,
+          "touched_of_frame": 2.7e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 4
@@ -2485,35 +2453,36 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01181,
-      "radius_px": 3.05,
+      "radius_px": 3.15,
       "face_w": 631.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 7,
-          "touched_of_skin": 0.00455,
-          "touched_of_frame": 5.4e-05,
+          "blobs": 8,
+          "touched_of_skin": 0.00545,
+          "touched_of_frame": 6.4e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 5,
-            "nose": 2
+            "nose": 3
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 3,
-          "touched_of_skin": 0.00133,
-          "touched_of_frame": 1.6e-05,
+          "blobs": 4,
+          "touched_of_skin": 0.00186,
+          "touched_of_frame": 2.2e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 3
+            "skin": 3,
+            "nose": 1
           }
         },
         {
           "threshold": 0.012,
           "blobs": 1,
-          "touched_of_skin": 0.00045,
-          "touched_of_frame": 5e-06,
+          "touched_of_skin": 0.0005,
+          "touched_of_frame": 6e-06,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 1
@@ -2522,8 +2491,8 @@
         {
           "threshold": 0.014,
           "blobs": 1,
-          "touched_of_skin": 0.00035,
-          "touched_of_frame": 4e-06,
+          "touched_of_skin": 0.00039,
+          "touched_of_frame": 5e-06,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 1
@@ -2561,78 +2530,77 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.02327,
-      "radius_px": 4.25,
+      "radius_px": 3.81,
       "face_w": 763.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 222,
-          "touched_of_skin": 0.09454,
-          "touched_of_frame": 0.0022,
+          "blobs": 184,
+          "touched_of_skin": 0.07566,
+          "touched_of_frame": 0.001761,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 220,
-            "nose": 2
+            "skin": 184
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 135,
-          "touched_of_skin": 0.06372,
-          "touched_of_frame": 0.001483,
+          "blobs": 120,
+          "touched_of_skin": 0.05273,
+          "touched_of_frame": 0.001227,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 135
+            "skin": 120
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 103,
-          "touched_of_skin": 0.05858,
-          "touched_of_frame": 0.001363,
+          "blobs": 89,
+          "touched_of_skin": 0.04353,
+          "touched_of_frame": 0.001013,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 103
+            "skin": 89
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 79,
-          "touched_of_skin": 0.05678,
-          "touched_of_frame": 0.001321,
+          "blobs": 73,
+          "touched_of_skin": 0.03302,
+          "touched_of_frame": 0.000768,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 79
+            "skin": 73
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 58,
-          "touched_of_skin": 0.04119,
-          "touched_of_frame": 0.000958,
+          "blobs": 65,
+          "touched_of_skin": 0.02778,
+          "touched_of_frame": 0.000646,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 58
+            "skin": 65
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 48,
-          "touched_of_skin": 0.03069,
-          "touched_of_frame": 0.000714,
+          "blobs": 46,
+          "touched_of_skin": 0.01958,
+          "touched_of_frame": 0.000456,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 48
+            "skin": 46
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 39,
-          "touched_of_skin": 0.02048,
-          "touched_of_frame": 0.000477,
+          "blobs": 33,
+          "touched_of_skin": 0.01358,
+          "touched_of_frame": 0.000316,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 39
+            "skin": 33
           }
         }
       ]
@@ -2643,58 +2611,58 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.04026,
-      "radius_px": 5.43,
+      "radius_px": 5.45,
       "face_w": 1089.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 232,
-          "touched_of_skin": 0.06779,
-          "touched_of_frame": 0.00273,
+          "blobs": 234,
+          "touched_of_skin": 0.068,
+          "touched_of_frame": 0.002738,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 221,
+            "skin": 223,
             "nose": 11
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 157,
-          "touched_of_skin": 0.04599,
-          "touched_of_frame": 0.001852,
+          "blobs": 159,
+          "touched_of_skin": 0.04621,
+          "touched_of_frame": 0.001861,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 148,
+            "skin": 150,
             "nose": 9
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 105,
-          "touched_of_skin": 0.03348,
-          "touched_of_frame": 0.001348,
+          "blobs": 106,
+          "touched_of_skin": 0.03358,
+          "touched_of_frame": 0.001352,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 99,
+            "skin": 100,
             "nose": 6
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 75,
-          "touched_of_skin": 0.02488,
-          "touched_of_frame": 0.001002,
+          "blobs": 78,
+          "touched_of_skin": 0.02517,
+          "touched_of_frame": 0.001014,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 70,
+            "skin": 73,
             "nose": 5
           }
         },
         {
           "threshold": 0.018,
           "blobs": 52,
-          "touched_of_skin": 0.01138,
-          "touched_of_frame": 0.000458,
+          "touched_of_skin": 0.01149,
+          "touched_of_frame": 0.000462,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 46,
@@ -2731,83 +2699,83 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01063,
-      "radius_px": 2.93,
+      "radius_px": 2.85,
       "face_w": 571.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 216,
-          "touched_of_skin": 0.20954,
-          "touched_of_frame": 0.002228,
+          "blobs": 202,
+          "touched_of_skin": 0.15674,
+          "touched_of_frame": 0.001667,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 202,
-            "nose": 14
+            "skin": 190,
+            "nose": 12
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 141,
-          "touched_of_skin": 0.15425,
-          "touched_of_frame": 0.00164,
+          "blobs": 135,
+          "touched_of_skin": 0.11538,
+          "touched_of_frame": 0.001227,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 130,
-            "nose": 11
+            "skin": 126,
+            "nose": 9
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 101,
-          "touched_of_skin": 0.12288,
-          "touched_of_frame": 0.001307,
+          "blobs": 94,
+          "touched_of_skin": 0.0942,
+          "touched_of_frame": 0.001002,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 98,
-            "nose": 3
+            "skin": 90,
+            "nose": 4
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 74,
-          "touched_of_skin": 0.09071,
-          "touched_of_frame": 0.000965,
+          "blobs": 72,
+          "touched_of_skin": 0.0703,
+          "touched_of_frame": 0.000748,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 68,
-            "nose": 6
+            "skin": 65,
+            "nose": 7
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 46,
-          "touched_of_skin": 0.04833,
-          "touched_of_frame": 0.000514,
+          "blobs": 43,
+          "touched_of_skin": 0.04513,
+          "touched_of_frame": 0.00048,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 41,
+            "skin": 38,
             "nose": 5
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 31,
-          "touched_of_skin": 0.02652,
-          "touched_of_frame": 0.000282,
+          "blobs": 26,
+          "touched_of_skin": 0.02284,
+          "touched_of_frame": 0.000243,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 27,
-            "nose": 4
+            "skin": 23,
+            "nose": 3
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 20,
-          "touched_of_skin": 0.01397,
-          "touched_of_frame": 0.000149,
+          "blobs": 19,
+          "touched_of_skin": 0.0124,
+          "touched_of_frame": 0.000132,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 17,
+            "skin": 16,
             "nose": 3
           }
         }
@@ -2819,54 +2787,58 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00474,
-      "radius_px": 2.0,
+      "radius_px": 2.58,
       "face_w": 515.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 7,
-          "touched_of_skin": 0.01239,
-          "touched_of_frame": 5.9e-05,
+          "blobs": 11,
+          "touched_of_skin": 0.02677,
+          "touched_of_frame": 0.000127,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 7
+            "skin": 11
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 2,
-          "touched_of_skin": 0.00437,
-          "touched_of_frame": 2.1e-05,
+          "blobs": 8,
+          "touched_of_skin": 0.0186,
+          "touched_of_frame": 8.8e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 2
+            "skin": 8
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 1,
-          "touched_of_skin": 0.00081,
-          "touched_of_frame": 4e-06,
+          "blobs": 6,
+          "touched_of_skin": 0.01111,
+          "touched_of_frame": 5.3e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 1
+            "skin": 6
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 0,
-          "touched_of_skin": 0.0,
-          "touched_of_frame": 0.0,
+          "blobs": 3,
+          "touched_of_skin": 0.00582,
+          "touched_of_frame": 2.8e-05,
           "suspect_share": 0.0,
-          "by_class": {}
+          "by_class": {
+            "skin": 3
+          }
         },
         {
           "threshold": 0.018,
-          "blobs": 0,
-          "touched_of_skin": 0.0,
-          "touched_of_frame": 0.0,
+          "blobs": 1,
+          "touched_of_skin": 0.00073,
+          "touched_of_frame": 3e-06,
           "suspect_share": 0.0,
-          "by_class": {}
+          "by_class": {
+            "skin": 1
+          }
         },
         {
           "threshold": 0.022,
@@ -2892,25 +2864,25 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00686,
-      "radius_px": 2.47,
+      "radius_px": 2.46,
       "face_w": 492.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 36,
-          "touched_of_skin": 0.08112,
-          "touched_of_frame": 0.000556,
+          "blobs": 34,
+          "touched_of_skin": 0.05088,
+          "touched_of_frame": 0.000349,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 32,
+            "skin": 30,
             "nose": 4
           }
         },
         {
           "threshold": 0.01,
           "blobs": 25,
-          "touched_of_skin": 0.05364,
-          "touched_of_frame": 0.000368,
+          "touched_of_skin": 0.04814,
+          "touched_of_frame": 0.00033,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 22,
@@ -2920,8 +2892,8 @@
         {
           "threshold": 0.012,
           "blobs": 21,
-          "touched_of_skin": 0.03777,
-          "touched_of_frame": 0.000259,
+          "touched_of_skin": 0.03755,
+          "touched_of_frame": 0.000258,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 17,
@@ -2930,13 +2902,13 @@
         },
         {
           "threshold": 0.014,
-          "blobs": 18,
-          "touched_of_skin": 0.02578,
-          "touched_of_frame": 0.000177,
+          "blobs": 17,
+          "touched_of_skin": 0.02402,
+          "touched_of_frame": 0.000165,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 15,
-            "nose": 3
+            "nose": 2
           }
         },
         {
@@ -2953,8 +2925,8 @@
         {
           "threshold": 0.022,
           "blobs": 3,
-          "touched_of_skin": 0.00278,
-          "touched_of_frame": 1.9e-05,
+          "touched_of_skin": 0.00269,
+          "touched_of_frame": 1.8e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 3
@@ -2963,8 +2935,8 @@
         {
           "threshold": 0.025,
           "blobs": 2,
-          "touched_of_skin": 0.00202,
-          "touched_of_frame": 1.4e-05,
+          "touched_of_skin": 0.00197,
+          "touched_of_frame": 1.3e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 2
@@ -3054,14 +3026,14 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.01396,
-      "radius_px": 3.21,
+      "radius_px": 3.17,
       "face_w": 633.0,
       "sweep": [
         {
           "threshold": 0.008,
           "blobs": 2,
-          "touched_of_skin": 0.00096,
-          "touched_of_frame": 1.3e-05,
+          "touched_of_skin": 0.00089,
+          "touched_of_frame": 1.2e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 2
@@ -3070,7 +3042,7 @@
         {
           "threshold": 0.01,
           "blobs": 1,
-          "touched_of_skin": 0.00034,
+          "touched_of_skin": 0.00033,
           "touched_of_frame": 5e-06,
           "suspect_share": 0.0,
           "by_class": {
@@ -3197,27 +3169,29 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.00661,
-      "radius_px": 2.26,
+      "radius_px": 2.5,
       "face_w": 499.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 2,
-          "touched_of_skin": 0.0017,
-          "touched_of_frame": 1.1e-05,
+          "blobs": 3,
+          "touched_of_skin": 0.00506,
+          "touched_of_frame": 3.3e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 1,
+            "skin": 2,
             "nose": 1
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 0,
-          "touched_of_skin": 0.0,
-          "touched_of_frame": 0.0,
+          "blobs": 1,
+          "touched_of_skin": 0.00058,
+          "touched_of_frame": 4e-06,
           "suspect_share": 0.0,
-          "by_class": {}
+          "by_class": {
+            "skin": 1
+          }
         },
         {
           "threshold": 0.012,
@@ -3267,80 +3241,80 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.0614,
-      "radius_px": 6.8,
+      "radius_px": 7.28,
       "face_w": 1456.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 215,
-          "touched_of_skin": 0.0373,
-          "touched_of_frame": 0.00229,
+          "blobs": 245,
+          "touched_of_skin": 0.04125,
+          "touched_of_frame": 0.002533,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 211,
-            "nose": 4
+            "skin": 238,
+            "nose": 7
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 109,
-          "touched_of_skin": 0.01988,
-          "touched_of_frame": 0.00122,
+          "blobs": 119,
+          "touched_of_skin": 0.02346,
+          "touched_of_frame": 0.001441,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 104,
-            "nose": 5
+            "skin": 113,
+            "nose": 6
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 60,
-          "touched_of_skin": 0.01395,
-          "touched_of_frame": 0.000856,
+          "blobs": 61,
+          "touched_of_skin": 0.01721,
+          "touched_of_frame": 0.001057,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 56,
-            "nose": 4
+            "skin": 58,
+            "nose": 3
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 43,
-          "touched_of_skin": 0.0097,
-          "touched_of_frame": 0.000596,
+          "blobs": 47,
+          "touched_of_skin": 0.01238,
+          "touched_of_frame": 0.00076,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 42,
-            "nose": 1
+            "skin": 45,
+            "nose": 2
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 19,
-          "touched_of_skin": 0.00281,
-          "touched_of_frame": 0.000172,
+          "blobs": 30,
+          "touched_of_skin": 0.00467,
+          "touched_of_frame": 0.000287,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 18,
+            "skin": 29,
             "nose": 1
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 4,
-          "touched_of_skin": 0.00084,
-          "touched_of_frame": 5.2e-05,
+          "blobs": 5,
+          "touched_of_skin": 0.00105,
+          "touched_of_frame": 6.5e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 3,
+            "skin": 4,
             "nose": 1
           }
         },
         {
           "threshold": 0.025,
           "blobs": 4,
-          "touched_of_skin": 0.00067,
-          "touched_of_frame": 4.1e-05,
+          "touched_of_skin": 0.00078,
+          "touched_of_frame": 4.8e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 3,
@@ -3355,83 +3329,83 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.06814,
-      "radius_px": 6.79,
+      "radius_px": 6.73,
       "face_w": 1346.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 879,
-          "touched_of_skin": 0.09446,
-          "touched_of_frame": 0.006437,
+          "blobs": 875,
+          "touched_of_skin": 0.0961,
+          "touched_of_frame": 0.006549,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 836,
+            "skin": 832,
             "nose": 43
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 443,
-          "touched_of_skin": 0.0571,
-          "touched_of_frame": 0.003891,
+          "blobs": 439,
+          "touched_of_skin": 0.05645,
+          "touched_of_frame": 0.003847,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 424,
-            "nose": 19
+            "skin": 419,
+            "nose": 20
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 263,
-          "touched_of_skin": 0.04036,
-          "touched_of_frame": 0.002751,
+          "blobs": 258,
+          "touched_of_skin": 0.03936,
+          "touched_of_frame": 0.002682,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 248,
-            "nose": 15
+            "skin": 244,
+            "nose": 14
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 182,
-          "touched_of_skin": 0.03223,
-          "touched_of_frame": 0.002196,
+          "blobs": 179,
+          "touched_of_skin": 0.03154,
+          "touched_of_frame": 0.002149,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 174,
+            "skin": 171,
             "nose": 8
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 127,
-          "touched_of_skin": 0.02475,
-          "touched_of_frame": 0.001687,
+          "blobs": 128,
+          "touched_of_skin": 0.0258,
+          "touched_of_frame": 0.001758,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 121,
+            "skin": 122,
             "nose": 6
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 74,
-          "touched_of_skin": 0.01631,
-          "touched_of_frame": 0.001112,
+          "blobs": 72,
+          "touched_of_skin": 0.01611,
+          "touched_of_frame": 0.001098,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 69,
+            "skin": 67,
             "nose": 5
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 57,
-          "touched_of_skin": 0.0103,
-          "touched_of_frame": 0.000702,
+          "blobs": 55,
+          "touched_of_skin": 0.01002,
+          "touched_of_frame": 0.000683,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 51,
+            "skin": 49,
             "nose": 6
           }
         }
@@ -3449,8 +3423,8 @@
         {
           "threshold": 0.008,
           "blobs": 9,
-          "touched_of_skin": 0.05247,
-          "touched_of_frame": 0.000103,
+          "touched_of_skin": 0.03326,
+          "touched_of_frame": 6.5e-05,
           "suspect_share": 0.0,
           "by_class": {
             "nose": 2,
@@ -3460,8 +3434,8 @@
         {
           "threshold": 0.01,
           "blobs": 7,
-          "touched_of_skin": 0.03794,
-          "touched_of_frame": 7.5e-05,
+          "touched_of_skin": 0.02705,
+          "touched_of_frame": 5.3e-05,
           "suspect_share": 0.0,
           "by_class": {
             "skin": 6,
@@ -3599,85 +3573,397 @@
       "h": 6264,
       "skin_source": "face-parsing+yunet",
       "skin_frac": 0.09781,
-      "radius_px": 8.36,
+      "radius_px": 7.91,
       "face_w": 1582.0,
       "sweep": [
         {
           "threshold": 0.008,
-          "blobs": 682,
-          "touched_of_skin": 0.06118,
-          "touched_of_frame": 0.005984,
+          "blobs": 674,
+          "touched_of_skin": 0.05828,
+          "touched_of_frame": 0.0057,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 642,
-            "nose": 40
+            "skin": 632,
+            "nose": 42
           }
         },
         {
           "threshold": 0.01,
-          "blobs": 395,
-          "touched_of_skin": 0.03673,
-          "touched_of_frame": 0.003593,
+          "blobs": 384,
+          "touched_of_skin": 0.03387,
+          "touched_of_frame": 0.003313,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 381,
-            "nose": 14
+            "skin": 369,
+            "nose": 15
           }
         },
         {
           "threshold": 0.012,
-          "blobs": 248,
-          "touched_of_skin": 0.02211,
-          "touched_of_frame": 0.002162,
+          "blobs": 228,
+          "touched_of_skin": 0.02193,
+          "touched_of_frame": 0.002145,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 241,
-            "nose": 7
+            "skin": 223,
+            "nose": 5
           }
         },
         {
           "threshold": 0.014,
-          "blobs": 148,
-          "touched_of_skin": 0.01429,
-          "touched_of_frame": 0.001398,
+          "blobs": 139,
+          "touched_of_skin": 0.01463,
+          "touched_of_frame": 0.001431,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 147,
-            "nose": 1
+            "skin": 139
           }
         },
         {
           "threshold": 0.018,
-          "blobs": 61,
-          "touched_of_skin": 0.00634,
-          "touched_of_frame": 0.00062,
+          "blobs": 58,
+          "touched_of_skin": 0.0053,
+          "touched_of_frame": 0.000518,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 61
+            "skin": 58
           }
         },
         {
           "threshold": 0.022,
-          "blobs": 24,
-          "touched_of_skin": 0.00235,
-          "touched_of_frame": 0.00023,
+          "blobs": 22,
+          "touched_of_skin": 0.00212,
+          "touched_of_frame": 0.000207,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 24
+            "skin": 22
           }
         },
         {
           "threshold": 0.025,
-          "blobs": 14,
-          "touched_of_skin": 0.00119,
-          "touched_of_frame": 0.000116,
+          "blobs": 12,
+          "touched_of_skin": 0.00087,
+          "touched_of_frame": 8.5e-05,
           "suspect_share": 0.0,
           "by_class": {
-            "skin": 14
+            "skin": 12
           }
         }
       ]
     }
   ],
-  "skipped": []
+  "aggregate": [
+    {
+      "threshold": 0.008,
+      "blobs_median": 55.5,
+      "blobs_min": 0,
+      "blobs_max": 1138,
+      "touched_of_skin_median": 0.05842,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.37624,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.01,
+      "blobs_median": 36.5,
+      "blobs_min": 0,
+      "blobs_max": 789,
+      "touched_of_skin_median": 0.03813,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.27829,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.012,
+      "blobs_median": 21.5,
+      "blobs_min": 0,
+      "blobs_max": 547,
+      "touched_of_skin_median": 0.02324,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.1886,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.014,
+      "blobs_median": 15.5,
+      "blobs_min": 0,
+      "blobs_max": 430,
+      "touched_of_skin_median": 0.01554,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.14117,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.018,
+      "blobs_median": 10.0,
+      "blobs_min": 0,
+      "blobs_max": 269,
+      "touched_of_skin_median": 0.00882,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.09618,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.022,
+      "blobs_median": 5.0,
+      "blobs_min": 0,
+      "blobs_max": 168,
+      "touched_of_skin_median": 0.00383,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.07567,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    },
+    {
+      "threshold": 0.025,
+      "blobs_median": 3.5,
+      "blobs_min": 0,
+      "blobs_max": 122,
+      "touched_of_skin_median": 0.00242,
+      "touched_of_skin_min": 0.0,
+      "touched_of_skin_max": 0.06412,
+      "suspect_median": 0.0,
+      "suspect_max": 0.0
+    }
+  ],
+  "skipped": [],
+  "by_face_size": [
+    {
+      "bucket": "дрібне (<350 px)",
+      "n": 9,
+      "face_w": [
+        191.0,
+        340.0
+      ],
+      "mask_median": 0.00201,
+      "radius_median": 2.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "n": 9,
+          "blobs_median": 9,
+          "skin_median": 0.03929,
+          "skin_min": 0.02164,
+          "skin_max": 0.15976,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.01,
+          "n": 9,
+          "blobs_median": 7,
+          "skin_median": 0.02705,
+          "skin_min": 0.00763,
+          "skin_max": 0.11254,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.012,
+          "n": 9,
+          "blobs_median": 6,
+          "skin_median": 0.01835,
+          "skin_min": 0.00177,
+          "skin_max": 0.06492,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.014,
+          "n": 9,
+          "blobs_median": 5,
+          "skin_median": 0.01181,
+          "skin_min": 0.0,
+          "skin_max": 0.05802,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.018,
+          "n": 9,
+          "blobs_median": 2,
+          "skin_median": 0.00685,
+          "skin_min": 0.0,
+          "skin_max": 0.02997,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.022,
+          "n": 9,
+          "blobs_median": 1,
+          "skin_median": 0.00219,
+          "skin_min": 0.0,
+          "skin_max": 0.01956,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.025,
+          "n": 9,
+          "blobs_median": 1,
+          "skin_median": 0.00168,
+          "skin_min": 0.0,
+          "skin_max": 0.01156,
+          "suspect_max": 0.0
+        }
+      ]
+    },
+    {
+      "bucket": "середнє (350-700)",
+      "n": 27,
+      "face_w": [
+        351.0,
+        680.0
+      ],
+      "mask_median": 0.01063,
+      "radius_median": 2.46,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "n": 27,
+          "blobs_median": 77,
+          "skin_median": 0.06069,
+          "skin_min": 0.00027,
+          "skin_max": 0.37624,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.01,
+          "n": 27,
+          "blobs_median": 44,
+          "skin_median": 0.04231,
+          "skin_min": 0.0,
+          "skin_max": 0.27829,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.012,
+          "n": 27,
+          "blobs_median": 29,
+          "skin_median": 0.02946,
+          "skin_min": 0.0,
+          "skin_max": 0.1886,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.014,
+          "n": 27,
+          "blobs_median": 19,
+          "skin_median": 0.02011,
+          "skin_min": 0.0,
+          "skin_max": 0.14117,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.018,
+          "n": 27,
+          "blobs_median": 15,
+          "skin_median": 0.01198,
+          "skin_min": 0.0,
+          "skin_max": 0.0914,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.022,
+          "n": 27,
+          "blobs_median": 7,
+          "skin_median": 0.00556,
+          "skin_min": 0.0,
+          "skin_max": 0.06444,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.025,
+          "n": 27,
+          "blobs_median": 5,
+          "skin_median": 0.00328,
+          "skin_min": 0.0,
+          "skin_max": 0.04493,
+          "suspect_max": 0.0
+        }
+      ]
+    },
+    {
+      "bucket": "велике (>=700)",
+      "n": 6,
+      "face_w": [
+        708.0,
+        1582.0
+      ],
+      "mask_median": 0.05083,
+      "radius_median": 6.09,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "n": 6,
+          "blobs_median": 459.5,
+          "skin_median": 0.07183,
+          "skin_min": 0.04125,
+          "skin_max": 0.24922,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.01,
+          "n": 6,
+          "blobs_median": 271.5,
+          "skin_median": 0.04947,
+          "skin_min": 0.02346,
+          "skin_max": 0.19378,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.012,
+          "n": 6,
+          "blobs_median": 167.0,
+          "skin_median": 0.03647,
+          "skin_min": 0.01721,
+          "skin_max": 0.14204,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.014,
+          "n": 6,
+          "blobs_median": 108.5,
+          "skin_median": 0.02835,
+          "skin_min": 0.01238,
+          "skin_max": 0.11852,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.018,
+          "n": 6,
+          "blobs_median": 61.5,
+          "skin_median": 0.01865,
+          "skin_min": 0.00467,
+          "skin_max": 0.09618,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.022,
+          "n": 6,
+          "blobs_median": 35.0,
+          "skin_median": 0.01011,
+          "skin_min": 0.00105,
+          "skin_max": 0.07567,
+          "suspect_max": 0.0
+        },
+        {
+          "threshold": 0.025,
+          "n": 6,
+          "blobs_median": 22.5,
+          "skin_median": 0.00615,
+          "skin_min": 0.00078,
+          "skin_max": 0.06412,
+          "suspect_max": 0.0
+        }
+      ]
+    }
+  ],
+  "n_frames": 44,
+  "settings": {
+    "skin_classes": "(дефолт)",
+    "preset": null,
+    "face_model": "models/resnet18.onnx",
+    "raw_decoder": null
+  }
 }

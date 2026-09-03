@@ -3566,6 +3566,90 @@
           "by_class": {}
         }
       ]
+    },
+    {
+      "file": "IMG_9997.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.09781,
+      "radius_px": 7.91,
+      "face_w": 1582.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 674,
+          "touched_of_skin": 0.05828,
+          "touched_of_frame": 0.0057,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 632,
+            "nose": 42
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 384,
+          "touched_of_skin": 0.03387,
+          "touched_of_frame": 0.003313,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 369,
+            "nose": 15
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 228,
+          "touched_of_skin": 0.02193,
+          "touched_of_frame": 0.002145,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 223,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 139,
+          "touched_of_skin": 0.01463,
+          "touched_of_frame": 0.001431,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 139
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 58,
+          "touched_of_skin": 0.0053,
+          "touched_of_frame": 0.000518,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 58
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 22,
+          "touched_of_skin": 0.00212,
+          "touched_of_frame": 0.000207,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 22
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 12,
+          "touched_of_skin": 0.00087,
+          "touched_of_frame": 8.5e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 12
+          }
+        }
+      ]
     }
   ],
   "skipped": []

@@ -120,6 +120,7 @@ class App:
                              (getattr(s, "blob_classes", None) or [])],
             "detect_warn": getattr(s, "detect_warn", None),
             "face_w": s.face_w,
+            "radius_warn": getattr(s, "radius_warn", None),
             "face_w_source": s.face_w_source,
             "n_faces": len(s.faces),
             "threshold_curve": getattr(s, "threshold_curve", []),

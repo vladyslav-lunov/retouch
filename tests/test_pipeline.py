@@ -476,6 +476,43 @@ def test_radius_comes_from_the_detector_when_there_is_one():
         assert sess.search_radius_px == Session.BASE_SEARCH
 
 
+def test_clamped_radius_is_reported_as_a_limit():
+    """Підлога радіуса — межа застосовності, а не деталь реалізації.
+
+    Нижче 2 px частотка не відділяє дефект від пікселя, тобто
+    калібрувальне «обличчя 1200 -> радіус 6» перестає діяти. На реальній
+    зйомці таких кадрів 16 із 44, і мовчки віддати результат означало б
+    удати, що він порівнянний з рештою.
+    """
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        small = Session(_fixture(d), Config(force_mask=True)).load()
+        small.face_w = 200.0                  # 6*200/1200 = 1.0 -> підлога
+        small.analyze()
+        big = Session(_fixture(d), Config(force_mask=True)).load()
+        big.face_w = 1200.0
+        big.analyze()
+        print(f"  обличчя 200 px: радіус {small.radius}, "
+              f"попередження {'є' if small.radius_warn else 'немає'}")
+        print(f"  обличчя 1200 px: радіус {big.radius}, "
+              f"попередження {'є' if big.radius_warn else 'немає'}")
+        assert small.radius == 2.0 and small.radius_clamped
+        assert small.radius_warn and "191" not in small.radius_warn
+        assert "200" in small.radius_warn, "у тексті немає ширини обличчя"
+        assert not big.radius_clamped and big.radius_warn is None
+
+
+def test_explicit_radius_is_never_called_clamped():
+    """Хто задав радіус руками — знає, що робить, і попереджати нема про що."""
+    with tempfile.TemporaryDirectory() as t:
+        cfg = Config(force_mask=True, hf_radius=2.0)
+        sess = Session(_fixture(Path(t)), cfg).load()
+        sess.face_w = 200.0
+        sess.analyze()
+        print(f"  задано 2.0 вручну -> clamped={sess.radius_clamped}")
+        assert not sess.radius_clamped and sess.radius_warn is None
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):
