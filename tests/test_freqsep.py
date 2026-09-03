@@ -21,7 +21,8 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from retouch.freqsep import freq_merge, freq_split, luma, radius_for  # noqa: E402
+from retouch.freqsep import (face_width, freq_merge, freq_split,  # noqa: E402
+                             luma, radius_for)
 from tests.synth import make_face, make_skin  # noqa: E402
 
 
@@ -102,6 +103,48 @@ def test_no_mask_falls_back_to_frame_size():
     r = radius_for((2000, 3000), None)
     print(f"  без маски: {r:.2f}px (груба здогадка з розміру кадру)")
     assert 2.0 <= r <= 32.0
+
+
+def test_face_width_prefers_the_detector_over_the_mask():
+    """Габарит маски бреше в обидва боки — заміряно на 44 кадрах (§6.3)."""
+    h, w = 800, 1200
+    # дві голови в кадрі: маска накриває обидві, габарит міряє відстань МІЖ ними
+    two = np.zeros((h, w), np.uint8)
+    two[200:500, 100:300] = 1
+    two[200:500, 900:1100] = 1
+    FACE = 500.0                       # вище підлоги lo=2.0, щоб кламп не заважав
+    fw_mask, src_mask = face_width((h, w), two, None)
+    fw_det, src_det = face_width((h, w), two, FACE)
+    r_mask = radius_for((h, w), two)
+    r_det = radius_for((h, w), two, face_w=FACE)
+    print(f"  габарит маски {fw_mask:.0f} px ({src_mask}) -> радіус {r_mask:.2f}")
+    print(f"  рамка детектора {fw_det:.0f} px ({src_det}) -> радіус {r_det:.2f}")
+    assert fw_mask > 900, "габарит не спіймав саме ту помилку, про яку тест"
+    assert fw_det == FACE and src_det == "detector"
+    # На реальному груповому кадрі завищення було в 2.4 раза (IMG_0796).
+    assert r_mask >= 1.8 * r_det, (
+        f"радіус із габариту маски не завищується ({r_mask:.2f} vs "
+        f"{r_det:.2f}) — тест нічого не ловить")
+
+
+def test_face_width_falls_back_in_order():
+    """Три джерела, і кожне має називатися своїм іменем."""
+    m = np.zeros((400, 600), np.uint8)
+    m[100:300, 200:400] = 1
+    assert face_width((400, 600), m, 150.0)[1] == "detector"
+    assert face_width((400, 600), m, None)[1] == "mask-bbox"
+    assert face_width((400, 600), None, None)[1] == "guess"
+    assert face_width((400, 600), np.zeros((400, 600), np.uint8), None)[1] == "guess"
+    print("  detector -> mask-bbox -> guess, порожня маска не рахується маскою")
+
+
+def test_radius_is_proportional_to_the_detected_face():
+    """Відношення обличчя/радіус має бути СТАЛИМ. На реальних кадрах воно
+    гуляло від 82 до 221, бо міряли габарит маски."""
+    ratios = [w / radius_for((4000, 6000), None, face_w=w)
+              for w in (400, 700, 1200, 1800)]
+    print(f"  відношення обличчя/радіус: {[round(r) for r in ratios]}")
+    assert max(ratios) - min(ratios) < 1.0, f"не пропорційно: {ratios}"
 
 
 if __name__ == "__main__":

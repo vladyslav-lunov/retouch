@@ -129,7 +129,7 @@ def main(argv=None) -> int:
     for t in SWEEP:
         lbl, blobs = detect_blemishes(sess.high, sess.skin, DetectParams(threshold=t))
         _, cov = heal_blemishes(sess.high, lbl, blobs, sess.skin,
-                                search_radius=cfg.search_radius)
+                                search_radius=sess.search_radius_px)
         sweep.append({"threshold": t, "blobs": len(blobs),
                       "touched": round(float((cov > 0).mean()), 5)})
 

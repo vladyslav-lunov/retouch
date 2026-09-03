@@ -119,6 +119,9 @@ class App:
             "blob_classes": [{"name": n, "n": c} for n, c in
                              (getattr(s, "blob_classes", None) or [])],
             "detect_warn": getattr(s, "detect_warn", None),
+            "face_w": s.face_w,
+            "face_w_source": s.face_w_source,
+            "n_faces": len(s.faces),
             "threshold_curve": getattr(s, "threshold_curve", []),
             "threshold_note": getattr(s, "threshold_note", None),
             "skin_classes": list(s.cfg.mask.skin_classes),
@@ -138,6 +141,7 @@ class App:
                 "max_elongation": s.cfg.detect.max_elongation,
                 "strength": s.cfg.strength, "limit": s.cfg.limit,
                 "search_radius": s.cfg.search_radius,
+                "search_radius_px": s.search_radius_px,
                 "mask_erode": s.cfg.mask.erode,
                 "use_skin_mask": s.cfg.use_skin_mask,
             },

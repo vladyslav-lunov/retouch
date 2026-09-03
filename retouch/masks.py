@@ -131,6 +131,9 @@ class FaceParser:
       вихід : 1x19x512x512 логіти, argmax по каналах -> карта класів
     """
 
+    last_faces: list = []
+    """Рамки з останнього parse(). Порожньо, якщо детектора не було."""
+
     MEAN = np.array([0.485, 0.456, 0.406], np.float32)
     STD = np.array([0.229, 0.224, 0.225], np.float32)
     SIZE = 512
@@ -174,6 +177,11 @@ class FaceParser:
         for box in faces[:1]:            # найбільше обличчя; групові кадри — окрема розмова
             x0, y0, x1, y1 = face_crop_box(img, box, margin)
             out[y0:y1, x0:x1] = self._parse_whole(img[y0:y1, x0:x1])
+        # Рамку запам'ятовуємо: з неї рахуються радіус частотки й радіус
+        # пошуку донора, і взяти її звідси дешевше, ніж ганяти YuNet
+        # удруге. Габарит маски для цього не годиться — він міряє не те
+        # (freqsep.face_width, spec.md §6.3).
+        self.last_faces = list(faces)
         return out
 
     def skin_mask(self, img: np.ndarray, p: MaskParams | None = None,

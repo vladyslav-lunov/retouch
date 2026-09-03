@@ -437,6 +437,45 @@ def test_solver_leaves_the_threshold_alone_when_no_target():
         assert not sess.threshold_curve, "підбір запустився без цілі"
 
 
+def test_search_radius_scales_with_the_face():
+    """Питання §13 №2. Відповідь дав розкид ширини обличчя у 8 разів."""
+    with tempfile.TemporaryDirectory() as t:
+        sess = Session(_fixture(Path(t)), Config(force_mask=True)).load()
+        got = {w: sess._search_radius(w) for w in (200, 600, 1200, 2400)}
+        print(f"  обличчя -> пошук: {got}")
+        assert got[1200] == Session.BASE_SEARCH, (
+            "на опорному обличчі 1200 px має вийти рівно калібрувальне число")
+        assert got[600] < got[1200] < got[2400], "не масштабується"
+        # у частках обличчя має бути СТАЛИМ — у цьому вся суть
+        share = [got[w] / w for w in (600, 1200, 2400)]
+        print(f"  у частках обличчя: {[round(x, 3) for x in share]}")
+        assert max(share) - min(share) < 0.01, f"частка гуляє: {share}"
+
+
+def test_explicit_search_radius_stays_absolute():
+    """Хто задав пікселі — мав на увазі пікселі. Мовчки перерахувати їх
+    було б підміною параметра (той самий принцип, що з target_coverage)."""
+    with tempfile.TemporaryDirectory() as t:
+        cfg = Config(force_mask=True, search_radius=150)
+        sess = Session(_fixture(Path(t)), cfg).load().analyze()
+        print(f"  задано 150 -> вжито {sess.search_radius_px}")
+        assert sess.search_radius_px == 150
+
+
+def test_radius_comes_from_the_detector_when_there_is_one():
+    """Session має брати ширину з рамки, а не з габариту маски."""
+    from retouch.freqsep import radius_for
+    with tempfile.TemporaryDirectory() as t:
+        sess = Session(_fixture(Path(t)), Config(force_mask=True)).load()
+        sess.face_w = 1200.0                     # ніби детектор щось знайшов
+        sess.analyze()
+        print(f"  джерело {sess.face_w_source}, радіус {sess.radius:.2f}, "
+              f"пошук {sess.search_radius_px}")
+        assert sess.face_w_source == "detector"
+        assert abs(sess.radius - radius_for(sess.img.shape, face_w=1200.0)) < 1e-6
+        assert sess.search_radius_px == Session.BASE_SEARCH
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

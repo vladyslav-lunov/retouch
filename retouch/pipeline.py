@@ -16,7 +16,7 @@ import numpy as np
 
 from . import imageio, layers as layers_mod
 from .blemish import DetectParams, detect_blemishes, heal_blemishes
-from .freqsep import freq_merge, freq_split, radius_for
+from .freqsep import face_width, freq_merge, freq_split, radius_for
 from .masks import MaskParams, build_skin_mask
 from .develop import DevelopParams, apply_pixels
 from .dodgeburn import DodgeBurnParams, apply as db_apply, coverage as db_cov, gray_map
@@ -109,9 +109,12 @@ class Config:
 
     detect: DetectParams = field(default_factory=DetectParams)
     mask: MaskParams = field(default_factory=MaskParams)
-    search_radius: int = 90
-    """Як далеко від плями шукати донора, px. Відкалібровано під обличчя
-    шириною 1200 px; чи має масштабуватися разом із ним — §13, питання 2."""
+    search_radius: int | None = None
+    """Як далеко від плями шукати донора, px. None = порахувати з ширини
+    обличчя (90 px на обличчя 1200 px, той самий ідіом, що в hf_radius).
+    Явне число лишається абсолютним. Масштабувати обов'язково: на 44
+    реальних кадрах обличчя гуляло від 191 до 1582 px, і фіксовані 90 px
+    означали то 47% ширини обличчя, то 5.7% (spec.md §6.3)."""
 
     strength: float = 1.0
     """Сила лікування 0..1. Множник альфи дотику, тобто прямий аналог
@@ -304,6 +307,10 @@ class Session:
         self.detect_warn: str | None = None
         self.threshold_curve: list = []
         self.threshold_note: str | None = None
+        self.faces: list = []
+        self.face_w: float | None = None
+        self.face_w_source: str = "guess"
+        self.search_radius_px: int = 0
 
     # --- етапи ---------------------------------------------------------
     def load(self, sink=None) -> "Session":
@@ -366,12 +373,16 @@ class Session:
                 det = (str(self.cfg.face_detector)
                        if self.cfg.face_detector and Path(self.cfg.face_detector).exists()
                        else None)
-                self.cls = FaceParser(mp).parse(self.img, det)
+                fp = FaceParser(mp)
+                self.cls = fp.parse(self.img, det)
+                self.faces = list(fp.last_faces)
+                self.face_w = float(self.faces[0][2]) if self.faces else None
                 return (mask_from_classes(self.cls, self.cfg.mask),
                         "face-parsing" + ("+yunet" if det else ""))
             except Exception as exc:                      # noqa: BLE001
                 print(f"[masks] face-parsing не спрацював ({exc}), беру евристику")
         self.cls = None
+        self.faces, self.face_w = [], None
         return heuristic_skin_mask(self.img, self.cfg.mask), "heuristic"
 
     def remask(self) -> bool:
@@ -455,7 +466,10 @@ class Session:
 
     def analyze(self, sink=None) -> "Session":
         """Частотка + детекція. Частотку рахуємо лише коли змінився радіус."""
-        radius = self.cfg.hf_radius or radius_for(self.img.shape, self.skin)
+        fw, self.face_w_source = face_width(self.img.shape, self.skin, self.face_w)
+        self.search_radius_px = self._search_radius(fw)
+        radius = self.cfg.hf_radius or radius_for(self.img.shape, self.skin,
+                                                  face_w=self.face_w)
         if self.low is None or radius != self.radius:
             s = Stage("freq-split", sink)
             self.low, self.high = freq_split(self.img, radius)
@@ -509,7 +523,7 @@ class Session:
             p = replace(self.cfg.detect, threshold=t, target_coverage=None)
             lbl, blobs = detect_blemishes(self.high, self.skin, p)
             _h2, cov = heal_blemishes(self.high, lbl, blobs, self.skin,
-                                      search_radius=self.cfg.search_radius,
+                                      search_radius=self.search_radius_px,
                                       strength=self.cfg.strength)
             frac = float((cov > 0).sum()) / skin_px
             curve.append({"threshold": t, "blobs": len(blobs),
@@ -537,6 +551,32 @@ class Session:
                 f"({curve[-1]['touched_of_skin']:.2%} шкіри, "
                 f"{len(curve)} проб)")
         return chosen
+
+    # Обличчя, під яке відкалібровані search_radius і radius_for.
+    BASE_FACE = 1200.0
+    BASE_SEARCH = 90
+
+    def _search_radius(self, face_w: float) -> int:
+        """Радіус пошуку донора в пікселях.
+
+        Масштабується з обличчям, і це не витончення. Заміряно на 44
+        реальних кадрах: ширина обличчя гуляє від 191 до 1582 px, тобто
+        у 8 разів. Фіксовані 90 px — це 47% ширини обличчя на дрібному
+        кадрі й 5.7% на великому; у першому випадку донор для підборіддя
+        законно береться з чола, у другому — з сусідньої пори.
+
+        Питання було відкрите з §13 (питання 2). Розкид у 8 разів на
+        реальній зйомці на нього й відповідає.
+
+        `cfg.search_radius = None` означає «порахуй сам» — той самий
+        ідіом, що в `hf_radius`. Явне число лишається абсолютним: людина,
+        яка його задала, мала на увазі пікселі, і мовчки перерахувати їх
+        було б підміною параметра.
+        """
+        if self.cfg.search_radius is not None:
+            return int(self.cfg.search_radius)
+        return int(np.clip(round(self.BASE_SEARCH * face_w / self.BASE_FACE),
+                           24, 400))
 
     def _blob_classes(self) -> list[tuple[str, int]]:
         """Розподіл знайдених плям по класах face-parsing.
@@ -607,7 +647,7 @@ class Session:
         s = Stage("heal", sink)
         self.high2, self.coverage = heal_blemishes(
             self.high, self.labels, todo, self.skin,
-            search_radius=self.cfg.search_radius,
+            search_radius=self.search_radius_px,
             strength=self.cfg.strength,
             limit=None if keep_ids is not None else self.cfg.limit)
         self.result = freq_merge(self.low, self.high2)

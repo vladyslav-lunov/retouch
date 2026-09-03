@@ -62,7 +62,7 @@ def measure(sess: Session, thresholds) -> list[dict]:
         lbl, blobs = detect_blemishes(sess.high, sess.skin,
                                       DetectParams(threshold=t))
         _h2, cov = heal_blemishes(sess.high, lbl, blobs, sess.skin,
-                                  search_radius=sess.cfg.search_radius)
+                                  search_radius=sess.search_radius_px)
         by_class, suspect = {}, 0
         if sess.cls is not None and blobs:
             h, w = sess.cls.shape[:2]
