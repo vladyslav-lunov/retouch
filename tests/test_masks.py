@@ -118,6 +118,91 @@ def test_sanity_threshold_is_configurable():
     assert check_skin_mask(0.91, cfg, "x") is None
 
 
+def test_detector_miss_is_reported_not_hidden():
+    """Провал YuNet скидає нас на розбір ПОВНОГО кадру, а §5 називає його
+    непридатним: 1.4% шкіри і 28% «капелюха» там, де капелюха немає.
+
+    Раніше в звіті лишалось «face-parsing+yunet» — тобто звіт про кроп,
+    якого не було. Ваг у репозиторії немає, тож перевіряємо саме логіку
+    імені й скидання рамок, підмінивши розбір заглушкою.
+    """
+    from retouch.masks import FaceParser
+
+    class Stub(FaceParser):
+        def __init__(self):                    # без ONNX
+            pass
+
+        def _parse_whole(self, img):
+            return np.zeros(img.shape[:2], np.int32)
+
+    img = np.zeros((80, 60, 3), np.float32)
+    fp = Stub()
+    fp.last_faces = [(0, 0, 40, 40)]           # ніби лишилось із минулого разу
+    fp.parse(img, detector=None)
+    print(f"  без детектора last_faces={fp.last_faces}")
+    assert fp.last_faces == [], (
+        "рамка з попереднього кадру пережила розбір — ширина обличчя "
+        "рахувалася б по чужому кадру")
+
+
+def test_source_name_says_what_happened():
+    """Ім'я джерела — це звіт про те, що сталося, а не переказ налаштувань.
+
+    Різниця змістова: «+yunet» означає, що кадр кропнуто по обличчю, а це
+    умова роботи BiSeNet (§15.1). Якщо детектор промазав, розбирався
+    ПОВНИЙ кадр — інший шлях, з іншою надійністю, і називати його тим
+    самим іменем не можна.
+    """
+    import tempfile
+    import cv2
+    from pathlib import Path as P
+    from retouch import masks as masks_mod
+    from retouch.pipeline import Config, Session
+    from tests.synth import make_face
+
+    class Stub:
+        """Замість ONNX: віддає карту класів і те, що «знайшов» детектор."""
+        found: list = []
+
+        def __init__(self, _path):
+            self.last_faces = []
+
+        def parse(self, img, detector=None, margin=0.85):
+            self.last_faces = list(Stub.found)
+            cls = np.zeros(img.shape[:2], np.int32)
+            h, w = cls.shape
+            cls[h // 4:3 * h // 4, w // 4:3 * w // 4] = 1      # skin
+            return cls
+
+    real = masks_mod.FaceParser
+    masks_mod.FaceParser = Stub
+    try:
+        with tempfile.TemporaryDirectory() as t:
+            img, _s, _tr = make_face(h=600, w=460, face_w=300, n_spots=4, seed=1)
+            f = P(t) / "T.tif"
+            cv2.imwrite(str(f), (np.clip(img, 0, 1) * 65535 + 0.5).astype(np.uint16))
+            model = P(t) / "fake.onnx"
+            model.write_bytes(b"x")
+            det = P(t) / "det.onnx"
+            det.write_bytes(b"x")
+            cfg = lambda: Config(face_model=str(model), face_detector=str(det),
+                                 force_mask=True)
+
+            Stub.found = [(10, 10, 300, 300)]
+            hit = Session(f, cfg()).load()
+            Stub.found = []
+            miss = Session(f, cfg()).load()
+
+        print(f"  знайшов -> {hit.skin_source}, обличчя {hit.face_w}")
+        print(f"  промазав -> {miss.skin_source}, обличчя {miss.face_w}")
+        assert hit.skin_source == "face-parsing+yunet" and hit.face_w == 300
+        assert miss.skin_source != hit.skin_source, (
+            "промах детектора називається так само, як влучання")
+        assert "МИМО" in miss.skin_source and miss.face_w is None
+    finally:
+        masks_mod.FaceParser = real
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

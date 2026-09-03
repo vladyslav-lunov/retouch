@@ -206,7 +206,8 @@ def cfg_from(d: dict, preset: dict | None = None) -> Config:
                         feather=mp.feather, exclude_dilate=mp.exclude_dilate,
                         skin_classes=tuple(d.get("skin_classes") or mp.skin_classes),
                         exclude_classes=mp.exclude_classes),
-        search_radius=num("search_radius", int, Config().search_radius),
+        # 0 з повзунка означає «порахуй з обличчя», а не «шукай у нулі»
+        search_radius=(num("search_radius", int, None) or None),
         strength=num("strength", float, Config().strength),
         limit=num("limit", int, None),
         face_model=d.get("face_model") or None,

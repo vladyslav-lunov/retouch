@@ -1664,6 +1664,1908 @@
           }
         }
       ]
+    },
+    {
+      "file": "IMG_0802.CR3",
+      "w": 6264,
+      "h": 4180,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01442,
+      "radius_px": 2.85,
+      "face_w": 569.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 1138,
+          "touched_of_skin": 0.37624,
+          "touched_of_frame": 0.005426,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 1088,
+            "nose": 50
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 789,
+          "touched_of_skin": 0.27829,
+          "touched_of_frame": 0.004013,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 767,
+            "nose": 22
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 538,
+          "touched_of_skin": 0.1886,
+          "touched_of_frame": 0.00272,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 521,
+            "nose": 17
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 363,
+          "touched_of_skin": 0.12614,
+          "touched_of_frame": 0.001819,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 356,
+            "nose": 7
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 180,
+          "touched_of_skin": 0.0719,
+          "touched_of_frame": 0.001037,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 175,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 100,
+          "touched_of_skin": 0.03639,
+          "touched_of_frame": 0.000525,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 95,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 60,
+          "touched_of_skin": 0.02111,
+          "touched_of_frame": 0.000304,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 55,
+            "nose": 5
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_0804.CR3",
+      "w": 6264,
+      "h": 4180,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01289,
+      "radius_px": 2.77,
+      "face_w": 555.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 951,
+          "touched_of_skin": 0.36444,
+          "touched_of_frame": 0.004699,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 912,
+            "nose": 39
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 636,
+          "touched_of_skin": 0.25026,
+          "touched_of_frame": 0.003227,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 616,
+            "nose": 20
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 432,
+          "touched_of_skin": 0.16502,
+          "touched_of_frame": 0.002128,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 420,
+            "nose": 12
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 290,
+          "touched_of_skin": 0.12052,
+          "touched_of_frame": 0.001554,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 285,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 141,
+          "touched_of_skin": 0.06294,
+          "touched_of_frame": 0.000812,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 138,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 74,
+          "touched_of_skin": 0.03068,
+          "touched_of_frame": 0.000396,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 70,
+            "nose": 4
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 44,
+          "touched_of_skin": 0.01816,
+          "touched_of_frame": 0.000234,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 41,
+            "nose": 3
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_0806.CR3",
+      "w": 6264,
+      "h": 4180,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00821,
+      "radius_px": 2.4,
+      "face_w": 480.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 334,
+          "touched_of_skin": 0.21977,
+          "touched_of_frame": 0.001804,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 310,
+            "nose": 24
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 196,
+          "touched_of_skin": 0.14772,
+          "touched_of_frame": 0.001212,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 185,
+            "nose": 11
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 130,
+          "touched_of_skin": 0.10055,
+          "touched_of_frame": 0.000825,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 121,
+            "nose": 9
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 99,
+          "touched_of_skin": 0.06829,
+          "touched_of_frame": 0.00056,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 94,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 25,
+          "touched_of_skin": 0.02567,
+          "touched_of_frame": 0.000211,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 23,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 11,
+          "touched_of_skin": 0.01383,
+          "touched_of_frame": 0.000113,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 10,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 6,
+          "touched_of_skin": 0.01048,
+          "touched_of_frame": 8.6e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 5,
+            "nose": 1
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_0808.CR3",
+      "w": 6264,
+      "h": 4180,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00797,
+      "radius_px": 2.4,
+      "face_w": 481.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 328,
+          "touched_of_skin": 0.2242,
+          "touched_of_frame": 0.001786,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 311,
+            "nose": 17
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 221,
+          "touched_of_skin": 0.17101,
+          "touched_of_frame": 0.001362,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 207,
+            "nose": 14
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 149,
+          "touched_of_skin": 0.11387,
+          "touched_of_frame": 0.000907,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 144,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 109,
+          "touched_of_skin": 0.0788,
+          "touched_of_frame": 0.000628,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 106,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 45,
+          "touched_of_skin": 0.0382,
+          "touched_of_frame": 0.000304,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 43,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 19,
+          "touched_of_skin": 0.01815,
+          "touched_of_frame": 0.000145,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 18,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 13,
+          "touched_of_skin": 0.01241,
+          "touched_of_frame": 9.9e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 12,
+            "nose": 1
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_0810.CR3",
+      "w": 6264,
+      "h": 4180,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00768,
+      "radius_px": 2.35,
+      "face_w": 469.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 375,
+          "touched_of_skin": 0.261,
+          "touched_of_frame": 0.002005,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 355,
+            "nose": 20
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 256,
+          "touched_of_skin": 0.17391,
+          "touched_of_frame": 0.001336,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 239,
+            "nose": 17
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 175,
+          "touched_of_skin": 0.12626,
+          "touched_of_frame": 0.00097,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 162,
+            "nose": 13
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 123,
+          "touched_of_skin": 0.09576,
+          "touched_of_frame": 0.000736,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 119,
+            "nose": 4
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 54,
+          "touched_of_skin": 0.04715,
+          "touched_of_frame": 0.000362,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 52,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 22,
+          "touched_of_skin": 0.02536,
+          "touched_of_frame": 0.000195,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 20,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 10,
+          "touched_of_skin": 0.01838,
+          "touched_of_frame": 0.000141,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 8,
+            "nose": 2
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_0812.CR3",
+      "w": 6264,
+      "h": 4180,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00553,
+      "radius_px": 2.33,
+      "face_w": 467.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 21,
+          "touched_of_skin": 0.04072,
+          "touched_of_frame": 0.000225,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 10,
+            "skin": 11
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 15,
+          "touched_of_skin": 0.02369,
+          "touched_of_frame": 0.000131,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 6,
+            "skin": 9
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 6,
+          "touched_of_skin": 0.01311,
+          "touched_of_frame": 7.2e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 3,
+            "skin": 3
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 7,
+          "touched_of_skin": 0.00937,
+          "touched_of_frame": 5.2e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 3,
+            "skin": 4
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 3,
+          "touched_of_skin": 0.00488,
+          "touched_of_frame": 2.7e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 2,
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 2,
+          "touched_of_skin": 0.00243,
+          "touched_of_frame": 1.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 1,
+          "touched_of_skin": 0.00135,
+          "touched_of_frame": 7e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 1
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_0814.CR3",
+      "w": 6264,
+      "h": 4180,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00245,
+      "radius_px": 2.0,
+      "face_w": 328.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 40,
+          "touched_of_skin": 0.15976,
+          "touched_of_frame": 0.000392,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 31,
+            "nose": 9
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 25,
+          "touched_of_skin": 0.11254,
+          "touched_of_frame": 0.000276,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 21,
+            "nose": 4
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 15,
+          "touched_of_skin": 0.06492,
+          "touched_of_frame": 0.000159,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 12,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 12,
+          "touched_of_skin": 0.05802,
+          "touched_of_frame": 0.000142,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 10,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 8,
+          "touched_of_skin": 0.02997,
+          "touched_of_frame": 7.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 6,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 6,
+          "touched_of_skin": 0.01956,
+          "touched_of_frame": 4.8e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 5,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 5,
+          "touched_of_skin": 0.01156,
+          "touched_of_frame": 2.8e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 4,
+            "nose": 1
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9851.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01394,
+      "radius_px": 3.4,
+      "face_w": 680.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 59,
+          "touched_of_skin": 0.06471,
+          "touched_of_frame": 0.000902,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 59
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 41,
+          "touched_of_skin": 0.04231,
+          "touched_of_frame": 0.00059,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 41
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 30,
+          "touched_of_skin": 0.04424,
+          "touched_of_frame": 0.000617,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 30
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 24,
+          "touched_of_skin": 0.03051,
+          "touched_of_frame": 0.000425,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 24
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 15,
+          "touched_of_skin": 0.01484,
+          "touched_of_frame": 0.000207,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 15
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 5,
+          "touched_of_skin": 0.00556,
+          "touched_of_frame": 7.7e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 5
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 5,
+          "touched_of_skin": 0.00304,
+          "touched_of_frame": 4.2e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 5
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9860.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01342,
+      "radius_px": 3.06,
+      "face_w": 612.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 26,
+          "touched_of_skin": 0.0339,
+          "touched_of_frame": 0.000455,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 23,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 16,
+          "touched_of_skin": 0.02397,
+          "touched_of_frame": 0.000322,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 14,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 18,
+          "touched_of_skin": 0.01641,
+          "touched_of_frame": 0.00022,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 16,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 14,
+          "touched_of_skin": 0.01154,
+          "touched_of_frame": 0.000155,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 12,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 8,
+          "touched_of_skin": 0.00587,
+          "touched_of_frame": 7.9e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 6,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 7,
+          "touched_of_skin": 0.00319,
+          "touched_of_frame": 4.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 5,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 4,
+          "touched_of_skin": 0.00204,
+          "touched_of_frame": 2.7e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 4
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9865.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01181,
+      "radius_px": 3.15,
+      "face_w": 631.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 8,
+          "touched_of_skin": 0.00545,
+          "touched_of_frame": 6.4e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 5,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 4,
+          "touched_of_skin": 0.00186,
+          "touched_of_frame": 2.2e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 1,
+          "touched_of_skin": 0.0005,
+          "touched_of_frame": 6e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 1,
+          "touched_of_skin": 0.00039,
+          "touched_of_frame": 5e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        }
+      ]
+    },
+    {
+      "file": "IMG_9870.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.02327,
+      "radius_px": 3.81,
+      "face_w": 763.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 184,
+          "touched_of_skin": 0.07566,
+          "touched_of_frame": 0.001761,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 184
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 120,
+          "touched_of_skin": 0.05273,
+          "touched_of_frame": 0.001227,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 120
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 89,
+          "touched_of_skin": 0.04353,
+          "touched_of_frame": 0.001013,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 89
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 73,
+          "touched_of_skin": 0.03302,
+          "touched_of_frame": 0.000768,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 73
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 65,
+          "touched_of_skin": 0.02778,
+          "touched_of_frame": 0.000646,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 65
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 46,
+          "touched_of_skin": 0.01958,
+          "touched_of_frame": 0.000456,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 46
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 33,
+          "touched_of_skin": 0.01358,
+          "touched_of_frame": 0.000316,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 33
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9879.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.04026,
+      "radius_px": 5.45,
+      "face_w": 1089.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 234,
+          "touched_of_skin": 0.068,
+          "touched_of_frame": 0.002738,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 223,
+            "nose": 11
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 159,
+          "touched_of_skin": 0.04621,
+          "touched_of_frame": 0.001861,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 150,
+            "nose": 9
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 106,
+          "touched_of_skin": 0.03358,
+          "touched_of_frame": 0.001352,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 100,
+            "nose": 6
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 78,
+          "touched_of_skin": 0.02517,
+          "touched_of_frame": 0.001014,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 73,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 52,
+          "touched_of_skin": 0.01149,
+          "touched_of_frame": 0.000462,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 46,
+            "nose": 6
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 24,
+          "touched_of_skin": 0.00411,
+          "touched_of_frame": 0.000165,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 22,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 12,
+          "touched_of_skin": 0.00228,
+          "touched_of_frame": 9.2e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 10,
+            "nose": 2
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9884.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01063,
+      "radius_px": 2.85,
+      "face_w": 571.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 202,
+          "touched_of_skin": 0.15674,
+          "touched_of_frame": 0.001667,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 190,
+            "nose": 12
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 135,
+          "touched_of_skin": 0.11538,
+          "touched_of_frame": 0.001227,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 126,
+            "nose": 9
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 94,
+          "touched_of_skin": 0.0942,
+          "touched_of_frame": 0.001002,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 90,
+            "nose": 4
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 72,
+          "touched_of_skin": 0.0703,
+          "touched_of_frame": 0.000748,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 65,
+            "nose": 7
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 43,
+          "touched_of_skin": 0.04513,
+          "touched_of_frame": 0.00048,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 38,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 26,
+          "touched_of_skin": 0.02284,
+          "touched_of_frame": 0.000243,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 23,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 19,
+          "touched_of_skin": 0.0124,
+          "touched_of_frame": 0.000132,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 16,
+            "nose": 3
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9895.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00474,
+      "radius_px": 2.58,
+      "face_w": 515.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 11,
+          "touched_of_skin": 0.02677,
+          "touched_of_frame": 0.000127,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 11
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 8,
+          "touched_of_skin": 0.0186,
+          "touched_of_frame": 8.8e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 8
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 6,
+          "touched_of_skin": 0.01111,
+          "touched_of_frame": 5.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 6
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 3,
+          "touched_of_skin": 0.00582,
+          "touched_of_frame": 2.8e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 1,
+          "touched_of_skin": 0.00073,
+          "touched_of_frame": 3e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        }
+      ]
+    },
+    {
+      "file": "IMG_9904.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00686,
+      "radius_px": 2.46,
+      "face_w": 492.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 34,
+          "touched_of_skin": 0.05088,
+          "touched_of_frame": 0.000349,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 30,
+            "nose": 4
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 25,
+          "touched_of_skin": 0.04814,
+          "touched_of_frame": 0.00033,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 22,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 21,
+          "touched_of_skin": 0.03755,
+          "touched_of_frame": 0.000258,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 17,
+            "nose": 4
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 17,
+          "touched_of_skin": 0.02402,
+          "touched_of_frame": 0.000165,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 15,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 10,
+          "touched_of_skin": 0.00911,
+          "touched_of_frame": 6.2e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 9,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 3,
+          "touched_of_skin": 0.00269,
+          "touched_of_frame": 1.8e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 2,
+          "touched_of_skin": 0.00197,
+          "touched_of_frame": 1.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 2
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9945.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00296,
+      "radius_px": 2.0,
+      "face_w": 324.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 5,
+          "touched_of_skin": 0.02164,
+          "touched_of_frame": 6.4e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 2,
+            "skin": 3
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 4,
+          "touched_of_skin": 0.01034,
+          "touched_of_frame": 3.1e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 3,
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 3,
+          "touched_of_skin": 0.00578,
+          "touched_of_frame": 1.7e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 2,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        }
+      ]
+    },
+    {
+      "file": "IMG_9953.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01396,
+      "radius_px": 3.17,
+      "face_w": 633.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 2,
+          "touched_of_skin": 0.00089,
+          "touched_of_frame": 1.2e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 2
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 1,
+          "touched_of_skin": 0.00033,
+          "touched_of_frame": 5e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        }
+      ]
+    },
+    {
+      "file": "IMG_9958.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00375,
+      "radius_px": 2.0,
+      "face_w": 359.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 4,
+          "touched_of_skin": 0.005,
+          "touched_of_frame": 1.9e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 1,
+          "touched_of_skin": 0.00122,
+          "touched_of_frame": 5e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        }
+      ]
+    },
+    {
+      "file": "IMG_9966.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00661,
+      "radius_px": 2.5,
+      "face_w": 499.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 3,
+          "touched_of_skin": 0.00506,
+          "touched_of_frame": 3.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 2,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 1,
+          "touched_of_skin": 0.00058,
+          "touched_of_frame": 4e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        }
+      ]
+    },
+    {
+      "file": "IMG_9974.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.0614,
+      "radius_px": 7.28,
+      "face_w": 1456.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 245,
+          "touched_of_skin": 0.04125,
+          "touched_of_frame": 0.002533,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 238,
+            "nose": 7
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 119,
+          "touched_of_skin": 0.02346,
+          "touched_of_frame": 0.001441,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 113,
+            "nose": 6
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 61,
+          "touched_of_skin": 0.01721,
+          "touched_of_frame": 0.001057,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 58,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 47,
+          "touched_of_skin": 0.01238,
+          "touched_of_frame": 0.00076,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 45,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 30,
+          "touched_of_skin": 0.00467,
+          "touched_of_frame": 0.000287,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 29,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 5,
+          "touched_of_skin": 0.00105,
+          "touched_of_frame": 6.5e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 4,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 4,
+          "touched_of_skin": 0.00078,
+          "touched_of_frame": 4.8e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3,
+            "nose": 1
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9980.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.06814,
+      "radius_px": 6.73,
+      "face_w": 1346.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 875,
+          "touched_of_skin": 0.0961,
+          "touched_of_frame": 0.006549,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 832,
+            "nose": 43
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 439,
+          "touched_of_skin": 0.05645,
+          "touched_of_frame": 0.003847,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 419,
+            "nose": 20
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 258,
+          "touched_of_skin": 0.03936,
+          "touched_of_frame": 0.002682,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 244,
+            "nose": 14
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 179,
+          "touched_of_skin": 0.03154,
+          "touched_of_frame": 0.002149,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 171,
+            "nose": 8
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 128,
+          "touched_of_skin": 0.0258,
+          "touched_of_frame": 0.001758,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 122,
+            "nose": 6
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 72,
+          "touched_of_skin": 0.01611,
+          "touched_of_frame": 0.001098,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 67,
+            "nose": 5
+          }
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 55,
+          "touched_of_skin": 0.01002,
+          "touched_of_frame": 0.000683,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 49,
+            "nose": 6
+          }
+        }
+      ]
+    },
+    {
+      "file": "IMG_9983.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00197,
+      "radius_px": 2.0,
+      "face_w": 269.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 9,
+          "touched_of_skin": 0.03326,
+          "touched_of_frame": 6.5e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "nose": 2,
+            "skin": 7
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 7,
+          "touched_of_skin": 0.02705,
+          "touched_of_frame": 5.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 6,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 7,
+          "touched_of_skin": 0.028,
+          "touched_of_frame": 5.5e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 4,
+            "nose": 3
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 5,
+          "touched_of_skin": 0.01895,
+          "touched_of_frame": 3.7e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3,
+            "nose": 2
+          }
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 4,
+          "touched_of_skin": 0.00685,
+          "touched_of_frame": 1.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        }
+      ]
+    },
+    {
+      "file": "IMG_9988.CR3",
+      "w": 4180,
+      "h": 6264,
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.0019,
+      "radius_px": 2.0,
+      "face_w": 264.0,
+      "sweep": [
+        {
+          "threshold": 0.008,
+          "blobs": 9,
+          "touched_of_skin": 0.0282,
+          "touched_of_frame": 5.3e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 8,
+            "nose": 1
+          }
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 3,
+          "touched_of_skin": 0.00763,
+          "touched_of_frame": 1.4e-05,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 3
+          }
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 1,
+          "touched_of_skin": 0.00177,
+          "touched_of_frame": 3e-06,
+          "suspect_share": 0.0,
+          "by_class": {
+            "skin": 1
+          }
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        },
+        {
+          "threshold": 0.025,
+          "blobs": 0,
+          "touched_of_skin": 0.0,
+          "touched_of_frame": 0.0,
+          "suspect_share": 0.0,
+          "by_class": {}
+        }
+      ]
     }
   ],
   "skipped": []

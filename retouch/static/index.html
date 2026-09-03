@@ -150,8 +150,8 @@ pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
     <input type="range" id="strength" min="0.1" max="1" step="0.05" value="1">
     <span class="val" id="strength_v">1</span></div>
   <div class="row"><label>пошук донора</label>
-    <input type="range" id="search_radius" min="20" max="300" step="10" value="90">
-    <span class="val" id="search_radius_v">90</span></div>
+    <input type="range" id="search_radius" min="0" max="300" step="10" value="0">
+    <span class="val" id="search_radius_v">авто</span></div>
   <div class="row"><label>ліміт плям</label>
     <input type="number" id="limit" placeholder="усі"></div>
   <div class="row"><label>ерозія маски</label>
@@ -217,7 +217,8 @@ function params(){
     const v = $('#'+k).value;
     // 0 у цих двох означає «не задано», а не нуль: радіус тоді
     // рахується з ширини обличчя, ціль — вимкнена й працює поріг
-    if (v !== '' && !((k === 'radius' || k === 'target_coverage') && +v === 0))
+    if (v !== '' && !(['radius', 'target_coverage', 'search_radius'].includes(k)
+                      && +v === 0))
       p[k] = v;
   }
   return p;
@@ -225,7 +226,7 @@ function params(){
 for (const k of PARAMS){
   const el = $('#'+k), v = $('#'+k+'_v');
   if (v) el.oninput = () => v.textContent =
-    (k === 'radius' && +el.value === 0) ? 'авто' :
+    ((k === 'radius' || k === 'search_radius') && +el.value === 0) ? 'авто' :
     (k === 'target_coverage')
       ? (+el.value === 0 ? 'вимк' : (+el.value * 100).toFixed(1) + '%')
       : el.value;
@@ -243,7 +244,13 @@ async function tick(){
       (S.skin_frac != null ? ` · ${(S.skin_frac*100).toFixed(0)}%` : '') +
       (S.raw_decoder ? ` · RAW: ${S.raw_decoder}` : '') +
       (S.warp ? `<span class="tag">пластика ${S.warp.max_px}px</span>` : '') +
+      (S.face_w ? ` · обличчя ${Math.round(S.face_w)}px` : '') +
+      (S.face_w_source && S.face_w_source !== 'detector'
+        ? `<span class="tag" title="ширину взято не з рамки детектора — на груповому кадрі габарит маски міряє відстань між обличчями">${S.face_w_source}</span>`
+        : '') +
+      (S.n_faces > 1 ? `<span class="tag">облич ${S.n_faces}, ретушується 1</span>` : '') +
       (S.radius ? ` · радіус ${S.radius}px` : '') +
+      (S.search_radius_px ? ` · донор ${S.search_radius_px}px` : '') +
       (S.n_blobs ? ` · ${S.n_blobs} плям` : '') +
       ((S.blob_classes || []).length
         ? ` (${S.blob_classes.slice(0, 3).map(c => c.name + ' ' + c.n).join(', ')})`

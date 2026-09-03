@@ -377,8 +377,13 @@ class Session:
                 self.cls = fp.parse(self.img, det)
                 self.faces = list(fp.last_faces)
                 self.face_w = float(self.faces[0][2]) if self.faces else None
-                return (mask_from_classes(self.cls, self.cfg.mask),
-                        "face-parsing" + ("+yunet" if det else ""))
+                # Назва джерела має казати, що СТАЛОСЯ, а не що було
+                # налаштовано. «+yunet» при нулі знайдених облич — це
+                # звіт про кроп, якого не було.
+                src = "face-parsing"
+                if det:
+                    src += "+yunet" if self.faces else "+yunet-МИМО"
+                return mask_from_classes(self.cls, self.cfg.mask), src
             except Exception as exc:                      # noqa: BLE001
                 print(f"[masks] face-parsing не спрацював ({exc}), беру евристику")
         self.cls = None
@@ -792,18 +797,17 @@ def detect_only(image_path: str | Path, cfg: Config | None = None) -> dict:
     Живе тут, а не в cli.py: читання -> маска -> частотка -> детекція — це
     оркестрація, а вона за конвенцією проєкту тільки в pipeline.py.
     """
-    cfg = cfg or Config()
-    img, _ = imageio.read(image_path, cfg.raw_decoder)
-    if cfg.use_skin_mask:
-        skin, source = build_skin_mask(img, cfg.face_model, cfg.mask,
-                                       cfg.face_detector)
-    else:
-        skin, source = None, "off"
-    warn = None if skin is None else check_skin_mask(float(skin.mean()), cfg, source)
-    radius = cfg.hf_radius or radius_for(img.shape, skin)
-    _, high = freq_split(img, radius)
-    _, blobs = detect_blemishes(high, skin, cfg.detect)
-    return {"blobs": blobs, "radius": radius, "skin_source": source, "warn": warn}
+    # Через Session, а не своїм шляхом. Тут уже був повторений конвеєр, і
+    # він устиг відстати: коли радіус навчився брати ширину обличчя з
+    # рамки детектора (§6.3), --dry-run лишився на габариті маски й
+    # рахував плями по іншій просторовій смузі, ніж справжній прогін.
+    # Два схожі шляхи розходяться завжди, питання лише коли.
+    sess = Session(image_path, cfg or Config()).load().analyze()
+    return {"blobs": sess.blobs, "radius": sess.radius,
+            "skin_source": sess.skin_source, "warn": sess.warn,
+            "face_w": sess.face_w, "face_w_source": sess.face_w_source,
+            "search_radius": sess.search_radius_px,
+            "blob_classes": sess.blob_classes, "detect_warn": sess.detect_warn}
 
 
 def _dump_debug(d: Path, img, low, high, high2, lbl, cov, result) -> None:

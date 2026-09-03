@@ -251,10 +251,17 @@ def main(argv: list[str] | None = None) -> int:
         try:
             if a.dry_run:
                 r = detect_only(f, cfg)
-                print(f"{len(r['blobs'])} плям, радіус {r['radius']:.1f}px, "
-                      f"маска: {r['skin_source']}")
+                fw = (f"обличчя {r['face_w']:.0f}px ({r['face_w_source']}), "
+                      if r.get("face_w") else "")
+                print(f"{len(r['blobs'])} плям, {fw}радіус {r['radius']:.1f}px, "
+                      f"донор {r['search_radius']}px, маска: {r['skin_source']}")
+                if r.get("blob_classes"):
+                    print("  по класах: " + ", ".join(
+                        f"{n} {c}" for n, c in r["blob_classes"]))
                 if r["warn"]:
                     print(f"УВАГА: {r['warn']}", file=sys.stderr)
+                if r.get("detect_warn"):
+                    print(f"УВАГА: {r['detect_warn']}", file=sys.stderr)
                 for b in r["blobs"][:15]:
                     print(f"  контраст {b['contrast']:.4f}  площа {b['area']:5d}"
                           f"  центр {b['center'][0]:.0f},{b['center'][1]:.0f}")
