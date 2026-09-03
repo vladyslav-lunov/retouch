@@ -317,10 +317,17 @@ def test_detection_is_reported_by_class():
 
 def test_warning_fires_when_defects_pile_up_outside_the_face():
     """Заміряно на реальному кадрі: 39 зі 154 знахідок у класі neck — це
-    ланцюжок, і лікування рве його на шматки (spec.md §15)."""
+    ланцюжок, і лікування рве його на шматки (spec.md §15).
+
+    Шию тут вмикаємо явно: з дефолту її прибрано саме через це, і
+    попередження існує рівно для того, хто ввімкнув її назад.
+    """
     with tempfile.TemporaryDirectory() as t:
         d = Path(t)
-        sess = Session(_fixture(d), Config(force_mask=True)).load()
+        from retouch.masks import MaskParams as MP
+        cfg = Config(force_mask=True,
+                     mask=MP(skin_classes=("skin", "nose", "neck")))
+        sess = Session(_fixture(d), cfg).load()
         # межу ставимо високо, щоб у «шию» потрапила помітна частка плям
         sess.cls = _cls_with_neck(sess, sess.img.shape[0] // 4)
         sess.analyze()

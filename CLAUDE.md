@@ -20,6 +20,7 @@ python3 scripts/brief.py IMG.CR3 -o brief   # досьє на кадр ДЛЯ а
 python3 -m retouch.cli IMG.tif -o out --xmp          # взяти налаштування ACR
 python3 -m retouch.cli SHOOT/ -o out --batch --xmp   # сайдкар до кожного кадру
 python3 scripts/variants.py IMG.tif presets/*.yaml -o var   # порівняти пресети
+python3 scripts/calibrate.py photos/ -o calib --face-model M.onnx  # §6.2 на своїх
 python3 -m retouch.cli IMG.tif --preset p.yaml --preset frame.yaml
 python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml   # ніч
 python3 -m retouch.cli IMG.tif -o out --dodge-burn --db-strength 0.6
@@ -116,6 +117,12 @@ cp313 сумісних колес НЕМАЄ ЖОДНОГО. Тобто на Pyt
 - набір тестів не має перелічувати свої тести списком імен. У
   `test_cli` і `test_webui` на цьому вже наступили двічі: доданий тест
   мовчки не запускався, а набір лишався зеленим;
+- дефолтний набір класів шкіри — `(skin, nose)`, БЕЗ `neck`. Прибрано
+  після заміру на реальному кадрі: neck давав 39 зі 154 знахідок, і
+  лікування рвало ланцюжок на грудях (spec.md §6.2). Шия вмикається
+  пресетом `presets/example_neck.yaml`. Перед тим, як щось міняти в
+  детекції, подивитися на РОЗПОДІЛ знахідок по класах, а не на їх
+  кількість: «154 плями» на обличчі й на ланцюжку виглядають однаково;
 - XMP читається у три яруси, і ярус не можна завищувати: те, чого ми не
   вміємо, іде у звіт списком «не застосовано», а не підробляється схожим
   ефектом. Мовчазне «наближено» гірше за відсутнє (spec.md §19);

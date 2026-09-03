@@ -14,3 +14,14 @@ models/*.pt
 !tests/fixtures/*
 .DS_Store
 config.yaml
+
+# Робочі кадри. 44 CR3 — це 2.5 ГБ; вони потрібні для калібрування
+# (spec.md §6.2), але в історії їм не місце.
+photos/
+*.CR3
+*.cr3
+*.ARW
+*.NEF
+*.DNG
+calib/
+brief/
