@@ -162,6 +162,11 @@ def main(argv=None) -> int:
                  "classes_in_frame": classes},
         "detection": {"radius_px": round(sess.radius, 2),
                       "blobs_at_default": len(sess.blobs),
+                      # Скільки знайдено — саме по собі нічого не каже:
+                      # 154 на обличчі й 154 на ланцюжку виглядають
+                      # однаково. Клас каже, ЩО знайдено.
+                      "blobs_by_class": dict(sess.blob_classes),
+                      "warning": sess.detect_warn,
                       "sweep": sweep},
         "camera_raw": xmp_block,
         "warnings": [x for x in [sess.warn] if x],
@@ -199,8 +204,13 @@ def main(argv=None) -> int:
                  ", ".join(f"{k} {v:.1%}" for k, v in
                            sorted(classes.items(), key=lambda i: -i[1])))
     L += ["", "## Детекція", "",
-          f"- радіус частотки {brief['detection']['radius_px']} px",
-          "", "| поріг | плям | дотиків |", "|---|---|---|"]
+          f"- радіус частотки {brief['detection']['radius_px']} px"]
+    if sess.blob_classes:
+        L.append("- знайдене по класах: " +
+                 ", ".join(f"{n} {c}" for n, c in sess.blob_classes))
+    if sess.detect_warn:
+        L.append(f"- **УВАГА**: {sess.detect_warn}")
+    L += ["", "| поріг | плям | дотиків |", "|---|---|---|"]
     for r in sweep:
         L.append(f"| {r['threshold']} | {r['blobs']} | {r['touched']:.3%} |")
     if xmp_block and "error" not in xmp_block:

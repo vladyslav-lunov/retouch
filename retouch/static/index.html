@@ -233,6 +233,9 @@ async function tick(){
       (S.warp ? `<span class="tag">пластика ${S.warp.max_px}px</span>` : '') +
       (S.radius ? ` · радіус ${S.radius}px` : '') +
       (S.n_blobs ? ` · ${S.n_blobs} плям` : '') +
+      ((S.blob_classes || []).length
+        ? ` (${S.blob_classes.slice(0, 3).map(c => c.name + ' ' + c.n).join(', ')})`
+        : '') +
       (S.painted ? '<span class="tag">маска правлена</span>' : '')
     : 'кадр не відкрито';
 
@@ -240,6 +243,7 @@ async function tick(){
   if (S.error) m += `<div class="note bad">${esc(S.error)}</div>`;
   if (S.warn)  m += `<div class="note">${esc(S.warn)}</div>`;
   if (S.telea_warn) m += `<div class="note">${esc(S.telea_warn)}</div>`;
+  if (S.detect_warn) m += `<div class="note">${esc(S.detect_warn)}</div>`;
   if (S.written && S.written.length)
     m += `<div class="note" style="border-left-color:var(--ok)">Записано:\n` +
          esc(S.written.join('\n')) + `</div>`;

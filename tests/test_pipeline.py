@@ -281,6 +281,71 @@ def test_reheal_drops_stale_downstream_layers():
             "лишились шари, зняті з кадру до перелікування")
 
 
+# ---------------------------------------------------------------------------
+# що саме знайдено, а не скільки
+# ---------------------------------------------------------------------------
+
+def _cls_with_neck(sess, chain_y):
+    """Карта класів зі смугою `neck` унизу — там, де на портреті груди."""
+    from retouch.masks import CELEBA_CLASSES
+    inv = {v: k for k, v in CELEBA_CLASSES.items()}
+    h, w = sess.img.shape[:2]
+    cls = np.full((h, w), inv["background"], np.int32)
+    cls[:chain_y, :] = inv["skin"]
+    cls[chain_y:, :] = inv["neck"]
+    return cls
+
+
+def test_detection_is_reported_by_class():
+    """Скільки знайдено — саме по собі нічого не каже.
+
+    154 плями на обличчі й 154 на ланцюжку в консолі виглядають однаково.
+    Клас каже, ЩО знайдено, і це єдине, з чого видно підміну.
+    """
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        sess = Session(_fixture(d), Config(force_mask=True)).load()
+        sess.cls = _cls_with_neck(sess, sess.img.shape[0] // 2)
+        sess.analyze()
+        print(f"  {sess.blob_classes}")
+        assert sess.blob_classes, "розподіл по класах порожній"
+        assert sum(c for _n, c in sess.blob_classes) == len(sess.blobs), (
+            "плями загубились між класами")
+        assert sess.blob_classes == sorted(sess.blob_classes,
+                                           key=lambda r: -r[1]), "не відсортовано"
+
+
+def test_warning_fires_when_defects_pile_up_outside_the_face():
+    """Заміряно на реальному кадрі: 39 зі 154 знахідок у класі neck — це
+    ланцюжок, і лікування рве його на шматки (spec.md §15)."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        sess = Session(_fixture(d), Config(force_mask=True)).load()
+        # межу ставимо високо, щоб у «шию» потрапила помітна частка плям
+        sess.cls = _cls_with_neck(sess, sess.img.shape[0] // 4)
+        sess.analyze()
+        share = dict(sess.blob_classes).get("neck", 0) / max(len(sess.blobs), 1)
+        print(f"  у класі neck {share:.0%} знахідок; попередження: "
+              f"{(sess.detect_warn or '—')[:60]}")
+        assert share >= 0.15, "мало плям у neck — тест нічого не перевіряє"
+        assert sess.detect_warn and "neck" in sess.detect_warn
+
+
+def test_no_warning_when_the_class_is_not_treated_as_skin():
+    """Клас поза набором шкіри не лікується, тож і попереджати нема про що."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        from retouch.masks import MaskParams as MP
+        cfg = Config(force_mask=True, mask=MP(skin_classes=("skin", "nose")))
+        sess = Session(_fixture(d), cfg).load()
+        sess.cls = _cls_with_neck(sess, sess.img.shape[0] // 4)
+        sess.analyze()
+        print(f"  skin_classes={cfg.mask.skin_classes}, "
+              f"попередження: {sess.detect_warn}")
+        assert sess.detect_warn is None, (
+            "попередили про клас, який і так не лікується")
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

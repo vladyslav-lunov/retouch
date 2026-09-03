@@ -396,6 +396,48 @@ def test_xmp_without_sidecar_says_so():
         assert r.get("error") and not r.get("ok")
 
 
+def test_class_choice_survives_rerun():
+    """«Що вважати шкірою» — рішення під кадр, і воно має пережити прогін.
+
+    Було так: /api/classes міняв Config, а «Перегнати» будував Config із
+    форми наново — набір мовчки повертався до дефолтного. Маска в
+    пам'яті лишалась однією, конфіг казав інше, і будь-яка наступна
+    перебудова маски повертала знятий клас назад.
+    """
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        p = _fixture(Path(t))
+        _post("/api/preset", {"clear": True})
+        _post("/api/open", {"path": str(p), "params": {}})
+        _wait_idle()
+        # Ваг у репозиторії немає, тож карту класів кладемо самі — інакше
+        # has_cls=False, тест мовчки нічого не перевіряє й лишається
+        # зеленим. На цьому в цьому наборі вже наступали двічі.
+        from retouch.masks import CELEBA_CLASSES
+        inv = {v: k for k, v in CELEBA_CLASSES.items()}
+        sess = webui.APP.sess
+        h, w = sess.img.shape[:2]
+        cls = np.full((h, w), inv["background"], np.int32)
+        cls[: h // 2, :] = inv["skin"]
+        cls[h // 2:, :] = inv["neck"]        # там, де на портреті груди
+        sess.cls = cls
+        st = json.loads(_get("/api/state")[1])
+        assert st["has_cls"], "карта класів не дійшла до стану"
+        _post("/api/classes", {"skin_classes": ["skin", "nose"]})
+        _post("/api/rerun", {"params": {}})
+        st = _wait_idle()
+        print(f"  після «Перегнати»: {st['skin_classes']}, "
+              f"у пресеті {st['preset'].get('mask')}, "
+              f"маска {st['skin_frac']:.1%}, знайдене {st['blob_classes']}")
+        assert st["skin_classes"] == ["skin", "nose"], "набір класів скинувся"
+        assert st["preset"]["mask"]["skin_classes"] == ["skin", "nose"], (
+            "вибір не потрапив у пресет — його не можна ні зберегти, ні "
+            "повторити на наступному кадрі")
+        assert not any(c["name"] == "neck" for c in st["blob_classes"]), (
+            "знайдене лишилось у знятому класі — маску не перебудовано")
+        _post("/api/preset", {"clear": True})
+
+
 if __name__ == "__main__":
     fails = 0
     # Порядок — той, у якому тести написані: вони ділять один сервер і

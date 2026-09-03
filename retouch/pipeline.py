@@ -300,6 +300,8 @@ class Session:
         self.develop_ignored: list[str] = []
         self.db_gray = self.db_base = self.db_coverage = None
         self.tool_layers: list = []
+        self.blob_classes: list = []
+        self.detect_warn: str | None = None
 
     # --- етапи ---------------------------------------------------------
     def load(self, sink=None) -> "Session":
@@ -461,8 +463,64 @@ class Session:
         s = Stage("detect", sink)
         self.labels, self.blobs = detect_blemishes(self.high, self.skin,
                                                    self.cfg.detect)
-        s.done(f"знайдено {len(self.blobs)} плям")
+        self.blob_classes = self._blob_classes()
+        note = f"знайдено {len(self.blobs)} плям"
+        if self.blob_classes:
+            note += " (" + ", ".join(f"{n} {c}" for n, c in
+                                     self.blob_classes[:3]) + ")"
+        s.done(note)
+        self.detect_warn = self._check_blob_classes()
+        if self.detect_warn:
+            print(f"[detect] УВАГА: {self.detect_warn}", flush=True)
         return self
+
+    def _blob_classes(self) -> list[tuple[str, int]]:
+        """Розподіл знайдених плям по класах face-parsing.
+
+        Скільки плям знайдено — саме по собі нічого не каже: 154 на
+        обличчі і 154 на ланцюжку виглядають в консолі однаково. Клас
+        каже, ЩО саме знайдено, і це єдине, з чого видно підміну.
+        """
+        from .masks import CELEBA_CLASSES
+        if self.cls is None or not self.blobs:
+            return []
+        h, w = self.cls.shape[:2]
+        cnt: dict[str, int] = {}
+        for b in self.blobs:
+            x, y = b["center"]
+            xi = min(w - 1, max(0, int(x)))
+            yi = min(h - 1, max(0, int(y)))
+            name = CELEBA_CLASSES.get(int(self.cls[yi, xi]), "?")
+            cnt[name] = cnt.get(name, 0) + 1
+        return sorted(((n, c) for n, c in cnt.items()), key=lambda r: -r[1])
+
+    # Класи, у яких «дефект» майже завжди виявляється не дефектом. Шия й
+    # груди — це ланцюжок, комір і тінь від підборіддя; вухо — сережка.
+    # Список короткий навмисно: це не фільтр, а привід перепитати.
+    SUSPECT_CLASSES = ("neck", "neck_l", "l_ear", "r_ear", "ear_r", "cloth")
+
+    def _check_blob_classes(self, share: float = 0.15) -> str | None:
+        """Попередити, коли забагато «дефектів» лежить не на обличчі.
+
+        Заміряно на реальному кадрі: з класом neck у наборі 21% усіх
+        знахідок — це ланцюжок на грудях, і лікування рве його на шматки
+        (spec.md §15). Детектор тут ні до чого і ускладнювати його не
+        треба: питання знімається набором класів, тобто галочкою.
+        """
+        n = len(self.blobs)
+        if not self.blob_classes or n < 20:
+            return None
+        skin = set(self.cfg.mask.skin_classes)
+        bad = [(name, c) for name, c in self.blob_classes
+               if name in self.SUSPECT_CLASSES and name in skin
+               and c / n >= share]
+        if not bad:
+            return None
+        which = ", ".join(f"{c} з {n} у класі «{name}»" for name, c in bad)
+        return (f"{which}. Там зазвичай не дефекти, а прикраси, комір і "
+                f"тіні — лікування їх ПОРВЕ. Прибери клас із набору "
+                f"(--preset з mask.skin_classes, або галочка на вкладці "
+                f"«Маска») і перегони.")
 
     def heal(self, keep_ids=None, sink=None) -> "Session":
         """keep_ids — які плями лікувати. None = усі (з урахуванням limit).

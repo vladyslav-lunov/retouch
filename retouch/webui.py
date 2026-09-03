@@ -116,6 +116,9 @@ class App:
             "warp": (s._field.stats() if s._field is not None and s._field.touched
                      else None),
             "classes": s.class_stats(),
+            "blob_classes": [{"name": n, "n": c} for n, c in
+                             (getattr(s, "blob_classes", None) or [])],
+            "detect_warn": getattr(s, "detect_warn", None),
             "skin_classes": list(s.cfg.mask.skin_classes),
             "has_cls": s.cls is not None,
             "keep": (None if self.keep_ids is None else sorted(self.keep_ids)),
@@ -673,7 +676,19 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json({"error": "карти класів немає — "
                                        "це евристична маска, не модель"}, 409)
                 APP.painted = None
+                # Вибір класів кладемо В ПРЕСЕТ, а не лише в поточний
+                # Config. Інакше «Перегнати» будує Config із форми
+                # наново, набір повертається до дефолтного, і виходить
+                # розбіжність: маска в пам'яті вже без neck, а конфіг
+                # каже, що neck там є. Далі будь-яка перебудова маски
+                # (пластика, проявлення) мовчки повертає його назад.
+                # А заразом це правильно по суті: «що вважати шкірою» —
+                # рішення фотографа під кадр, тобто пресет (spec.md §15).
+                APP.preset = presets_mod.merge(
+                    APP.preset,
+                    {"mask": {"skin_classes": list(s.cfg.mask.skin_classes)}})
                 return self._json({"ok": True,
+                                   "preset": APP.preset,
                                    "skin_frac": round(float(s.skin.mean()), 4)})
             if u.path == "/api/warp":
                 return self._json(self._warp(d))
