@@ -149,10 +149,30 @@ def test_open_analyze_heal_and_views():
         st = _wait_idle()
         assert st["has_result"], "лікування не дало результату"
 
-        for kind in ("before", "after", "diff", "mask", "coverage", "detected"):
+        # Формат не однаковий, і це навмисно. Маска, покриття й карта
+        # знахідок — це ДВА РІВНІ, і JPEG розмив би межу, по якій на них
+        # і дивляться. Фотографічні види йдуть JPEG: прев'ю пластики
+        # важило 1.3 МБ у PNG і перечитувалось після кожного мазка.
+        for kind in ("mask", "coverage", "detected"):
             code, body, ctype = _get(f"/api/view?kind={kind}&w=200")
             assert code == 200 and ctype == "image/png" and len(body) > 100, kind
-        print("  усі шість видів віддаються як PNG")
+        sizes = {}
+        for kind in ("before", "after", "diff"):
+            code, body, ctype = _get(f"/api/view?kind={kind}&w=760")
+            assert code == 200 and ctype == "image/jpeg" and len(body) > 100, kind
+            sizes[kind] = len(body)
+        # Ширини навмисно різні: розбіжність в один піксель між
+        # складанням і зменшенням ховалась саме там, де округлення
+        # збігалося. Вид «різниця» від цього падав із 500.
+        for w in (200, 513, 760, 959):
+            for kind in ("before", "after", "diff"):
+                code, body, _ct = _get(f"/api/view?kind={kind}&w={w}")
+                assert code == 200 and len(body) > 100, (kind, w, code)
+        print(f"  двійкові види PNG, фотографічні JPEG: "
+              f"{ {k: v // 1024 for k, v in sizes.items()} } КБ")
+        assert max(sizes.values()) < 600_000, (
+            "фотографічний вид знову важить як PNG — канвас від цього й "
+            "підвисав")
 
 
 def test_crop_is_native_size():
@@ -693,6 +713,38 @@ def test_ui_does_not_quote_the_spec_at_the_photographer():
     refs = re.findall(r'§\d[\d.]*', body)
     print(f"  згадок специфікації у видимій розмітці: {len(refs)} {set(refs)}")
     assert len(refs) <= 3, f"специфікація протекла в панель: {refs}"
+
+
+def test_class_names_are_not_the_dataset_ones():
+    """`l_lip`, `u_lip`, `neck_l` — імена класів чужого датасету.
+
+    Фотограф має бачити «губа верхня». Машинне ім'я лишається в
+    «Експерт» і в пресеті: саме його треба писати в YAML.
+    """
+    from retouch.labels import CLASS_UA, class_name
+    from retouch.masks import CELEBA_CLASSES
+    missing = sorted(set(CELEBA_CLASSES.values()) - set(CLASS_UA))
+    print(f"  класів у моделі {len(set(CELEBA_CLASSES.values()))}, "
+          f"без перекладу: {missing}")
+    assert not missing, f"класи без людської назви: {missing}"
+    assert class_name("u_lip") == "губа верхня"
+    assert class_name("нема_такого") == "нема_такого", (
+        "невідомий клас має лишатись як є, а не перекладатись навмання")
+
+
+def test_state_carries_both_names_for_classes():
+    """Обидві мови поруч: панель бере ua, пресет і «Експерт» — name."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        p = _fixture(Path(t))
+        _post("/api/open", {"path": str(p), "params": {}})
+        st = _wait_idle()
+        for row in st.get("classes", []):
+            assert "name" in row and "ua" in row, row
+        if st.get("classes"):
+            print(f"  {[(c['name'], c['ua']) for c in st['classes'][:3]]}")
+        else:
+            print("  карти класів немає (без ваг) — перевірено лише словник")
 
 
 if __name__ == "__main__":

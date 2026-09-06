@@ -180,3 +180,23 @@ def decorate(schema: dict) -> dict:
         for name, meta in fields.items():
             meta.update(for_field(sec, name))
     return schema
+
+
+# --- класи face-parsing людською --------------------------------------
+# У панелі стояли `l_lip`, `r_brow`, `u_lip`, `neck_l` — це імена класів
+# CelebAMask-HQ, тобто назви з чужого датасету. Фотограф має бачити «губа
+# верхня», а не `u_lip`.
+CLASS_UA = {
+    "background": "тло", "skin": "шкіра обличчя", "nose": "ніс",
+    "neck": "шия", "neck_l": "намисто", "cloth": "одяг", "hair": "волосся",
+    "hat": "головний убір", "l_eye": "око ліве", "r_eye": "око праве",
+    "l_brow": "брова ліва", "r_brow": "брова права", "eye_g": "окуляри",
+    "l_ear": "вухо ліве", "r_ear": "вухо праве", "ear_r": "сережка",
+    "mouth": "рот", "u_lip": "губа верхня", "l_lip": "губа нижня",
+}
+
+
+def class_name(name: str) -> str:
+    """Клас моделі людською. Немає в словнику — віддаємо як є: краще
+    чуже ім'я, ніж вигаданий переклад."""
+    return CLASS_UA.get(name, name)

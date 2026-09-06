@@ -48,6 +48,16 @@ button.go{width:100%;justify-content:center;display:flex;align-items:center;
 .tabs button.on .ic{color:var(--acc)}
 /* Роздільник між етапами: обрати кадр | подивитись | обробити | зібрати */
 .tsep{width:1px;height:16px;background:var(--line);margin:0 6px}
+.bar{display:inline-block;width:88px;height:6px;border-radius:3px;
+  background:#232830;margin-right:9px;vertical-align:middle;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc)}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+  background:#12141a;border:1px solid var(--acc);border-radius:8px;
+  padding:10px 16px;font-size:12.5px;box-shadow:0 10px 30px #0009;z-index:80;
+  opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;
+  max-width:60vw;white-space:pre-wrap}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.bad{border-color:var(--bad)}
 .tabs button.tips{border-bottom-color:transparent;padding:7px 10px}
 .tabs button#expbtn .lbl{display:inline}
 .mach{margin-left:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -458,7 +468,8 @@ async function tick(){
       S.radius_warn ? 'warn' : ''));
     if (S.n_blobs != null) chips.push(chip('spots', S.n_blobs + ' плям',
       'знайдено дефектів' + ((S.blob_classes||[]).length
-        ? '\nпо класах: ' + S.blob_classes.map(c => `${c.name} ${c.n}`).join(', ')
+        ? '\nде саме: ' + S.blob_classes.map(
+            c => `${expert ? c.name : (c.ua || c.name)} ${c.n}`).join(', ')
         : '') + (S.detect_warn ? '\n\n' + S.detect_warn : ''),
       S.detect_warn ? 'warn' : ''));
     if (S.healed != null) chips.push(chip('', (S.healed*100).toFixed(3) + '%',
@@ -484,6 +495,21 @@ async function tick(){
 
   for (const b of ['open','rerun','write']) $('#'+b).disabled = S.busy;
   if (S.busy) setTimeout(tick, 400);
+}
+
+/* alert() блокує сторінку до натискання — саме це читається як
+   «підвисло». Повідомлення має з'явитись і зникнути само. */
+let toastT = null;
+function toast(text, bad){
+  let el = $('#toast');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'toast'; document.body.appendChild(el);
+  }
+  el.className = 'show' + (bad ? ' bad' : '');
+  el.textContent = text;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.className = '', bad ? 6000 : 2600);
 }
 const esc = s => (s||'').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
 const bust = () => '&_=' + Date.now();
@@ -647,7 +673,8 @@ function classPanel(){
     (S.classes || []).map(c => `<label style="flex:0 0 auto;color:var(--ink);
       display:flex;gap:5px;align-items:center">
       <input type="checkbox" class="cls" value="${c.name}" ${on.has(c.name)?'checked':''}>
-      ${c.name} <span style="color:var(--dim)">${(c.frac*100).toFixed(1)}%</span>
+      ${expert ? c.name : (c.ua || c.name)} <span style="color:var(--dim)">${
+        (c.frac*100).toFixed(1)}%</span>
       </label>`).join('') +
     `<button id="cls_apply" class="pri">Застосувати</button>
      <span id="cls_info" class="hint" style="margin:0"></span></div>`;
@@ -673,7 +700,7 @@ function drawMask(p){
   if (ap) ap.onclick = async () => {
     const sel = [...document.querySelectorAll('.cls:checked')].map(x => x.value);
     const r = await post('/api/classes', {skin_classes: sel});
-    if (r.error) return alert(r.error);
+    if (r.error) return toast(r.error, true);
     $('#cls_info').textContent = `маска ${(r.skin_frac*100).toFixed(1)}% — тепер «Перегнати»`;
     tick();
   };
@@ -684,20 +711,39 @@ function drawMask(p){
   const at = e => { const r = cv.getBoundingClientRect();
     return [(e.clientX - r.left) / r.width * cv.width,
             (e.clientY - r.top) / r.height * cv.height]; };
-  const dot = e => { const [x, y] = at(e), c = ctx();
-    c.fillStyle = brush === 'add' ? 'rgba(255,40,40,.85)' : 'rgba(40,90,255,.85)';
-    c.beginPath(); c.arc(x, y, +$('#bsize').value, 0, 7); c.fill(); };
-  cv.onpointerdown = e => { painting = true; cv.setPointerCapture(e.pointerId); dot(e); };
-  cv.onpointermove = e => { if (painting) dot(e); };
-  cv.onpointerup = () => painting = false;
+  /* Мазок — ЛІНІЯ від попередньої точки, а не окреме коло на кожну
+     подію. Події вказівника приходять рідше, ніж рухається рука, тож
+     кола лягали з розривами: швидкий рух давав пунктир. Саме це й
+     відчувається як «незручно малювати». */
+  let prev = null;
+  const stroke = e => {
+    const [x, y] = at(e), c = ctx();
+    const col = brush === 'add' ? 'rgba(255,40,40,.85)' : 'rgba(40,90,255,.85)';
+    c.strokeStyle = c.fillStyle = col;
+    c.lineWidth = (+$('#bsize').value) * 2;
+    c.lineCap = c.lineJoin = 'round';
+    if (prev){ c.beginPath(); c.moveTo(prev[0], prev[1]); c.lineTo(x, y); c.stroke(); }
+    else { c.beginPath(); c.arc(x, y, +$('#bsize').value, 0, 7); c.fill(); }
+    prev = [x, y];
+  };
+  cv.onpointerdown = e => {
+    painting = true; prev = null; cv.setPointerCapture(e.pointerId); stroke(e); };
+  cv.onpointermove = e => {
+    if (!painting) return;
+    // Проміжні події браузер копить: беремо всі, інакше на швидкому русі
+    // губиться середина мазка.
+    const pts = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for (const q of pts) stroke(q);
+  };
+  cv.onpointerup = () => { painting = false; prev = null; };
   $('#b_add').onclick = () => { brush = 'add';
     $('#b_add').classList.add('pri'); $('#b_del').classList.remove('pri'); };
   $('#b_del').onclick = () => { brush = 'del';
     $('#b_del').classList.add('pri'); $('#b_add').classList.remove('pri'); };
   $('#b_apply').onclick = async () => {
     const r = await post('/api/paint', {png: cv.toDataURL('image/png')});
-    if (r.error) return alert(r.error);
-    await tick(); alert('Маску оновлено. Тепер «Перегнати».');
+    if (r.error) return toast(r.error, true);
+    await tick(); toast('Маску оновлено. Тепер «Перегнати».');
   };
   $('#b_clear').onclick = async () => {
     ctx().clearRect(0, 0, cv.width, cv.height);
@@ -728,18 +774,31 @@ function drawRemove(p){
   const at = e => { const r = cv.getBoundingClientRect();
     return [(e.clientX - r.left) / r.width * cv.width,
             (e.clientY - r.top) / r.height * cv.height]; };
-  const dot = e => { const [x, y] = at(e), c = cv.getContext('2d');
-    c.fillStyle = 'rgba(255,40,40,.75)';
-    c.beginPath(); c.arc(x, y, +$('#rsize').value, 0, 7); c.fill(); };
-  cv.onpointerdown = e => { painting = true; cv.setPointerCapture(e.pointerId); dot(e); };
-  cv.onpointermove = e => { if (painting) dot(e); };
-  cv.onpointerup = () => painting = false;
+  // Той самий безперервний мазок, що й на масці шкіри: окремі кола на
+  // кожну подію дають пунктир, бо рука рухається швидше за події.
+  let prevR = null;
+  const strokeR = e => {
+    const [x, y] = at(e), c = cv.getContext('2d');
+    c.strokeStyle = c.fillStyle = 'rgba(255,40,40,.75)';
+    c.lineWidth = (+$('#rsize').value) * 2;
+    c.lineCap = c.lineJoin = 'round';
+    if (prevR){ c.beginPath(); c.moveTo(prevR[0], prevR[1]); c.lineTo(x, y); c.stroke(); }
+    else { c.beginPath(); c.arc(x, y, +$('#rsize').value, 0, 7); c.fill(); }
+    prevR = [x, y];
+  };
+  cv.onpointerdown = e => {
+    painting = true; prevR = null; cv.setPointerCapture(e.pointerId); strokeR(e); };
+  cv.onpointermove = e => {
+    if (!painting) return;
+    for (const q of (e.getCoalescedEvents ? e.getCoalescedEvents() : [e])) strokeR(q);
+  };
+  cv.onpointerup = () => { painting = false; prevR = null; };
   const info = r => $('#r_info').textContent = r.remove_px
     ? `${(r.remove_px/1e6).toFixed(2)} Мп, глибина ${r.depth?.toFixed?.(0) ?? '?'} px`
     : 'маска порожня';
   $('#r_apply').onclick = async () => {
     const r = await post('/api/paint', {target:'remove', png: cv.toDataURL('image/png')});
-    if (r.error) return alert(r.error);
+    if (r.error) return toast(r.error, true);
     info(r); tick();
   };
   $('#r_clear').onclick = async () => {
@@ -748,10 +807,10 @@ function drawRemove(p){
   };
   $('#r_go').onclick = async () => {
     const a = await post('/api/paint', {target:'remove', png: cv.toDataURL('image/png')});
-    if (a.error) return alert(a.error);
+    if (a.error) return toast(a.error, true);
     info(a);
     const r = await post('/api/remove', {});
-    if (r.error) return alert(r.error);
+    if (r.error) return toast(r.error, true);
     await tick(); waitDone();
   };
   if (S.remove_px) $('#r_info').textContent =
@@ -821,7 +880,7 @@ function drawWarp(p){
       if (Math.hypot(body.mx, body.my) < 2){ from = null; return; } }
     from = null;
     const r = await post('/api/warp', body);
-    if (r.error) return alert(r.error);
+    if (r.error) return toast(r.error, true);
     info(r.warp); refresh();
   };
   $('#w_clear').onclick = async () => {
@@ -837,16 +896,29 @@ function drawWarp(p){
 async function drawSpots(p){
   const blobs = await api('/api/blobs');
   if (keep === null) keep = new Set(blobs.map(b => b.id));
-  p.innerHTML = `<div class="hint">Знято галочку — пляму не лікуємо, але донор її
-    все одно обходить. Найконтрастніші зверху: <kbd>--limit N</kbd> у CLI бере саме їх.</div>
+  /* «контраст 0.0491, площа 13, 2071,2741» — це рядок із лога, а не
+     те, за чим обирають. Фотограф вирішує «наскільки це помітно» і «яке
+     воно завбільшки», тож у «Просто» те саме число показується смужкою
+     й словами. Точні значення нікуди не діваються — вони в «Експерт».  */
+  const HOW = b => b.contrast >= 0.035 ? 'дуже помітна'
+                 : b.contrast >= 0.022 ? 'помітна'
+                 : b.contrast >= 0.014 ? 'ледь помітна' : 'на межі видимого';
+  const SIZE = b => b.area >= 200 ? 'велика' : b.area >= 40 ? 'середня' : 'дрібна';
+  const top = blobs.length ? blobs[0].contrast : 1;
+  p.innerHTML = `<div class="hint">Знято галочку — пляму не лікуємо, але заміну
+    для сусідніх шукаємо в обхід неї. Найпомітніші зверху.</div>
     <div class="row"><button id="s_all">Усі</button><button id="s_none">Жодної</button>
       <button id="s_top">Топ-30</button>
       <button id="s_apply" class="pri">Лікувати вибрані (<span id="s_n"></span>)</button></div>
-    <table><thead><tr><th></th><th>контраст</th><th>площа</th><th>x,y</th></tr></thead>
+    <table><thead><tr><th></th><th>наскільки помітно</th><th>розмір</th>${
+      expert ? '<th>контраст</th><th>площа</th><th>x,y</th>' : ''}</tr></thead>
     <tbody>${blobs.slice(0, 400).map(b => `<tr data-id="${b.id}">
       <td><input type="checkbox" data-id="${b.id}" ${keep.has(b.id)?'checked':''}></td>
-      <td>${b.contrast.toFixed(4)}</td><td>${b.area}</td>
-      <td>${b.x},${b.y}</td></tr>`).join('')}</tbody></table>`;
+      <td style="text-align:left"><span class="bar"><i style="width:${
+        Math.max(4, Math.round(b.contrast / top * 100))}%"></i></span>${HOW(b)}</td>
+      <td>${SIZE(b)}</td>${expert
+        ? `<td>${b.contrast.toFixed(4)}</td><td>${b.area}</td><td>${b.x},${b.y}</td>`
+        : ''}</tr>`).join('')}</tbody></table>`;
   const n = () => $('#s_n').textContent = keep.size;
   n();
   p.querySelectorAll('input[type=checkbox]').forEach(c => c.onchange = () => {
@@ -1153,7 +1225,7 @@ async function drawPresets(p){
   const chosen = () => [...p.querySelectorAll('.vpick:checked')].map(e => e.value);
   $('#vgo').onclick = async () => {
     const ps = chosen();
-    if (!ps.length){ alert('Постав галочки біля пресетів, які порівнюємо.'); return; }
+    if (!ps.length){ toast('Постав галочки біля пресетів, які порівнюємо.'); return; }
     const pt = cropAt || (S.n_blobs ? null : [0, 0]);
     const b = pt || [Math.round(S.w/2), Math.round(S.h/2)];
     await post('/api/variants', {presets: ps, x: b[0], y: b[1],

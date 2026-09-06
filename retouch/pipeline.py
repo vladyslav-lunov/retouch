@@ -913,9 +913,18 @@ class Session:
 
         Там, де питання інше — кроп 1:1 і запис, — складання точне.
         """
-        k = min(1.0, maxw / self.img.shape[1])
-        small = lambda a: (a if k >= 1.0 else cv2.resize(  # noqa: E731
-            a, None, fx=k, fy=k, interpolation=cv2.INTER_AREA))
+        # Розмір рахуємо ОДИН раз і в пікселях, а не масштабом на кожен
+        # шар. fx/fy округлюються всередині resize, і на 4160x6240 це
+        # давало 990 замість 989 — тобто вид «різниця» падав на
+        # відніманні кадрів різного розміру. Помилка ховалась, бо тест
+        # просив 200 px, де округлення збігалося.
+        h0, w0 = self.img.shape[:2]
+        if maxw >= w0:
+            size = (w0, h0)
+        else:
+            size = (maxw, max(1, int(h0 * maxw / w0)))
+        small = lambda a: (a if size == (w0, h0) else cv2.resize(  # noqa: E731
+            a, size, interpolation=cv2.INTER_AREA))
         cur = small(self.img)
         for _n, (rgb, a) in self.layers().items():
             sa = small(a)[..., None]

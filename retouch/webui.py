@@ -37,6 +37,7 @@ import numpy as np
 from .blemish import DetectParams
 from .imageio import RAW_SUFFIXES, InputError
 from .masks import MaskParams
+from . import labels as labels_mod
 from . import presets as presets_mod
 from .pipeline import Config, Session
 from .warp import WarpParams
@@ -130,9 +131,10 @@ class App:
             "telea_warn": getattr(s, "telea_warn", None),
             "warp": (s._field.stats() if s._field is not None and s._field.touched
                      else None),
-            "classes": s.class_stats(),
-            "blob_classes": [{"name": n, "n": c} for n, c in
-                             (getattr(s, "blob_classes", None) or [])],
+            "classes": [dict(c, ua=labels_mod.class_name(c["name"]))
+                        for c in s.class_stats()],
+            "blob_classes": [{"name": n, "ua": labels_mod.class_name(n), "n": c}
+                             for n, c in (getattr(s, "blob_classes", None) or [])],
             "detect_warn": getattr(s, "detect_warn", None),
             "layers": [{"name": n, "opacity": s.opacity_of(n),
                         "touched": round(float((a > 0).mean()), 5)}
@@ -307,6 +309,24 @@ def scan_models(d: str | Path = "models") -> dict:
 # ---------------------------------------------------------------------------
 # картинки
 # ---------------------------------------------------------------------------
+
+def _jpg(arr: np.ndarray, q: int = 88) -> bytes:
+    """JPEG для ПРОКСІ-видів: прев'ю пластики й оглядовий план.
+
+    Прев'ю пластики важило 1.3 МБ у PNG і перечитувалось після кожного
+    мазка — саме це й було «канвас підвисає». JPEG тих самих 900x1350
+    важить у вісім разів менше, а втрати тут нікого не обходять: по
+    цьому виду не судять про якість (§1 каже, що для цього є 1:1).
+
+    Вирізки 1:1 лишаються PNG. Там втрати змістові: саме там дивляться
+    текстуру.
+    """
+    ok, buf = cv2.imencode(".jpg", (np.clip(arr, 0, 1) * 255 + 0.5).astype(np.uint8),
+                           [int(cv2.IMWRITE_JPEG_QUALITY), q])
+    if not ok:
+        raise RuntimeError("не закодувалось у JPEG")
+    return buf.tobytes()
+
 
 def _png(arr: np.ndarray) -> bytes:
     """float32 [0..1] -> 8-бітний PNG. Для показу; файли на диску 16-бітні."""
@@ -755,7 +775,11 @@ class Handler(BaseHTTPRequestHandler):
                 if s is None or s.img is None:
                     return self._json({"error": "кадр не відкрито"}, 409)
                 arr = overview(s, q.get("kind", "before"), int(q.get("w", 1400)))
-                return self._send(200, _png(arr), "image/png")
+                # Маска й покриття лишаються PNG: там важливі рівно два
+                # рівні, і JPEG розмив би межу, по якій і дивляться.
+                binary = q.get("kind") in ("mask", "coverage", "detected")
+                return (self._send(200, _png(arr), "image/png") if binary
+                        else self._send(200, _jpg(arr), "image/jpeg"))
             if u.path == "/api/warp/preview":
                 s = APP.sess
                 if s is None or s.img is None:
@@ -764,7 +788,7 @@ class Handler(BaseHTTPRequestHandler):
                 f = s._field
                 k = float(q.get("strength", 1.0))
                 out = pr if f is None else f.apply_to(pr, WarpParams(strength=k))
-                return self._send(200, _png(out), "image/png")
+                return self._send(200, _jpg(out), "image/jpeg")
             if u.path == "/api/variant":
                 i = int(q.get("i", 0))
                 if not (0 <= i < len(APP.variants)):
