@@ -69,6 +69,41 @@ def check_skin_mask(frac: float, cfg: "Config", source: str) -> str | None:
         f"  --no-skin-mask   обробити весь кадр без маски взагалі")
 
 
+def _face_model_error(path, exc: Exception) -> str:
+    """Текст відмови, коли явно заданий face-parsing не запустився.
+
+    Окремою функцією, бо найчастіша причина — середовище, а не модель, і
+    рецепт має бути в самому повідомленні. onnxruntime для цієї машини
+    існує лише під Python 3.9-3.12 (CLAUDE.md), а `python3` тут 3.13:
+    команда з документації запускається, модель мовчки не вантажиться, і
+    далі все їде на евристиці.
+    """
+    import sys
+    why = f"{type(exc).__name__}: {exc}"
+    lines = [f"face-parsing не запустився: {why}",
+             f"модель: {path}"]
+    if isinstance(exc, ModuleNotFoundError) and "onnxruntime" in str(exc):
+        lines += [
+            "",
+            f"onnxruntime немає в цьому інтерпретаторі "
+            f"(Python {sys.version_info.major}.{sys.version_info.minor}).",
+            "Колеса onnxruntime для цієї машини є лише під Python 3.9-3.12,",
+            "і робоче середовище проєкту — .venv на 3.9. Запускай так:",
+            "",
+            "    .venv/bin/python -m retouch.webui",
+            "    .venv/bin/python -m retouch.cli ...",
+        ]
+    lines += [
+        "",
+        "Без face-parsing маска евристична, а це тест на КОЛІР, не на",
+        "обличчя: на реальному портреті вона віддає 90+% кадру, і конвеєр",
+        "після цього кадру шкодить, а не покращує (spec.md §5).",
+        "",
+        "Свідомо продовжити на евристиці: --force-mask",
+    ]
+    return "\n".join(lines)
+
+
 @dataclass
 class Config:
     hf_radius: float | None = None
@@ -315,6 +350,7 @@ class Session:
         self.radius_warn: str | None = None
         self.faces_note: str | None = None
         self.opacity: dict = {}
+        self.mask_error: str | None = None
         self._layer_cache = None
         self.composed = None
         """Кеш складеного кадру. compose() на 26 Мп коштує помітно, а
@@ -397,7 +433,17 @@ class Session:
                     src += "+yunet" if self.faces else "+yunet-МИМО"
                 return mask_from_classes(self.cls, self.cfg.mask), src
             except Exception as exc:                      # noqa: BLE001
-                print(f"[masks] face-parsing не спрацював ({exc}), беру евристику")
+                # Мовчазне падіння на евристику — найгірше, що тут можна
+                # зробити. Людина ЯВНО попросила модель; евристика на
+                # реальному портреті віддає 90+% кадру і шкодить (§5), а
+                # файл при цьому виглядає обробленим. Тому зупиняємось,
+                # і зупиняємось із рецептом: найчастіша причина — не
+                # зламана модель, а не той інтерпретатор.
+                self.mask_error = _face_model_error(mp, exc)
+                if not self.cfg.force_mask:
+                    raise MaskSanityError(self.mask_error) from None
+                print(f"[masks] УВАГА: {self.mask_error.splitlines()[0]} — "
+                      f"йду далі через --force-mask", flush=True)
         self.cls = None
         self.faces, self.face_w = [], None
         return heuristic_skin_mask(self.img, self.cfg.mask), "heuristic"

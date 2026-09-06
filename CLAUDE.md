@@ -4,30 +4,37 @@
 
 ## Запуск
 
+**Тільки `.venv/bin/python`, не `python3`.** У системі тут Python 3.13, а
+onnxruntime для цієї машини існує лише під 3.9-3.12. З `python3` моделі
+не вантажаться, і до цієї редакції конвеєр мовчки їхав на евристичній
+масці — тобто на реальному портреті шкодив (§5). Тепер він у такому разі
+ЗУПИНЯЄТЬСЯ і друкує рецепт, але команди в документації однаково мають
+бути правильні.
+
 ```bash
-python3 tests/run_all.py               # усі набори, мають бути зелені
-python3 tests/test_blemish.py          # окремий набір, якщо треба швидко
-python3 -m retouch.cli IMG.tif -o out --debug
-python3 -m retouch.cli IMG.tif --dry-run    # лише порахувати дефекти
-python3 scripts/bench.py --mp 24            # бюджет часу й пам'яті, spec.md §9
-python3 scripts/make_fixture.py -o fixtures # макет портрета для ручних прогонів
-python3 scripts/check_face_model.py M.onnx IMG.tif   # перевірити ваги ДО довіри
-python3 -m retouch.cli fixtures/PORTRAIT.tif -o out --preview
-python3 -m retouch.webui                    # локальний UI, порт 8765
-python3 -m retouch.webui IMG.tif --port 8771 --no-browser
+.venv/bin/python tests/run_all.py               # усі набори, мають бути зелені
+.venv/bin/python tests/test_blemish.py          # окремий набір, якщо треба швидко
+.venv/bin/python -m retouch.cli IMG.tif -o out --debug
+.venv/bin/python -m retouch.cli IMG.tif --dry-run    # лише порахувати дефекти
+.venv/bin/python scripts/bench.py --mp 24            # бюджет часу й пам'яті, spec.md §9
+.venv/bin/python scripts/make_fixture.py -o fixtures # макет портрета для ручних прогонів
+.venv/bin/python scripts/check_face_model.py M.onnx IMG.tif   # перевірити ваги ДО довіри
+.venv/bin/python -m retouch.cli fixtures/PORTRAIT.tif -o out --preview
+.venv/bin/python -m retouch.webui                    # локальний UI, порт 8765
+.venv/bin/python -m retouch.webui IMG.tif --port 8771 --no-browser
 # вкладка «Зйомка»: тека кадрів, ← → гортання, пакет тим самим движком
-python3 -m retouch.cli --schema             # схема пресету для агента
-python3 scripts/brief.py IMG.CR3 -o brief   # досьє на кадр ДЛЯ агента
-python3 scripts/shoot_brief.py photos/ -o brief   # досьє на ЗЙОМКУ
-python3 -m retouch.cli IMG.tif -o out --xmp          # взяти налаштування ACR
-python3 -m retouch.cli SHOOT/ -o out --batch --xmp   # сайдкар до кожного кадру
-python3 scripts/variants.py IMG.tif presets/*.yaml -o var   # порівняти пресети
-python3 scripts/calibrate.py photos/ -o calib --face-model M.onnx  # §6.2 на своїх
-python3 -m retouch.cli IMG.tif --preset p.yaml --preset frame.yaml
-python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml   # ніч
-python3 -m retouch.cli IMG.tif -o out --dodge-burn --db-strength 0.6
-python3 -m retouch.cli IMG.tif -o out --tools eye_vessels,teeth,mattify
-python3 -m retouch.cli IMG.tif -o out --target-coverage 0.03   # НЕ --threshold
+.venv/bin/python -m retouch.cli --schema             # схема пресету для агента
+.venv/bin/python scripts/brief.py IMG.CR3 -o brief   # досьє на кадр ДЛЯ агента
+.venv/bin/python scripts/shoot_brief.py photos/ -o brief   # досьє на ЗЙОМКУ
+.venv/bin/python -m retouch.cli IMG.tif -o out --xmp          # взяти налаштування ACR
+.venv/bin/python -m retouch.cli SHOOT/ -o out --batch --xmp   # сайдкар до кожного кадру
+.venv/bin/python scripts/variants.py IMG.tif presets/*.yaml -o var   # порівняти пресети
+.venv/bin/python scripts/calibrate.py photos/ -o calib --face-model M.onnx  # §6.2 на своїх
+.venv/bin/python -m retouch.cli IMG.tif --preset p.yaml --preset frame.yaml
+.venv/bin/python -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml   # ніч
+.venv/bin/python -m retouch.cli IMG.tif -o out --dodge-burn --db-strength 0.6
+.venv/bin/python -m retouch.cli IMG.tif -o out --tools eye_vessels,teeth,mattify
+.venv/bin/python -m retouch.cli IMG.tif -o out --target-coverage 0.03   # НЕ --threshold
 ```
 
 `--preview` кладе поруч із шарами один PNG: загальний план плюс кропи

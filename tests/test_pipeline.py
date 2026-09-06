@@ -675,6 +675,50 @@ def test_variant_crops_are_composed_the_same_way_as_the_frame():
         assert err < 0.5
 
 
+def test_missing_onnxruntime_stops_with_a_recipe():
+    """Явно заданий face-parsing, який не запустився, має ЗУПИНЯТИ.
+
+    Мовчазне падіння на евристику — найгірше, що тут можна зробити:
+    людина попросила модель, евристика на реальному портреті віддає 90+%
+    кадру (§5), а файл при цьому виглядає обробленим. Найчастіша причина
+    — не зламана модель, а не той інтерпретатор, тому рецепт має бути в
+    самому повідомленні.
+    """
+    from retouch import masks as mm
+    from retouch.pipeline import MaskSanityError
+
+    def boom(*_a, **_k):
+        raise ModuleNotFoundError("No module named 'onnxruntime'")
+
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        f = _fixture(d)
+        model = d / "m.onnx"
+        model.write_bytes(b"x")
+        real = mm.FaceParser
+        mm.FaceParser = boom
+        try:
+            try:
+                Session(f, Config(face_model=str(model))).load()
+                raise AssertionError("мовчки поїхало на евристиці")
+            except MaskSanityError as e:
+                txt = str(e)
+            print("  " + txt.splitlines()[0])
+            print("  рецепт у тексті: "
+                  f"{'.venv/bin/python' in txt}, §5 згадано: {'§5' in txt}")
+            assert ".venv/bin/python" in txt, "немає рецепта, як запустити"
+            assert "onnxruntime" in txt and "3.9" in txt
+            assert "--force-mask" in txt, "не сказано, як продовжити свідомо"
+
+            # а з --force-mask має саме продовжити, а не впасти
+            sess = Session(f, Config(face_model=str(model),
+                                     force_mask=True)).load()
+            print(f"  з --force-mask: джерело {sess.skin_source}")
+            assert sess.skin_source == "heuristic" and sess.mask_error
+        finally:
+            mm.FaceParser = real
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

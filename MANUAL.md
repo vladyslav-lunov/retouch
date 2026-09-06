@@ -13,10 +13,23 @@ python3 -c "import cv2, numpy, rawpy, onnxruntime; print('стек на місц
 
 ---
 
+## 0.0 Чим запускати
+
+**`.venv/bin/python`, не `python3`.** Системний Python тут 3.13, а
+onnxruntime є лише під 3.9-3.12; у `.venv` лежить 3.9 з усім потрібним.
+
+Перевірка одним рядком:
+
+    .venv/bin/python -c "import onnxruntime, rawpy; print('усе на місці')"
+
+Якщо запустити не тим — конвеєр зупиниться сам і скаже, чим запускати.
+Мовчки на евристичній масці він більше не їде: на реальному портреті це
+90+% кадру, і файл виглядав би обробленим (spec.md §5).
+
 ## 0. Тести — спершу вони
 
 ```bash
-python3 tests/run_all.py
+.venv/bin/python tests/run_all.py
 ```
 
 Тринадцять наборів, 95 тестів, близько хвилини. Якщо не «усе зелене» —
@@ -27,8 +40,8 @@ python3 tests/run_all.py
 ## 1. Макет: чи конвеєр узагалі живий
 
 ```bash
-python3 scripts/make_fixture.py -o fixtures
-python3 -m retouch.cli fixtures/PORTRAIT.tif -o out --preview
+.venv/bin/python scripts/make_fixture.py -o fixtures
+.venv/bin/python -m retouch.cli fixtures/PORTRAIT.tif -o out --preview
 ```
 
 | має вийти | |
@@ -46,8 +59,8 @@ python3 -m retouch.cli fixtures/PORTRAIT.tif -o out --preview
 ## 2. Табель на макеті: наскільки добре, а не «чи впало»
 
 ```bash
-python3 scripts/selftest.py
-python3 scripts/selftest.py --sweep
+.venv/bin/python scripts/selftest.py
+.venv/bin/python scripts/selftest.py --sweep
 ```
 
 Має показати ~40% влучань детектора і 0 px лікування поза маскою.
@@ -61,7 +74,7 @@ python3 scripts/selftest.py --sweep
 RAW читається напряму — конвертувати нічого не треба.
 
 ```bash
-python3 -m retouch.cli ~/Downloads/IMG_0059.CR3 -o out --preview \
+.venv/bin/python -m retouch.cli ~/Downloads/IMG_0059.CR3 -o out --preview \
   --face-model models/resnet18.onnx --face-detector models/yunet.onnx
 ```
 
@@ -80,7 +93,7 @@ python3 -m retouch.cli ~/Downloads/IMG_0059.CR3 -o out --preview \
 Перевірити ваги, якщо береш інші:
 
 ```bash
-python3 scripts/check_face_model.py models/resnet18.onnx ~/Downloads/IMG_0059.CR3
+.venv/bin/python scripts/check_face_model.py models/resnet18.onnx ~/Downloads/IMG_0059.CR3
 ```
 
 Контракт скрипт перевірить сам, **порядок класів — тільки оком** на
@@ -94,7 +107,7 @@ python3 scripts/check_face_model.py models/resnet18.onnx ~/Downloads/IMG_0059.CR
 `neck`, і модель має рацію: це шия, це шкіра. Але ретушувати його не треба.
 
 ```bash
-python3 -m retouch.webui
+.venv/bin/python -m retouch.webui
 ```
 
 Вкладка **Маска** -> зняти галочку з `neck` -> «Застосувати» -> «Перегнати».
@@ -112,7 +125,7 @@ python3 -m retouch.webui
 ## 5. Видалення об'єкта
 
 ```bash
-python3 -m retouch.webui
+.venv/bin/python -m retouch.webui
 ```
 
 Вкладка **Видалення** -> замалювати -> «Видалити». Модель вибирається у
@@ -126,7 +139,7 @@ python3 -m retouch.webui
 дає пляму, а не фон — конвеєр про це скаже сам. З LaMa:
 
 ```bash
-python3 -m retouch.cli IMG.tif -o out --remove-mask mask.png \
+.venv/bin/python -m retouch.cli IMG.tif -o out --remove-mask mask.png \
   --lama-model models/lama.onnx
 ```
 
@@ -178,7 +191,7 @@ PY
 ## 8. Бюджет пам'яті
 
 ```bash
-python3 scripts/bench.py --mp 24
+.venv/bin/python scripts/bench.py --mp 24
 ```
 
 Пік процесу має бути в межах 2 ГБ. Якщо пішло за 4 — десь знову з'явився
@@ -189,7 +202,7 @@ python3 scripts/bench.py --mp 24
 ## 9. Пакетна обробка
 
 ```bash
-python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
+.venv/bin/python -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
 ```
 
 | має статись | |
@@ -213,7 +226,7 @@ python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
 
 ## 10. Dodge & Burn
 
-    python3 -m retouch.cli IMG.tif -o out --dodge-burn --db-strength 0.6 \
+    .venv/bin/python -m retouch.cli IMG.tif -o out --dodge-burn --db-strength 0.6 \
       --face-model models/resnet18.onnx --face-detector models/yunet.onnx
 
 | має вийти | |
@@ -234,7 +247,7 @@ python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
 
 ## 11. Дрібні інструменти
 
-    python3 -m retouch.cli IMG.tif -o out \
+    .venv/bin/python -m retouch.cli IMG.tif -o out \
       --tools eye_vessels,teeth,mattify,skin_tone \
       --face-model models/resnet18.onnx --face-detector models/yunet.onnx
 
@@ -258,7 +271,7 @@ python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
 
 ## 12. Інтерфейс: усі етапи в одному вікні
 
-    python3 -m retouch.webui
+    .venv/bin/python -m retouch.webui
 
 Одинадцять вкладок. Три нові — **Проявлення**, **Інструменти**,
 **Світлотінь** — і **Пресети**.
@@ -300,7 +313,7 @@ python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
 Вкладка «Пресети» читається без відкритого кадру.
 
     Активний → «Записати в presets/» → з'явиться YAML
-    python3 -m retouch.cli IMG.tif -o out --preset presets/ТВОЄ.yaml
+    .venv/bin/python -m retouch.cli IMG.tif -o out --preset presets/ТВОЄ.yaml
 
 Той самий файл має піти в CLI без переробки — це і є перевірка, що
 формат один на UI, консоль і агента. Клац по пресету в списку НАКЛАДАЄ
@@ -330,7 +343,7 @@ python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
 
 Поклади сайдкар поруч із кадром (`IMG.tif` -> `IMG.xmp`) і запусти:
 
-    python3 -m retouch.cli IMG.tif -o out --xmp
+    .venv/bin/python -m retouch.cli IMG.tif -o out --xmp
 
 | має вийти | |
 |---|---|
@@ -347,7 +360,7 @@ python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
 
 ### 13.1 Пакет: сайдкар до кожного кадру
 
-    python3 -m retouch.cli SHOOT/ -o out --batch --xmp --preset shoot.yaml
+    .venv/bin/python -m retouch.cli SHOOT/ -o out --batch --xmp --preset shoot.yaml
 
 У звіті навпроти кадрів із сайдкаром має стояти `[IMG_001.xmp]`, а
 розміри кадрів — відрізнятися, якщо кропи різні. Пресет зйомки при цьому
@@ -362,7 +375,7 @@ python3 -m retouch.cli SHOOT/ -o out --batch --preset shoot.yaml
 
 ### 13.3 У досьє для агента
 
-    python3 scripts/brief.py IMG.tif -o brief
+    .venv/bin/python scripts/brief.py IMG.tif -o brief
 
 У `IMG_brief.md` має бути розділ **Camera Raw** з тими самими трьома
 позначками. Це те, заради чого досьє й пишеться: агент має пропонувати
@@ -413,7 +426,7 @@ mask:
 
 ## 15. Калібрування порога на своїх кадрах
 
-    python3 scripts/calibrate.py photos/ -o calib \
+    .venv/bin/python scripts/calibrate.py photos/ -o calib \
       --face-model models/resnet18.onnx --face-detector models/yunet.onnx
 
 Це те, чого вимагає spec.md §6.2 і чого `selftest.py` дати НЕ МОЖЕ: той
@@ -445,14 +458,14 @@ mask:
 
 ## 15. Поріг: не число, а ціль
 
-    python3 scripts/calibrate.py photos/ -o calib \
+    .venv/bin/python scripts/calibrate.py photos/ -o calib \
       --face-model models/resnet18.onnx --face-detector models/yunet.onnx
 
 На 44 кадрах вийшло: фіксований поріг `0.012` дає від 0% до 24% торкнутої
 шкіри. У `calib.md` дивись **колонку розкиду**, а не медіану — саме вона
 відповідає на питання «чи існує одне число на всі кадри».
 
-    python3 -m retouch.cli IMG.CR3 -o out --target-coverage 0.03 \
+    .venv/bin/python -m retouch.cli IMG.CR3 -o out --target-coverage 0.03 \
       --face-model models/resnet18.onnx --face-detector models/yunet.onnx
 
 | має вийти | |
@@ -483,7 +496,7 @@ mask:
 
 ## 16. Сеанс: реальна зйомка в UI
 
-    python3 -m retouch.webui
+    .venv/bin/python -m retouch.webui
 
 ### 16.1 Порядок
 
@@ -555,7 +568,7 @@ Light нейтральне саме 50%. Якщо на 0% кадр темніє 
 
 ## 18. Досьє на зйомку для агента
 
-    python3 scripts/shoot_brief.py photos/ -o brief \
+    .venv/bin/python scripts/shoot_brief.py photos/ -o brief \
       --face-model models/resnet18.onnx --face-detector models/yunet.onnx
 
 На 44 кадрах це ~20 хвилин: кожен кадр читається, маскується й підбирає

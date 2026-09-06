@@ -20,7 +20,7 @@ pip install --only-binary=:all: dist/retouch_lab-0.1.0-py3-none-any.whl
 ```bash
 python3 -m venv .venv && . .venv/bin/activate
 pip install --only-binary=:all: -r requirements.txt
-python3 tests/test_blemish.py        # має бути зелено
+.venv/bin/python tests/test_blemish.py        # має бути зелено
 ```
 
 ## Спробувати за одну хвилину
@@ -28,7 +28,7 @@ python3 tests/test_blemish.py        # має бути зелено
 Реальних кадрів у репозиторії немає і не буде, тому є генератор макета:
 
 ```bash
-python3 scripts/make_fixture.py -o fixtures
+.venv/bin/python scripts/make_fixture.py -o fixtures
 retouch fixtures/PORTRAIT.tif -o out --preview
 open out/PORTRAIT_preview.png
 ```
@@ -133,11 +133,11 @@ out/portrait_debug/          з --debug: усі проміжні етапи
 ## Перевірка себе
 
 ```bash
-python3 tests/test_blemish.py       # інваріанти ядра
-python3 tests/test_inpaint.py       # інваріанти видалення
-python3 scripts/selftest.py         # табель на макеті: що знайшло, куди полізло
-python3 scripts/selftest.py --sweep # таблиця по порогах
-python3 scripts/bench.py --mp 24    # бюджет часу й пам'яті, spec.md §9
+.venv/bin/python tests/test_blemish.py       # інваріанти ядра
+.venv/bin/python tests/test_inpaint.py       # інваріанти видалення
+.venv/bin/python scripts/selftest.py         # табель на макеті: що знайшло, куди полізло
+.venv/bin/python scripts/selftest.py --sweep # таблиця по порогах
+.venv/bin/python scripts/bench.py --mp 24    # бюджет часу й пам'яті, spec.md §9
 ```
 
 `selftest.py` відповідає на питання, на яке тести не відповідають:
@@ -171,7 +171,7 @@ python3 scripts/bench.py --mp 24    # бюджет часу й пам'яті, sp
 Допоміжне, поки моделі немає:
 
 ```bash
-python3 scripts/crop_face.py IMG.tif        # вирізати голову (каскад Хаара)
+.venv/bin/python scripts/crop_face.py IMG.tif        # вирізати голову (каскад Хаара)
 ```
 
 Моделі йдуть через ONNX, і тут є пастка з версіями. Колеса onnxruntime
@@ -196,8 +196,8 @@ curl -L -o models/resnet18.onnx \
 ```
 
 ```bash
-python3 scripts/fetch_models.py     # підказки, звідки брати
-python3 scripts/check_face_model.py models/face.onnx PORTRAIT.tif   # звірити
+.venv/bin/python scripts/fetch_models.py     # підказки, звідки брати
+.venv/bin/python scripts/check_face_model.py models/face.onnx PORTRAIT.tif   # звірити
 retouch p.tif --face-model models/face.onnx --lama-model models/lama.onnx
 ```
 
