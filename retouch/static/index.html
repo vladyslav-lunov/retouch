@@ -203,6 +203,7 @@ pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
     <button data-t="db">Світлотінь</button>
     <button data-t="remove">Видалення</button>
     <button data-t="warp">Пластика</button>
+    <button data-t="layers">Шари</button>
     <button data-t="spots">Плями</button>
     <button data-t="sweep">Калібрування</button>
     <button data-t="presets">Пресети</button>
@@ -310,6 +311,7 @@ function draw(){
   if (tab === 'remove') return drawRemove(p);
   if (tab === 'warp') return drawWarp(p);
   if (tab === 'spots') return drawSpots(p);
+  if (tab === 'layers') return drawLayers(p);
   if (tab === 'sweep') return drawSweep(p);
   if (tab === 'develop') return drawSection(p, 'develop');
   if (tab === 'db') return drawSection(p, 'db');
@@ -871,6 +873,60 @@ async function drawPresets(p){
       ? `<div class="note bad">${esc(r.error)}</div>`
       : `<div class="note" style="border-left-color:var(--ok)">записано ${esc(r.path)}</div>`;
     draw();
+  };
+}
+
+/* ---------- шари: непрозорість без перегону ---------- */
+/* §16.1: збирає стопку тепер власний UI, а не Photoshop, і послабити
+   шар має бути можна тут. Складання коштує частки секунди, перегін —
+   пів хвилини на 26 Мп; рішення «трохи менше» приймають, дивлячись на
+   результат, тож ціна має бути саме такою. */
+const LAYER_RU = {skin: 'шкіра', remove: 'видалення', dodgeburn: 'світлотінь',
+                  eye_vessels: 'судини в очах', teeth: 'зуби',
+                  mattify: 'матування', skin_tone: 'тон шкіри'};
+
+function drawLayers(p){
+  const rows = (S.layers || []).slice();
+  if (S.db_layer) rows.push({...S.db_layer, touched: null});
+  if (!S.has_result){
+    p.innerHTML = '<div class="hint">Спершу «Перегнати» — шарів ще немає.</div>';
+    return;
+  }
+  p.innerHTML = `<div class="hint">Непрозорість не переганяє конвеєр, лише
+    перескладає стопку. Записаний файл збігається з тим, що тут видно:
+    непрозорість множить АЛЬФУ шару, а зведений пишеться тим самим
+    складанням.<br>Світлотінь послаблюється зсувом до 50% сірого —
+    саме воно нейтральне в Soft Light, а не нуль.</div>
+    ${rows.length ? rows.map(r => `
+      <div class="row"><label style="flex:0 0 130px">${
+        LAYER_RU[r.name] || r.name}</label>
+        <input type="range" class="opa" data-l="${r.name}" min="0" max="1"
+          step="0.05" value="${r.opacity}">
+        <span class="val" id="opa_${r.name}">${Math.round(r.opacity*100)}%</span>
+        <span class="hint" style="margin:0;flex:0 0 110px">${
+          r.touched == null ? '' : (r.touched*100).toFixed(2) + '% кадру'}</span>
+      </div>`).join('')
+      : '<div class="hint">Стопка порожня — жоден етап нічого не торкнувся.</div>'}
+    <div class="row"><button id="opareset">Усі на 100%</button></div>
+    <div class="grid" style="margin-top:10px">${card('before','ДО')}${
+      card('after','ПІСЛЯ')}${card('diff','РІЗНИЦЯ ×4')}</div>`;
+
+  let timer = null;
+  const push = async () => {
+    const o = {};
+    p.querySelectorAll('.opa').forEach(e => o[e.dataset.l] = +e.value);
+    await post('/api/opacity', {opacity: o});
+    await tick(); draw();
+  };
+  p.querySelectorAll('.opa').forEach(e => {
+    e.oninput = () => {
+      $('#opa_' + e.dataset.l).textContent = Math.round(e.value*100) + '%';
+      clearTimeout(timer); timer = setTimeout(push, 250);
+    };
+  });
+  $('#opareset').onclick = () => {
+    p.querySelectorAll('.opa').forEach(e => e.value = 1);
+    push();
   };
 }
 

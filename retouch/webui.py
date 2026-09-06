@@ -124,6 +124,13 @@ class App:
             "blob_classes": [{"name": n, "n": c} for n, c in
                              (getattr(s, "blob_classes", None) or [])],
             "detect_warn": getattr(s, "detect_warn", None),
+            "layers": [{"name": n, "opacity": s.opacity_of(n),
+                        "touched": round(float((a > 0).mean()), 5)}
+                       for n, (_rgb, a) in (s.layers().items()
+                                            if s.coverage is not None else [])],
+            "db_layer": (None if s.db_gray is None
+                         else {"name": "dodgeburn",
+                               "opacity": s.opacity_of("dodgeburn")}),
             "face_w": s.face_w,
             "radius_warn": getattr(s, "radius_warn", None),
             "faces_note": getattr(s, "faces_note", None),
@@ -314,11 +321,12 @@ def overview(sess: Session, kind: str, maxw: int) -> np.ndarray:
     if kind == "before":
         return _fit(sess.img, maxw)
     if kind == "after":
-        return _fit(sess.result if sess.result is not None else sess.img, maxw)
+        return sess.compose_view(maxw)
     if kind == "diff":
         if sess.result is None:
             return _fit(np.full_like(sess.img, 0.5), maxw)
-        return _fit(np.clip((sess.result - sess.img) * 4 + 0.5, 0, 1), maxw)
+        return np.clip((sess.compose_view(maxw) - _fit(sess.img, maxw)) * 4 + 0.5,
+                       0, 1)
     if kind == "mask":
         if sess.skin is None:
             return _fit(np.zeros_like(sess.img), maxw)
@@ -350,7 +358,7 @@ def crop(sess: Session, kind: str, cx: int, cy: int, size: int) -> np.ndarray:
     before = sess.img[sl]
     if kind == "before" or sess.result is None:
         return before
-    after = sess.result[sl]
+    after = sess.compose_crop(sl)
     if kind == "after":
         return after
     if kind == "diff":
@@ -776,6 +784,18 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"ok": True})
             if u.path == "/api/preset":
                 return self._json(self._preset(d))
+            if u.path == "/api/opacity":
+                s = APP.sess
+                if s is None or s.result is None:
+                    return self._json({"error": "спершу «Перегнати»"}, 409)
+                for k, v in (d.get("opacity") or {}).items():
+                    s.opacity[str(k)] = float(v)
+                # Повне складання 26 Мп коштує секунди, і повзунок від
+                # цього стає непридатним. Панель бере зменшене складання
+                # (compose_view), кроп 1:1 — точне у своїх межах, а повне
+                # лишається тільки на запис.
+                s.composed = None
+                return self._json({"ok": True, "opacity": s.opacity})
             if u.path == "/api/xmp":
                 return self._json(self._xmp(d))
             if u.path == "/api/preset/save":

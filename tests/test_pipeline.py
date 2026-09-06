@@ -513,6 +513,100 @@ def test_explicit_radius_is_never_called_clamped():
         assert not sess.radius_clamped and sess.radius_warn is None
 
 
+# ---------------------------------------------------------------------------
+# непрозорість шарів
+# ---------------------------------------------------------------------------
+
+def test_opacity_zero_is_the_original_and_one_is_the_result():
+    """Крайні положення повзунка мають означати рівно те, що написано."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        cfg = Config(force_mask=True, tools=("mattify",), dodgeburn_on=True)
+        sess = Session(_fixture(d), cfg).load().analyze().heal()
+        sess.cls = _cls_map(sess)
+        sess.run_tools().dodge_burn()
+
+        sess.opacity = {n: 0.0 for n in list(sess.layers()) + ["dodgeburn"]}
+        off = float(np.abs(sess.compose() - sess.img).max() / QUANT)
+        sess.opacity = {}
+        on = float(np.abs(sess.compose() - sess.result).max() / QUANT)
+        print(f"  0% -> відхилення від оригіналу {off:.2f} кванта")
+        print(f"  100% -> відхилення від результату {on:.2f} кванта")
+        # Нуль має бути ТОЧНИМ: альфа множиться на нуль, і жоден піксель
+        # не проходить крізь extract_layer взагалі.
+        assert off < 0.5, "нульова непрозорість усе одно щось змінює"
+        # Сто відсотків точним бути не може: compose() йде через
+        # extract_layer, тобто ділить на альфу й ріже в [0..1]. Це та
+        # сама похибка, яку міряє test_full_stack (там межа 12 квантів
+        # на всю стопку з файлів), і вона нижча за квант 8-бітного
+        # перегляду.
+        assert on < 12, f"складання розійшлось із конвеєром на {on:.1f} кванта"
+
+
+def test_opacity_is_monotone_and_halves_the_touch():
+    """Половина непрозорості — половина дотику, а не «щось між»."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        sess = Session(_fixture(d), Config(force_mask=True)).load().analyze().heal()
+        full = np.abs(sess.compose() - sess.img)
+        sess.opacity = {"skin": 0.5}
+        half = np.abs(sess.compose() - sess.img)
+        m = full > 1e-4
+        ratio = float((half[m] / full[m]).mean())
+        print(f"  середнє відношення дотику при 50%: {ratio:.3f}")
+        assert 0.45 < ratio < 0.55, f"50% дає {ratio:.2f} дотику"
+
+
+def test_written_file_matches_what_the_panel_shows():
+    """Записане і показане мають бути одним кадром.
+
+    Непрозорість множить АЛЬФУ шару, а зведений пишеться тим самим
+    складанням — інакше повзунок показував би одне, а файл містив інше.
+    """
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        cfg = Config(force_mask=True, dodgeburn_on=True)
+        sess = Session(_fixture(d), cfg).load().analyze().heal().dodge_burn()
+        sess.opacity = {"skin": 0.4, "dodgeburn": 0.25}
+        out = d / "out"
+        sess.write(out)
+        shown = sess.compose()
+        flat = (cv2.imread(str(out / "T_99_flat.tif"), cv2.IMREAD_UNCHANGED)
+                .astype(np.float32) / 65535)
+        err = float(np.abs(shown - flat).max() / QUANT)
+        print(f"  показане проти записаного: {err:.2f} кванта")
+        assert err < 2.0, "файл не збігається з тим, що показує панель"
+
+
+def test_opacity_survives_into_the_layer_files():
+    """Послаблений шар має бути послабленим і на диску, інакше стопку
+    зберуть заново на повну силу."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        sess = Session(_fixture(d), Config(force_mask=True)).load().analyze().heal()
+        a_full = sess.layers()["skin"][1].max()
+        sess.opacity = {"skin": 0.3}
+        a_dim = sess.layers()["skin"][1].max()
+        print(f"  альфа шару: повна {a_full:.2f} -> послаблена {a_dim:.2f}")
+        assert abs(a_dim - a_full * 0.3) < 1e-6
+
+
+def test_layer_extraction_is_cached():
+    """Без кеша повзунок коштував 13.4 с на 26 Мп, тобто був непридатний."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        sess = Session(_fixture(d), Config(force_mask=True)).load().analyze().heal()
+        sess.layers()
+        first = sess._layer_cache
+        assert first is not None, "кеш не заповнився"
+        sess.opacity = {"skin": 0.5}
+        sess.layers()
+        assert sess._layer_cache is first, "зміна непрозорості перерахувала шари"
+        sess.heal()
+        print(f"  після перелікування кеш скинуто: {sess._layer_cache is None}")
+        assert sess._layer_cache is None, "кеш пережив перелікування"
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

@@ -314,6 +314,12 @@ class Session:
         self.radius_clamped: bool = False
         self.radius_warn: str | None = None
         self.faces_note: str | None = None
+        self.opacity: dict = {}
+        self._layer_cache = None
+        self.composed = None
+        """Кеш складеного кадру. compose() на 26 Мп коштує помітно, а
+        панель просить вид шість разів поспіль — рахувати щоразу означало
+        б чекати на кожній вкладці."""
         self.search_radius_px: int = 0
 
     # --- етапи ---------------------------------------------------------
@@ -715,6 +721,7 @@ class Session:
         # база шару в layers() вказувала б на масив до перелікування.
         self.tool_layers = []
         self.db_gray = self.db_base = self.db_coverage = None
+        self.composed = self._layer_cache = None
         s.done(f"торкнулися {self.coverage.mean():.3%} кадру")
         return self
 
@@ -759,6 +766,7 @@ class Session:
         self.db_base = base
         self.db_coverage = db_cov(self.db_gray)
         self.result = db_apply(base, self.db_gray)
+        self.composed = self._layer_cache = None
         s.done(f"сила {self.cfg.dodgeburn.strength}, "
                f"торкнулися {self.db_coverage.mean():.1%} кадру")
         return self
@@ -799,9 +807,106 @@ class Session:
                 self.tool_layers.append((name, prev, base.copy(), cov))
             s.done(f"торкнулися {(cov > 0).mean():.2%} кадру")
         self.result = base
+        self.composed = self._layer_cache = None
         return self
 
+    def opacity_of(self, name: str) -> float:
+        """Непрозорість шару 0..1. Не задано — повна."""
+        return float(np.clip(self.opacity.get(name, 1.0), 0.0, 1.0))
+
+    def shown(self) -> np.ndarray:
+        """Кадр, який має бачити людина: складений, якщо непрозорість
+        чіпали, інакше — той самий result. Один вхід для всіх видів
+        панелі, щоб «після», кроп 1:1 і різниця не розходились між собою."""
+        if self.composed is not None:
+            return self.composed
+        return self.result if self.result is not None else self.img
+
+    def compose_view(self, maxw: int) -> np.ndarray:
+        """Складання для ОГЛЯДОВОГО плану — по зменшених шарах.
+
+        Зменшити, потім скласти — не те саме, що скласти, потім зменшити,
+        але різниця тут нижча за помітність, а ціна відрізняється в
+        десятки разів: повний кадр 26 Мп складається секунди, зменшений
+        до 760 px — миттєво. Вкладка «Перегляд» відповідає на питання
+        «чи не полізло воно кудись», і для нього цього досить.
+
+        Там, де питання інше — кроп 1:1 і запис, — складання точне.
+        """
+        k = min(1.0, maxw / self.img.shape[1])
+        small = lambda a: (a if k >= 1.0 else cv2.resize(  # noqa: E731
+            a, None, fx=k, fy=k, interpolation=cv2.INTER_AREA))
+        cur = small(self.img)
+        for _n, (rgb, a) in self.layers().items():
+            sa = small(a)[..., None]
+            cur = cur * (1 - sa) + small(rgb) * sa
+        g = self.db_gray_scaled()
+        if g is not None:
+            cur = db_apply(cur, small(g))
+        return np.clip(cur, 0, 1)
+
+    def compose_crop(self, sl) -> np.ndarray:
+        """Точне складання в межах вирізки. Саме цей вид вирішує про
+        якість (§1), тому наближень тут немає."""
+        cur = self.img[sl]
+        for _n, (rgb, a) in self.layers().items():
+            av = a[sl][..., None]
+            cur = cur * (1 - av) + rgb[sl] * av
+        g = self.db_gray_scaled()
+        if g is not None:
+            cur = db_apply(cur, g[sl])
+        return np.clip(cur, 0, 1)
+
+    def compose(self) -> np.ndarray:
+        """Зібрати кадр із бази та шарів з урахуванням непрозорості.
+
+        Рівно те саме, що робить Photoshop зі стопкою, і рівно те саме,
+        що перевіряє тест реконструкції: база, далі кожен звичайний шар
+        через свою альфу, наприкінці D&B у Soft Light. Тримати два різні
+        способи скласти ті самі шари означало б, що панель показує одне,
+        а файл містить інше.
+
+        Непрозорість НЕ перезапускає конвеєр. Послабити лікування вдвічі
+        коштує складання (частки секунди), а не повторного прогону
+        (пів хвилини на 26 Мп) — і в цьому вся суть: рішення «трохи
+        менше» приймають, ДИВЛЯЧИСЬ на результат.
+        """
+        cur = self.img
+        for _name, (rgb, a) in self.layers().items():
+            cur = cur * (1 - a[..., None]) + rgb * a[..., None]
+        g = self.db_gray_scaled()
+        if g is not None:
+            cur = db_apply(cur, g)
+        return np.clip(cur, 0, 1)
+
+    def db_gray_scaled(self) -> np.ndarray | None:
+        """Сіра карта D&B, послаблена непрозорістю.
+
+        Послаблення — це зсув до 50% сірого, бо саме 50% нейтральні в
+        Soft Light. Множити карту на k було б неправильно: нуль у Soft
+        Light не нейтральний, а максимально темний.
+        """
+        if self.db_gray is None:
+            return None
+        k = self.opacity_of("dodgeburn")
+        if k >= 1.0:
+            return self.db_gray
+        return 0.5 + (self.db_gray - 0.5) * k
+
     def layers(self) -> dict:
+        """Шари з альфою, помноженою на непрозорість.
+
+        Витяг шарів кешується. Він не залежить від непрозорості й коштує
+        помітно: extract_layer робить ділення й np.where по всьому кадру,
+        а на 26 Мп це секунди — заміряно 13.4 с на повне складання, поки
+        кеша не було, тобто повзунок був непридатний.
+        """
+        if self._layer_cache is None:
+            self._layer_cache = self._extract_layers()
+        return {n: (rgb, a * self.opacity_of(n))
+                for n, (rgb, a) in self._layer_cache.items()}
+
+    def _extract_layers(self) -> dict:
         out: dict[str, tuple] = {}
         # База для шару шкіри — кадр ДО видалення об'єктів, якщо воно було.
         # getattr із дефолтом тут не годиться: атрибут існує і дорівнює
@@ -829,14 +934,15 @@ class Session:
         # лишається у вхідному файлі, а як саме його зігнуто, записано
         # окремо полем зміщення.
         written = layers_mod.write_stack(out_dir, self.path.stem, self.img,
-                                         self.layers(), self.result,
+                                         self.layers(), self.compose(),
                                          self.dtype, masks)
         if self.db_gray is not None:
             # Окремим файлом, з режимом у назві й номером ПІСЛЯ всіх
             # звичайних шарів: номер — це порядок складання.
             p = Path(out_dir) / (f"{self.path.stem}_{len(self.layers()) + 1:02d}"
                                  f"_dodgeburn_softlight.png")
-            imageio.write(p, np.dstack([self.db_gray] * 3), np.dtype("uint16"))
+            imageio.write(p, np.dstack([self.db_gray_scaled()] * 3),
+                          np.dtype("uint16"))
             written.append(p)
         if self._field is not None and self._field.touched:
             written.append(self._field.save(
