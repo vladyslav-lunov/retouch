@@ -167,7 +167,7 @@ def test_source_name_says_what_happened():
         def __init__(self, _path):
             self.last_faces = []
 
-        def parse(self, img, detector=None, margin=0.85):
+        def parse(self, img, detector=None, margin=None, **kw):
             self.last_faces = list(Stub.found)
             cls = np.zeros(img.shape[:2], np.int32)
             h, w = cls.shape
@@ -201,6 +201,118 @@ def test_source_name_says_what_happened():
         assert "МИМО" in miss.skin_source and miss.face_w is None
     finally:
         masks_mod.FaceParser = real
+
+
+# ---------------------------------------------------------------------------
+# кроп обличчя і кілька облич
+# ---------------------------------------------------------------------------
+
+def test_face_crop_is_square():
+    """BiSeNet бере 512x512, тож кроп розтягується до квадрата.
+
+    Портретна рамка (сторони 0.69) стискала обличчя по горизонталі на
+    третину, і модель починала вигадувати: на родинному кадрі позначала
+    «шкірою» сукню в горошок, а лікування чесно ретушувало горошини.
+    """
+    from retouch.masks import face_crop_box
+    img = np.zeros((4000, 6000, 3), np.float32)
+    for box in ((3000, 1500, 500, 700), (100, 80, 400, 400), (2000, 200, 300, 900)):
+        x0, y0, x1, y1 = face_crop_box(img, box)
+        side = (x1 - x0, y1 - y0)
+        print(f"  обличчя {box[2]}x{box[3]} -> кроп {side[0]}x{side[1]} "
+              f"(ар {side[0]/side[1]:.2f})")
+        assert abs(side[0] - side[1]) <= 1, f"кроп не квадратний: {side}"
+
+
+def test_face_at_the_edge_is_shifted_not_squashed():
+    """Обличчя біля краю має дістати квадрат, зсунутий усередину, а не
+    прямокутник — інакше повертається те саме спотворення."""
+    from retouch.masks import face_crop_box
+    img = np.zeros((3000, 3000, 3), np.float32)
+    x0, y0, x1, y1 = face_crop_box(img, (5, 5, 400, 400))
+    print(f"  обличчя в кутку -> кроп ({x0},{y0})-({x1},{y1}) "
+          f"{x1-x0}x{y1-y0}")
+    assert x0 == 0 and y0 == 0
+    assert abs((x1 - x0) - (y1 - y0)) <= 1, "у кутку кроп перестав бути квадратом"
+
+
+def test_face_crop_keeps_hair_and_chin():
+    """Рамка YuNet вужча за голову — розмір веде БІЛЬША сторона обличчя."""
+    import inspect
+    from retouch.masks import face_crop_box
+    # Запас беремо з САМОЇ функції: вписати число сюди означало б завести
+    # другий дефолт, а на цьому в цьому ж файлі вже наступили.
+    m = inspect.signature(face_crop_box).parameters["margin"].default
+    img = np.zeros((4000, 4000, 3), np.float32)
+    x0, y0, x1, y1 = face_crop_box(img, (1000, 1000, 300, 900))
+    side = x1 - x0
+    print(f"  обличчя 300x900, запас {m} -> кроп {side} px "
+          f"(мало б бути >= {int(2 * m * 900)})")
+    assert side >= int(2 * m * 900) - 2, "кроп веде вузька сторона — голова обріжеться"
+
+
+def test_second_face_does_not_overwrite_the_first():
+    """Кропи сусідніх облич перетинаються. У перетині має вигравати те
+    обличчя, чий кроп центрований на ньому самому."""
+    from retouch import masks as mm
+
+    calls = []
+
+    class Stub(mm.FaceParser):
+        def __init__(self):
+            self.last_faces = []
+
+        def _parse_whole(self, img):
+            calls.append(img.shape[:2])
+            # кожне «обличчя» фарбує свій кроп власним номером класу
+            return np.full(img.shape[:2], len(calls), np.int32)
+
+    img = np.zeros((2000, 3000, 3), np.float32)
+    faces = [(1000, 800, 400, 400), (1200, 800, 300, 300)]   # перетинаються
+    fp = Stub()
+    out = fp._merge(img, faces) if hasattr(fp, "_merge") else None
+    if out is None:                       # merge живе всередині parse
+        orig = mm.detect_faces
+        mm.detect_faces = lambda *a, **k: faces
+        try:
+            out = fp.parse(img, detector="x", max_faces=2, min_face=10)
+        finally:
+            mm.detect_faces = orig
+    first, second = (out == 1).sum(), (out == 2).sum()
+    print(f"  проходів моделі: {len(calls)}; пікселів від #1 {first}, від #2 {second}")
+    assert len(calls) == 2, "друге обличчя не розібрано"
+    assert first > 0 and second > 0, "одне з облич не потрапило в карту"
+    # перетин має належати першому: воно більше й розібране раніше
+    x0, y0, x1, y1 = mm.face_crop_box(img, faces[0])
+    assert (out[y0:y1, x0:x1] == 2).sum() == 0, (
+        "друге обличчя перезаписало територію першого")
+
+
+def test_tiny_faces_are_skipped():
+    """Обличчя вужче за min_face модель розбирає навмання — це шум у
+    масці, а не ще одна людина."""
+    from retouch import masks as mm
+
+    class Stub(mm.FaceParser):
+        def __init__(self):
+            self.last_faces = []
+            self.n = 0
+
+        def _parse_whole(self, img):
+            self.n += 1
+            return np.full(img.shape[:2], self.n, np.int32)
+
+    img = np.zeros((2000, 3000, 3), np.float32)
+    faces = [(1000, 800, 400, 400), (200, 200, 40, 40)]
+    orig = mm.detect_faces
+    mm.detect_faces = lambda *a, **k: faces
+    try:
+        fp = Stub()
+        fp.parse(img, detector="x", max_faces=4, min_face=120)
+    finally:
+        mm.detect_faces = orig
+    print(f"  проходів моделі: {fp.n} (друге обличчя 40 px мало відсіятись)")
+    assert fp.n == 1
 
 
 if __name__ == "__main__":

@@ -313,6 +313,7 @@ class Session:
         self.face_w_source: str = "guess"
         self.radius_clamped: bool = False
         self.radius_warn: str | None = None
+        self.faces_note: str | None = None
         self.search_radius_px: int = 0
 
     # --- етапи ---------------------------------------------------------
@@ -377,7 +378,9 @@ class Session:
                        if self.cfg.face_detector and Path(self.cfg.face_detector).exists()
                        else None)
                 fp = FaceParser(mp)
-                self.cls = fp.parse(self.img, det)
+                self.cls = fp.parse(self.img, det,
+                                    max_faces=self.cfg.mask.max_faces,
+                                    min_face=self.cfg.mask.min_face)
                 self.faces = list(fp.last_faces)
                 self.face_w = float(self.faces[0][2]) if self.faces else None
                 # Назва джерела має казати, що СТАЛОСЯ, а не що було
@@ -517,7 +520,34 @@ class Session:
             print(f"[freq-split] УВАГА: {self.radius_warn}", flush=True)
         else:
             self.radius_warn = None
+        self.faces_note = self._faces_note(radius)
+        if self.faces_note:
+            print(f"[freq-split] {self.faces_note}", flush=True)
         return self
+
+    def _faces_note(self, radius: float) -> str | None:
+        """Що сказати про кадр із кількома обличчями.
+
+        Радіус на кадр один, а обличчя різні. Заміряно на 44 кадрах: у
+        половини їх кілька, і розкид ІДЕАЛЬНИХ радіусів між ними —
+        медіана ×1.11, максимум ×1.53 (кламп 2.0 з'їдає більшу частину
+        різниці). Тобто одного радіуса зазвичай досить, але не завжди, і
+        мовчати про «не завжди» не можна.
+        """
+        if len(self.faces) < 2:
+            return None
+        ideal = [float(np.clip(6.0 * b[2] / self.BASE_FACE, 2.0, 32.0))
+                 for b in self.faces]
+        spread = max(ideal) / max(min(ideal), 1e-6)
+        head = (f"облич {len(self.faces)}: "
+                + ", ".join(f"{int(b[2])}px" for b in self.faces))
+        if spread <= 1.25:
+            return head + f" — один радіус {radius:.2f} годиться для всіх"
+        return (f"УВАГА: {head}. Ідеальні радіуси розходяться в "
+                f"{spread:.2f} раза ({min(ideal):.2f}-{max(ideal):.2f}), а "
+                f"радіус на кадр один — узято {radius:.2f} по найбільшому "
+                f"обличчю. Дрібнішим дістанеться грубуватий: дивись на них "
+                f"окремо на вкладці 1:1")
 
     # Драбина порогів для підбору. Не бісекція: крива корисна сама по
     # собі — її видно в звіті, і по ній зрозуміло, наскільки кадр

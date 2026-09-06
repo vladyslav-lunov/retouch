@@ -259,7 +259,9 @@ async function tick(){
       (S.face_w_source && S.face_w_source !== 'detector'
         ? `<span class="tag" title="ширину взято не з рамки детектора — на груповому кадрі габарит маски міряє відстань між обличчями">${S.face_w_source}</span>`
         : '') +
-      (S.n_faces > 1 ? `<span class="tag">облич ${S.n_faces}, ретушується 1</span>` : '') +
+      (S.n_faces > 1
+        ? `<span class="tag" title="${esc(S.faces_note || '')}">облич ${S.n_faces}: ${
+            (S.face_widths || []).join(', ')}px</span>` : '') +
       (S.radius ? ` · радіус ${S.radius}px` : '') +
       (S.search_radius_px ? ` · донор ${S.search_radius_px}px` : '') +
       (S.n_blobs ? ` · ${S.n_blobs} плям` : '') +
@@ -275,6 +277,8 @@ async function tick(){
   if (S.telea_warn) m += `<div class="note">${esc(S.telea_warn)}</div>`;
   if (S.detect_warn) m += `<div class="note">${esc(S.detect_warn)}</div>`;
   if (S.radius_warn) m += `<div class="note">${esc(S.radius_warn)}</div>`;
+  if (S.faces_note && S.faces_note.startsWith('УВАГА'))
+    m += `<div class="note">${esc(S.faces_note)}</div>`;
   if (S.written && S.written.length)
     m += `<div class="note" style="border-left-color:var(--ok)">Записано:\n` +
          esc(S.written.join('\n')) + `</div>`;
