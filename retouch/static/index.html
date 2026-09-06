@@ -49,6 +49,14 @@ button.go{width:100%;justify-content:center;display:flex;align-items:center;
 /* Роздільник між етапами: обрати кадр | подивитись | обробити | зібрати */
 .tsep{width:1px;height:16px;background:var(--line);margin:0 6px}
 .tabs button.tips{border-bottom-color:transparent;padding:7px 10px}
+.tabs button#expbtn .lbl{display:inline}
+.mach{margin-left:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:10.5px;color:var(--dim);font-weight:400}
+.doc.tech{border-top:1px dashed var(--line);margin-top:6px;padding-top:6px;
+  color:#7d8794}
+/* Технічні хвости в прозі — лише в «Експерт». Посилання на специфікацію
+   фотографу нічого не кажуть, а в режимі експерта вони й потрібні. */
+body:not(.expert) [data-adv]{display:none}
 .tabs button.tips.on{color:var(--acc)}
 /* Тринадцять підписаних вкладок просять ~1300 px, а в панелі їх 958 —
    виходило три ряди. Тому підпис лишається на АКТИВНІЙ вкладці (щоб
@@ -255,52 +263,52 @@ pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
 
   <details class="sect" open>
     <summary><svg class="ic chev"><use href="#i-chev"/></svg>
-      <svg class="ic"><use href="#i-spots"/></svg>Детекція</summary>
-    <div class="row"><label data-tip="Скільки ШКІРИ дозволено торкнутися. Поріг тоді підбирається під кожен кадр окремо.
+      <svg class="ic"><use href="#i-spots"/></svg>Ретуш шкіри</summary>
+    <div class="row"><label data-tip="Скільки шкіри дозволено торкнутися. Поріг тоді підбирається під кожен кадр окремо.
 
-Це головний параметр: поріг контрасту між кадрами не переноситься — на 44 реальних кадрах фіксовані 0.012 дали від 0% до 24% торкнутої шкіри. Ціль переноситься. 3% — робоче значення.">ціль, % шкіри <svg class="ic sm"><use href="#i-q"/></svg></label>
+Це головний параметр: поріг контрасту між кадрами не переноситься — на 44 реальних кадрах фіксовані 0.012 дали від 0% до 24% торкнутої шкіри. Ціль переноситься. 3% — робоче значення.">сила ретуші <svg class="ic sm"><use href="#i-q"/></svg></label>
       <input type="range" id="target_coverage" min="0" max="0.12" step="0.005" value="0">
       <span class="val" id="target_coverage_v">вимк</span></div>
-    <div class="row"><label data-tip="Мінімальний контраст плями. Працює, лише коли ціль вимкнена.
+    <div class="row" data-adv="1"><label data-tip="Мінімальний контраст плями. Працює, лише коли ціль вимкнена.
 
 МІЖ КАДРАМИ НЕ ПЕРЕНОСИТЬСЯ — задавай для одного конкретного кадру, для зйомки бери ціль.">поріг <svg class="ic sm"><use href="#i-q"/></svg></label>
       <input type="range" id="threshold" min="0.004" max="0.04" step="0.001" value="0.012">
       <span class="val" id="threshold_v">0.012</span></div>
-    <div class="row"><label data-tip="Радіус частотного розділення, px. «Авто» — рахується з ширини обличчя (1200 px → 6 px).
+    <div class="row" data-adv="1"><label data-tip="Радіус частотного розділення, px. «Авто» — рахується з ширини обличчя (1200 px → 6 px).
 
 Нижче 2 px частотка вже не відділяє дефект від пікселя, тож на дрібних обличчях радіус упирається в підлогу — панель про це скаже.">радіус <svg class="ic sm"><use href="#i-q"/></svg></label>
       <input type="range" id="radius" min="0" max="24" step="0.5" value="0">
       <span class="val" id="radius_v">авто</span></div>
-    <div class="row"><label data-tip="Найменша площа плями в px. Дрібніше — це зерно, а не дефект">мін. площа</label>
+    <div class="row" data-adv="1"><label data-tip="Найменша площа плями в px. Дрібніше — це зерно, а не дефект">мін. площа</label>
       <input type="number" id="min_area" value="8"></div>
-    <div class="row"><label data-tip="Найбільша площа. Більше — це тінь або велика структура, і підміняти її текстурою не можна">макс. площа</label>
+    <div class="row" data-adv="1"><label data-tip="Найбільша площа. Більше — це тінь або велика структура, і підміняти її текстурою не можна">макс. площа</label>
       <input type="number" id="max_area" value="1200"></div>
-    <div class="row"><label data-tip="Відношення сторін рамки. Витягнуте — це волосина або край, не пляма">витягнутість</label>
+    <div class="row" data-adv="1"><label data-tip="Відношення сторін рамки. Витягнуте — це волосина або край, не пляма">витягнутість</label>
       <input type="range" id="max_elongation" min="1.5" max="12" step="0.5" value="6">
       <span class="val" id="max_elongation_v">6</span></div>
   </details>
 
   <details class="sect" open>
     <summary><svg class="ic chev"><use href="#i-chev"/></svg>
-      <svg class="ic"><use href="#i-tools"/></svg>Лікування</summary>
+      <svg class="ic"><use href="#i-tools"/></svg>Тонко</summary>
     <div class="row"><label data-tip="Множник альфи дотику — прямий аналог непрозорості шару. Те саме можна зробити потім на вкладці «Шари», не переганяючи">сила <svg class="ic sm"><use href="#i-q"/></svg></label>
       <input type="range" id="strength" min="0.1" max="1" step="0.05" value="1">
       <span class="val" id="strength_v">1</span></div>
-    <div class="row"><label data-tip="Як далеко шукати чисту текстуру на заміну, px. «Авто» — 7.5% ширини обличчя.
+    <div class="row" data-adv="1"><label data-tip="Як далеко шукати чисту текстуру на заміну, px. «Авто» — 7.5% ширини обличчя.
 
 Фіксоване число тут шкодить: на реальній зйомці обличчя гуляє від 191 до 1582 px, і 90 px означали то 47% ширини обличчя, то 5.7%.">пошук донора <svg class="ic sm"><use href="#i-q"/></svg></label>
       <input type="range" id="search_radius" min="0" max="300" step="10" value="0">
       <span class="val" id="search_radius_v">авто</span></div>
     <div class="row"><label data-tip="Лікувати лише N найконтрастніших плям. Порожньо — усі">ліміт плям</label>
       <input type="number" id="limit" placeholder="усі"></div>
-    <div class="row"><label data-tip="Відступ від краю маски шкіри, px. Щоб лікування не підповзало під волосся й губи">ерозія маски</label>
+    <div class="row" data-adv="1"><label data-tip="Відступ від краю маски шкіри, px. Щоб лікування не підповзало під волосся й губи">ерозія маски</label>
       <input type="range" id="mask_erode" min="0" max="24" step="1" value="6">
       <span class="val" id="mask_erode_v">6</span></div>
   </details>
 
   <details class="sect">
     <summary><svg class="ic chev"><use href="#i-chev"/></svg>
-      <svg class="ic"><use href="#i-face"/></svg>Моделі й декодер</summary>
+      <svg class="ic"><use href="#i-face"/></svg>Розпізнавання</summary>
     <div class="row"><label data-tip="BiSeNet: каже, де шкіра, де око, де рот. БЕЗ НЬОГО маска евристична — тест на колір, а не на обличчя, і на реальному портреті вона віддає 90+% кадру">face-parsing <svg class="ic sm"><use href="#i-q"/></svg></label>
       <select id="face_model" class="sel"><option value="">евристика</option></select></div>
     <div class="row"><label data-tip="YuNet: знаходить обличчя й кропає його для face-parsing. З нього ж береться ширина обличчя для радіусів">детектор <svg class="ic sm"><use href="#i-q"/></svg></label>
@@ -308,7 +316,7 @@ pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
     <div class="row"><label data-tip="LaMa для видалення об'єктів. Без нього запасний Telea — годиться лише для дрібного">інпейнт <svg class="ic sm"><use href="#i-q"/></svg></label>
       <select id="lama_model" class="sel"><option value="">Telea</option></select></div>
     <div class="hint" id="models_hint">шукаю моделі в models/…</div>
-    <div class="row"><label data-tip="Чим читати RAW. Вибір зсуває поріг: ImageIO додає своє шумозаглушення й різкість у високу частоту, і плям знаходиться втричі більше на тому самому порозі. Порівнювати прогони різними декодерами не можна">RAW через <svg class="ic sm"><use href="#i-q"/></svg></label>
+    <div class="row" data-adv="1"><label data-tip="Чим читати RAW. Вибір зсуває поріг: ImageIO додає своє шумозаглушення й різкість у високу частоту, і плям знаходиться втричі більше на тому самому порозі. Порівнювати прогони різними декодерами не можна">RAW через <svg class="ic sm"><use href="#i-q"/></svg></label>
       <select id="raw_decoder" class="sel">
         <option value="">авто</option><option value="rawpy">rawpy (libraw)</option>
         <option value="imageio">ImageIO (Apple)</option></select></div>
@@ -323,7 +331,7 @@ pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
     <button data-t="shoot" data-tip="Тека зйомки: усі кадри, навігація ← →, пакетний прогін"><svg class="ic"><use href="#i-folder"/></svg><span class="lbl">Зйомка</span></button>
     <span class="tsep"></span>
     <button data-t="view" class="on" data-tip="Загальний план: чи не полізло воно кудись. Про якість ретуші НЕ судити тут"><svg class="ic"><use href="#i-eye"/></svg><span class="lbl">Перегляд</span></button>
-    <button data-t="crops" data-tip="Вирізки в рідних пікселях. ЄДИНЕ місце, де видно якість ретуші (§1)"><svg class="ic"><use href="#i-zoom"/></svg><span class="lbl">1:1</span></button>
+    <button data-t="crops" data-tip="Вирізки в рідних пікселях. ЄДИНЕ місце, де видно якість ретуші "><svg class="ic"><use href="#i-zoom"/></svg><span class="lbl">1:1</span></button>
     <span class="tsep"></span>
     <button data-t="develop" data-tip="Експозиція, ББ, крива, кроп. Перший етап — усе подальше рахується по цьому кадру"><svg class="ic"><use href="#i-develop"/></svg><span class="lbl">Проявлення</span></button>
     <button data-t="mask" data-tip="Що вважати шкірою: класи face-parsing і пензель"><svg class="ic"><use href="#i-mask"/></svg><span class="lbl">Маска</span></button>
@@ -335,8 +343,13 @@ pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
     <span class="tsep"></span>
     <button data-t="layers" data-tip="Непрозорість шарів. Складання, а не перегін — відповідає миттєво"><svg class="ic"><use href="#i-layers"/></svg><span class="lbl">Шари</span></button>
     <button data-t="presets" data-tip="Пресети агента: накласти, порівняти на кадрі, записати"><svg class="ic"><use href="#i-preset"/></svg><span class="lbl">Пресети</span></button>
-    <button data-t="sweep" data-tip="Той самий кадр кількома порогами — таблиця §6.2"><svg class="ic"><use href="#i-sweep"/></svg><span class="lbl">Калібрування</span></button>
-    <button id="tipsbtn" class="tips tipr" style="margin-left:auto"
+    <button data-t="sweep" data-tip="Той самий кадр кількома порогами — таблиця калібрування"><svg class="ic"><use href="#i-sweep"/></svg><span class="lbl">Калібрування</span></button>
+    <button id="expbtn" class="tips tipr" style="margin-left:auto"
+      data-tip="Просто — те, що крутять щодня, людськими назвами.
+Експерт — усі поля, машинні імена й технічні описи.
+
+Нічого не ховається назавжди: це той самий набір, просто не весь одразу."><svg class="ic"><use href="#i-tools"/></svg><span class="lbl">Просто</span></button>
+    <button id="tipsbtn" class="tips tipr"
       data-tip="Показувати пояснення під заголовками вкладок.
 
 Попередження про кадр не ховаються ніколи — вони про те, що сталося саме тут."><svg class="ic"><use href="#i-q"/></svg></button>
@@ -380,10 +393,34 @@ for (const k of PARAMS){
 /* ---------- стан ---------- */
 async function tick(){
   S = await api('/api/state');
+  /* Етапи людською. «freq-split 1.07s radius=3.7px» — це те, що я пишу
+     собі в лог; фотографу треба знати, що зараз відбувається і чи
+     скінчилось. Секунди й ноти лишаються в «Експерт»: там вони і є
+     тим, заради чого дивляться. */
+  const STAGE = {
+    read: 'Читаю кадр', develop: 'Проявляю', 'skin-mask': 'Шукаю обличчя',
+    'freq-split': 'Розкладаю на частоти', 'solve-threshold': 'Підбираю силу',
+    detect: 'Шукаю дефекти', heal: 'Ретушую', inpaint: 'Видаляю',
+    'dodge-burn': 'Світлотінь', warp: 'Пластика', write: 'Записую',
+  };
+  const human = n => STAGE[n] || (n.startsWith('tool:')
+    ? 'Інструмент: ' + (LAYER_RU[n.slice(5)] || n.slice(5)) : n);
   const st = $('#stages');
-  st.innerHTML = (S.stages||[]).map(s =>
-    `<div><b>${s.stage}</b><span>${s.sec == null
-      ? '<span class="spin"></span>' : s.sec+'s '+(s.note||'')}</span></div>`).join('');
+  const list = S.stages || [];
+  if (expert){
+    st.innerHTML = list.map(s =>
+      `<div><b>${s.stage}</b><span>${s.sec == null
+        ? '<span class="spin"></span>' : s.sec+'s '+(s.note||'')}</span></div>`).join('');
+  } else if (!list.length){
+    st.innerHTML = '';
+  } else {
+    const run = list.find(s => s.sec == null);
+    const secs = list.reduce((a, s) => a + (s.sec || 0), 0);
+    st.innerHTML = run
+      ? `<div><b><span class="spin"></span>${human(run.stage)}</b>
+         <span>${list.length} з ${list.length}</span></div>`
+      : `<div><b>Готово</b><span>${secs.toFixed(0)} с</span></div>`;
+  }
   /* Числа кадру — чипами з поясненням на кожному. Було одним рядком у
      двадцять слів: усе видно, нічого не читається. Чип, який вимагає
      уваги, фарбується — і тоді його видно з іншого кінця панелі. */
@@ -393,24 +430,29 @@ async function tick(){
     }<b>${esc(String(val))}</b></span>`;
   const chips = [];
   if (S.loaded){
-    chips.push(chip('', `${S.w}×${S.h}`, `${S.mp} Мп, ${S.name}`));
-    if (S.raw_decoder) chips.push(chip('', S.raw_decoder,
-      'чим прочитано RAW. Вибір декодера зсуває поріг детекції'));
+    chips.push(chip('', expert ? `${S.w}×${S.h}` : `${S.mp} Мп`,
+      `${S.w}×${S.h}, ${S.mp} Мп — ${S.name}`));
+    if (S.raw_decoder && expert) chips.push(chip('', S.raw_decoder,
+      'чим прочитано RAW. Вибір декодера зсуває кількість знайденого'));
     const heur = S.skin_source === 'heuristic';
     const miss = (S.skin_source || '').includes('МИМО');
     chips.push(chip('mask',
-      (S.skin_frac != null ? (S.skin_frac*100).toFixed(1) + '%' : '—'),
+      (S.skin_frac != null
+        ? (expert ? (S.skin_frac*100).toFixed(1) + '%' : 'шкіра ' + (S.skin_frac*100).toFixed(1) + '%')
+        : '—'),
       `маска шкіри, джерело: ${S.skin_source}` + (heur
         ? '\n\nЕВРИСТИКА — це тест на КОЛІР, а не на обличчя. На реальному портреті вона віддає 90+% кадру. Обери face-parsing зліва.'
         : miss ? '\n\nДетектор не знайшов обличчя, тож розбирався ПОВНИЙ кадр — це ненадійно, і ширина обличчя взята з габариту маски.'
         : ''),
       heur || miss ? 'warn' : ''));
-    if (S.face_w) chips.push(chip('face',
+    if (S.face_w && (expert || S.face_w_source !== 'detector'
+                     || (S.faces_note||'').startsWith('УВАГА')
+                     || S.n_faces > 1)) chips.push(chip('face',
       Math.round(S.face_w) + 'px' + (S.n_faces > 1 ? ` ×${S.n_faces}` : ''),
       (S.n_faces > 1 ? `обличчя в кадрі: ${(S.face_widths||[]).join(', ')} px\n` : 'ширина обличчя\n')
       + (S.faces_note || `джерело: ${S.face_w_source}`),
       S.face_w_source !== 'detector' || (S.faces_note||'').startsWith('УВАГА') ? 'warn' : ''));
-    if (S.radius) chips.push(chip('ruler', S.radius + 'px',
+    if (S.radius && (expert || S.radius_warn)) chips.push(chip('ruler', S.radius + 'px',
       'радіус частотного розділення' + (S.radius_warn ? '\n\n' + S.radius_warn : '')
       + (S.search_radius_px ? `\nпошук донора: ${S.search_radius_px} px` : ''),
       S.radius_warn ? 'warn' : ''));
@@ -464,6 +506,28 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
    шиї» за кнопкою означало б це порушити. */
 const TIPS_KEY = 'retouch.tips';
 let tipsOpen = localStorage.getItem(TIPS_KEY) !== '0';
+
+/* Два режими, і за замовчуванням — «Просто».
+
+   Перший зовнішній тест дав рівно цю відповідь: «виглядає технічно, для
+   програмістів». Панель показувала `wb_multipliers`, `noise_thr` і
+   посилання на калібрування — це мова коду, не мова фотографії.
+
+   Нічого не ВИДАЛЕНО: «Експерт» повертає всі поля, машинні імена й
+   технічні описи. §1 забороняє ховати правду, але не зобов'язує
+   починати з неї розмову. */
+const EXPERT_KEY = 'retouch.expert';
+let expert = localStorage.getItem(EXPERT_KEY) === '1';
+function setExpert(on){
+  expert = on;
+  localStorage.setItem(EXPERT_KEY, on ? '1' : '0');
+  document.body.classList.toggle('expert', on);
+  $('#expbtn').classList.toggle('on', on);
+  $('#expbtn').querySelector('.lbl').textContent = on ? 'Експерт' : 'Просто';
+  // Смужка етапів і чипи малюються в tick(), а не в draw() — без цього
+  // перемикач міняв би панель, але лишав журнал у старому вигляді.
+  tick().then(draw);
+}
 
 function foldHints(){
   $('#pane').querySelectorAll('.hint').forEach(h => {
@@ -817,6 +881,13 @@ const fid = (sec, key) => 'f_' + (sec + '_' + key).replace(/\W/g, '_');
 const defTxt = d => d === null ? '—' : (Array.isArray(d) ? (d.length ? d.join(', ') : '—')
                                                          : String(d));
 
+/* У режимі «Просто» показується людська назва й пояснення про
+   ФОТОГРАФІЮ; машинне ім'я і технічний опис — тільки в «Експерт».
+
+   Два тексти на поле, а не один перекладений: агентові потрібен
+   «поріг перцентиля яскравості в межах класу», фотографу — «що вважати
+   зубами, щоб не зачепити губи». Замінити одне іншим означало б
+   зламати один із двох боків. */
 function ctrl(sec, key, meta, cur){
   const id = fid(sec, key), t = meta.type, on = cur !== undefined;
   const v = on ? cur : '';
@@ -832,8 +903,23 @@ function ctrl(sec, key, meta, cur){
   else
     inp = `<input type="text" id="${id}" value="${esc(String(v))}"
              placeholder="${esc(defTxt(meta.default))}">`;
-  return `<div class="fld${on ? ' set' : ''}"><label for="${id}">${key}</label>${inp}
-    <div class="doc">${esc(meta.doc)}</div></div>`;
+  const human = meta.label && meta.label !== key;
+  const name = expert || !human ? key : meta.label;
+  const tech = expert
+    ? `<div class="doc tech">${esc(meta.doc)}</div>`
+    : '';
+  const hint = (!expert && meta.hint) ? `<div class="doc">${esc(meta.hint)}</div>`
+             : (!expert ? '' : '');
+  return `<div class="fld${on ? ' set' : ''}"><label for="${id}">${name}${
+    expert && human ? `<span class="mach">${esc(meta.label)}</span>` : ''
+  }</label>${inp}${hint}${tech}</div>`;
+}
+
+/* Поля, які фотограф крутить щодня, від тих, що мають сенс, коли знаєш
+   будову. Ховається не назавжди — перемикачем угорі. */
+function fieldsOf(sec, sc){
+  const all = Object.entries(sc.sections[sec] || {});
+  return expert ? all : all.filter(([, m]) => m.level === 'basic');
 }
 
 /* Порожнє поле означає «не задано», а не «нуль»: пресет частковий, і
@@ -901,7 +987,7 @@ function drawDevelop(p, sc){
     <div class="bar"><button id="godev" class="pri">Проявити</button>
       <span class="hint" style="margin:0">${S.raw_decoder
         ? 'RAW через ' + esc(S.raw_decoder) : 'не RAW — працюють кроп, поворот, контраст, крива'}</span></div>
-    <div class="flds">${Object.entries(sc.sections.develop)
+    <div class="flds">${fieldsOf('develop', sc)
       .map(([k, m]) => ctrl('develop', k, m, cur[k])).join('')}</div>`;
   bindFields('develop', sc.sections.develop, (k, v) => setAt('develop', k, v));
   $('#godev').onclick = async () => {
@@ -927,7 +1013,7 @@ function drawDB(p, sc){
         ? `торкнулися ${(S.db.touched * 100).toFixed(1)}% кадру, сила ${S.db.strength}`
         : (S.has_result ? 'ще не рахувалось' : 'спершу «Перегнати» зліва')}</span>
     </div>
-    <div class="flds">${Object.entries(sc.sections.dodgeburn)
+    <div class="flds">${fieldsOf('dodgeburn', sc)
       .map(([k, m]) => ctrl('dodgeburn', k, m, cur[k])).join('')}</div>`;
   bindFields('dodgeburn', sc.sections.dodgeburn, (k, v) => setAt('dodgeburn', k, v));
   $('#db_on').onchange = e => e.target.checked
@@ -975,7 +1061,7 @@ function drawTools(p, sc){
           ${TOOL_RU[n] || n}</label>
         <span class="tag">${n}</span></h2>
         <div class="flds"${on ? '' : ' style="opacity:.45"'}>
-        ${Object.entries(sc.sections['tools.' + n])
+        ${fieldsOf('tools.' + n, sc)
           .map(([k, m]) => ctrl('tool_' + n, k, m, opts[k])).join('')}</div>`;
     }).join('')}`;
   for (const n of names)
@@ -1123,7 +1209,7 @@ async function drawPresets(p){
 }
 
 /* ---------- шари: непрозорість без перегону ---------- */
-/* §16.1: збирає стопку тепер власний UI, а не Photoshop, і послабити
+/* : збирає стопку тепер власний UI, а не Photoshop, і послабити
    шар має бути можна тут. Складання коштує частки секунди, перегін —
    пів хвилини на 26 Мп; рішення «трохи менше» приймають, дивлячись на
    результат, тож ціна має бути саме такою. */
@@ -1267,10 +1353,10 @@ document.addEventListener('keydown', e => {
 function drawSweep(p){
   const rows = S.sweep || [];
   p.innerHTML = `<div class="hint">Той самий кадр кількома порогами — таблиця
-    зі spec.md §6.2. Порівнюй колонки між прогонами, а не з таблицею в специфікації:
+    зі spec.md калібрування. Порівнюй колонки між прогонами, а не з таблицею в специфікації:
     та знята на плоскому клапті шкіри.<br>
     <b>Але:</b> поріг міряється поверх маски. Поки маска не від face-parsing,
-    калібрування безпідставне — див. §6.2.</div>
+    калібрування безпідставне </div>
     <div class="row"><input type="text" id="ths" value="0.008, 0.012, 0.018, 0.025">
       <button id="go" class="pri">Прогнати</button></div>
     ${rows.length ? `<table><thead><tr><th>поріг</th><th>компонент</th>
@@ -1347,7 +1433,9 @@ async function loadModels(){
      дірку розмаже.`;
 }
 $('#tipsbtn').onclick = () => setTips(!tipsOpen);
+$('#expbtn').onclick = () => setExpert(!expert);
 setTips(tipsOpen);
+setExpert(expert);
 loadModels();
 tick().then(draw);
 </script>

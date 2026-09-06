@@ -644,6 +644,57 @@ def test_side_panel_controls_explain_themselves():
     assert not missing, f"без пояснення: {missing}"
 
 
+def test_every_schema_field_has_a_human_name():
+    """Друга мова на ті самі поля — для фотографа, а не для агента.
+
+    Перший зовнішній тест на живій людині дав саме цю відповідь:
+    «виглядає технічно, для програмістів». У панелі стояли
+    `wb_multipliers`, `noise_thr`, `§6.2` — мова коду, не мова
+    фотографії. Тест ловить поле, додане без людської назви, у той
+    самий день, коли його додали.
+    """
+    _start()
+    sc = json.loads(_get("/api/schema")[1])
+    missing, no_level = [], []
+    for sec, fields in sc["sections"].items():
+        for name, meta in fields.items():
+            if meta.get("label", name) == name:
+                missing.append(f"{sec}.{name}")
+            if meta.get("level") not in ("basic", "advanced"):
+                no_level.append(f"{sec}.{name}")
+    total = sum(len(f) for f in sc["sections"].values())
+    basic = sum(1 for f in sc["sections"].values()
+                for m in f.values() if m.get("level") == "basic")
+    print(f"  полів {total}, з них щоденних {basic}; без назви: {missing}")
+    assert not missing, f"без людської назви: {missing}"
+    assert not no_level, f"без рівня: {no_level}"
+    assert 10 <= basic <= total // 2, (
+        f"щоденних полів {basic} з {total} — режим «Просто» або порожній, "
+        f"або нічим не відрізняється від «Експерт»")
+
+
+def test_technical_description_survives_next_to_the_human_one():
+    """Людська назва ДОДАЄТЬСЯ, а не замінює: агентові потрібен саме
+    технічний опис, і §1 забороняє його втрачати."""
+    _start()
+    sc = json.loads(_get("/api/schema")[1])
+    m = sc["sections"]["dodgeburn"]["eps"]
+    print(f"  label={m['label']!r}\n  doc={m['doc'][:60]!r}")
+    assert m["label"] != "eps" and m["doc"], "технічний опис зник"
+    assert "guided" in m["doc"], "у doc уже не технічний текст"
+
+
+def test_ui_does_not_quote_the_spec_at_the_photographer():
+    """«§6.2» у панелі — це документація для розробника, що витекла в
+    інтерфейс. У режимі «Експерт» вона доречна, у видимому тексті — ні."""
+    html = _page()
+    body = html[html.index('<div class="wrap">'):]
+    import re
+    refs = re.findall(r'§\d[\d.]*', body)
+    print(f"  згадок специфікації у видимій розмітці: {len(refs)} {set(refs)}")
+    assert len(refs) <= 3, f"специфікація протекла в панель: {refs}"
+
+
 if __name__ == "__main__":
     fails = 0
     # Порядок — той, у якому тести написані: вони ділять один сервер і

@@ -729,7 +729,8 @@ class Handler(BaseHTTPRequestHandler):
                 # нових вкладок будується з неї, а не пишеться руками:
                 # інакше поле в дата-класі й поле в UI розходяться на
                 # першій же зміні.
-                return self._json(presets_mod.schema())
+                from .labels import decorate
+                return self._json(decorate(presets_mod.schema()))
             if u.path == "/api/session":
                 APP.shoot_dir = q.get("dir", APP.shoot_dir)
                 APP.shoot_out = q.get("out", APP.shoot_out) or "out"
