@@ -586,6 +586,64 @@ def test_variants_refuse_without_presets_or_frame():
         assert code == 409
 
 
+# ---------------------------------------------------------------------------
+# інтерфейс: що можна ховати, а що ні
+# ---------------------------------------------------------------------------
+
+def _page() -> str:
+    _start()
+    return _get("/")[1].decode("utf-8")
+
+
+def test_warnings_are_outside_the_foldable_area():
+    """Пояснення згортаються, ПОПЕРЕДЖЕННЯ — ніколи.
+
+    §1 будується на тому, що конвеєр нічого не робить мовчки. Сховати
+    «39 зі 154 знахідок на шиї» за кнопкою означало б це порушити, тому
+    гарантія структурна, а не за домовленістю: попередження живуть у
+    #msg, згортання торкається виключно #pane.
+    """
+    html = _page()
+    assert "#msg" in html and "#pane" in html
+    i_msg, i_pane = html.index('id="msg"'), html.index('id="pane"')
+    assert i_msg < i_pane, "попередження мають стояти ПЕРЕД панеллю"
+    fold = html[html.index("function foldHints"):]
+    fold = fold[:fold.index("\n}")]
+    print(f"  foldHints обмежений: {'#pane' in fold}, "
+          f"чіпає .note: {'.note' in fold}")
+    assert "$('#pane')" in fold, "згортання не обмежене панеллю"
+    assert ".note" not in fold, "згортання дотягнулось до попереджень"
+
+
+def test_every_tab_has_a_hint():
+    """Іконка без підказки — ребус: підписів на всіх не вистачає ширини,
+    тож пояснення має бути хоч на наведення."""
+    import re
+    html = _page()
+    tabs = re.findall(r'<button data-t="([a-z]+)"([^>]*)>', html)
+    missing = [t for t, attrs in tabs if "data-tip" not in attrs]
+    print(f"  вкладок {len(tabs)}, без підказки: {missing}")
+    assert tabs, "вкладок не знайдено — розмітка змінилась"
+    assert not missing, f"вкладки без підказки: {missing}"
+
+
+def test_side_panel_controls_explain_themselves():
+    """Повзунки, значення яких неочевидне, мають пояснення на наведення."""
+    import re
+    html = _page()
+    side = html[html.index('<div class="side">'):html.index('<div class="main">')]
+    need = ("target_coverage", "threshold", "radius", "search_radius",
+            "face_model", "face_detector", "raw_decoder")
+    missing = []
+    for cid in need:
+        row = side.rfind("<div class=\"row\"", 0, side.index(f'id="{cid}"'))
+        chunk = side[row:side.index(f'id="{cid}"')]
+        if "data-tip" not in chunk:
+            missing.append(cid)
+    print(f"  перевірено {len(need)} контролів, без пояснення: {missing}")
+    assert not missing, f"без пояснення: {missing}"
+
+
 if __name__ == "__main__":
     fails = 0
     # Порядок — той, у якому тести написані: вони ділять один сервер і

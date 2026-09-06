@@ -27,16 +27,36 @@ a{color:var(--acc)}
 .wrap{display:grid;grid-template-columns:290px 1fr;height:100vh}
 .side{background:var(--panel);border-right:1px solid var(--line);padding:14px;
   overflow:auto}
+button.go{width:100%;justify-content:center;display:flex;align-items:center;
+  gap:7px;padding:9px}
+.side .row label{display:flex;align-items:center;gap:4px}
+.side .row label .ic{opacity:.45}
+.side .row label:hover .ic{opacity:1;color:var(--acc)}
 .main{overflow:auto;padding:14px 16px}
 .row{display:flex;gap:8px;align-items:center;margin-bottom:7px}
-.row label{flex:0 0 92px;color:var(--dim);font-size:12px}
+.row label{flex:0 0 104px;color:var(--dim);font-size:12px;line-height:1.25}
 .row .val{flex:0 0 46px;text-align:right;font-variant-numeric:tabular-nums;
   color:var(--dim);font-size:12px}
 .hint{color:var(--dim);font-size:11.5px;margin:-2px 0 10px}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.tabs{display:flex;flex-wrap:wrap;gap:2px;align-items:center;
+  border-bottom:1px solid var(--line);margin-bottom:12px}
 .tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;
-  background:none;padding:7px 12px;color:var(--dim)}
+  background:none;padding:7px 9px;color:var(--dim);display:inline-flex;
+  align-items:center;gap:6px;white-space:nowrap}
+.tabs button:hover:not(.on){color:var(--ink);border-bottom-color:var(--line)}
 .tabs button.on{color:var(--ink);border-bottom-color:var(--acc)}
+.tabs button.on .ic{color:var(--acc)}
+/* Роздільник між етапами: обрати кадр | подивитись | обробити | зібрати */
+.tsep{width:1px;height:16px;background:var(--line);margin:0 6px}
+.tabs button.tips{border-bottom-color:transparent;padding:7px 10px}
+.tabs button.tips.on{color:var(--acc)}
+/* Тринадцять підписаних вкладок просять ~1300 px, а в панелі їх 958 —
+   виходило три ряди. Тому підпис лишається на АКТИВНІЙ вкладці (щоб
+   було видно, де ти), решта — іконка з підказкою на наведення. На
+   широкому екрані підписи повертаються всім. */
+.tabs button .lbl{display:none}
+.tabs button.on .lbl{display:inline}
+@media (min-width:1560px){.tabs button .lbl{display:inline}}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;
   overflow:hidden}
@@ -44,8 +64,14 @@ a{color:var(--acc)}
   border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
 .card img{display:block;width:100%;background:#0d0f13}
 .note{border:1px solid var(--line);border-left:3px solid var(--warn);
-  background:#221d14;border-radius:6px;padding:10px 12px;margin-bottom:12px;
-  white-space:pre-wrap;font-size:12px}
+  background:#221d14;border-radius:6px;padding:8px 11px 8px 32px;
+  margin-bottom:10px;white-space:pre-wrap;font-size:11.5px;line-height:1.45;
+  position:relative}
+.note::before{content:"";position:absolute;left:11px;top:9px;width:14px;
+  height:14px;background:var(--warn);
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8 1.8 15 14H1z' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'/><path d='M8 6v4' stroke='black' stroke-width='1.6' stroke-linecap='round'/><circle cx='8' cy='12' r='.8'/></svg>") center/contain no-repeat;
+  mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8 1.8 15 14H1z' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'/><path d='M8 6v4' stroke='black' stroke-width='1.6' stroke-linecap='round'/><circle cx='8' cy='12' r='.8'/></svg>") center/contain no-repeat}
+.note.bad::before{background:var(--bad)}
 .note.bad{border-left-color:var(--bad);background:#241618}
 .stages{font-variant-numeric:tabular-nums;font-size:12px}
 .stages div{display:flex;justify-content:space-between;padding:2px 0;
@@ -89,6 +115,60 @@ h2 .tag{text-transform:none;letter-spacing:0;font-family:ui-monospace,
 @keyframes sp{to{transform:rotate(360deg)}}
 kbd{background:#232830;border:1px solid var(--line);border-radius:4px;
   padding:0 5px;font-size:11px}
+
+/* ---------- іконки, підказки, згортання ---------- */
+/* Іконки — інлайновий SVG-спрайт, а не емодзі: емодзі на різних машинах
+   різні за розміром і кольором, і в темній панелі виглядають іграшкою. */
+.ic{width:15px;height:15px;flex:0 0 15px;stroke:currentColor;fill:none;
+  stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+  vertical-align:-2px}
+.ic.sm{width:13px;height:13px;flex-basis:13px}
+
+/* Підказка на наведення. Своя, а не title: нативна спливає через
+   секунду й не вміє переносити рядки, а тут пояснення на два речення. */
+[data-tip]{position:relative}
+[data-tip]:hover::after{
+  content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);
+  z-index:40;width:max-content;max-width:320px;white-space:pre-wrap;
+  background:#0d0f13;color:var(--ink);border:1px solid var(--line);
+  border-radius:7px;padding:8px 10px;font-size:11.5px;line-height:1.4;
+  box-shadow:0 8px 24px #0008;pointer-events:none;font-weight:400}
+[data-tip].tipr:hover::after{left:auto;right:0}
+[data-tip].tipup:hover::after{top:auto;bottom:calc(100% + 6px)}
+
+/* Пояснення згортається, ПОПЕРЕДЖЕННЯ — ніколи. Це не косметика:
+   §1 будується на тому, що конвеєр нічого не робить мовчки, і сховати
+   «39 зі 154 знахідок на шиї» за кнопкою означало б це порушити.
+   Ховається лише те, що пояснює, ЯК користуватись. */
+.why-btn{display:inline-flex;align-items:center;gap:5px;border:0;
+  background:none;color:var(--dim);padding:2px 0;font-size:11.5px;
+  cursor:pointer;margin-bottom:8px}
+.why-btn:hover{color:var(--acc);border:0}
+.why-btn .ic{width:13px;height:13px;flex-basis:13px}
+.why-body{display:none}
+.why-open .why-body{display:block}
+.why-open .why-btn .chev{transform:rotate(90deg)}
+.chev{transition:transform .15s}
+
+/* Смужка стану: числа кадру чипами, кожен зі своїм поясненням. */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 2px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;
+  border:1px solid var(--line);border-radius:999px;background:#12141a;
+  font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+.chip b{color:var(--ink);font-weight:600}
+.chip.warn{border-color:var(--warn);color:var(--warn)}
+.chip.warn b{color:var(--warn)}
+.chip.ok{border-color:var(--ok)}
+
+/* Розділи лівої панелі згортаються — їх сім, і одночасно потрібен один. */
+.sect>summary{list-style:none;cursor:pointer;display:flex;align-items:center;
+  gap:7px;font-size:12px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--dim);font-weight:600;margin:16px 0 9px;user-select:none}
+.sect>summary::-webkit-details-marker{display:none}
+.sect>summary:hover{color:var(--ink)}
+.sect[open]>summary .chev{transform:rotate(90deg)}
+.sect:first-of-type>summary{margin-top:0}
+
 /* Поля нових вкладок будуються зі схеми, тому їх кількість заздалегідь
    невідома: сітка, що сама вирішує, скільки колонок влізе. */
 .flds{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));
@@ -123,90 +203,143 @@ pre.yaml{background:#12141a;border:1px solid var(--line);border-radius:7px;
   padding:10px 12px;overflow:auto;font-size:12px;color:var(--dim);margin:0 0 12px}
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-folder" viewBox="0 0 16 16"><path d="M1.5 4.5v8a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1H8L6.5 3.5H2.5a1 1 0 0 0-1 1z"/></symbol>
+<symbol id="i-eye" viewBox="0 0 16 16"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/></symbol>
+<symbol id="i-zoom" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14M5 7h4M7 5v4"/></symbol>
+<symbol id="i-develop" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 2v12M2.5 5.5h11M2.5 10.5h11"/></symbol>
+<symbol id="i-mask" viewBox="0 0 16 16"><path d="M3 4c0-1 1-2 5-2s5 1 5 2c0 6-2 9-5 9S3 10 3 4z"/><circle cx="6" cy="6.5" r=".7" fill="currentColor"/><circle cx="10" cy="6.5" r=".7" fill="currentColor"/></symbol>
+<symbol id="i-spots" viewBox="0 0 16 16"><circle cx="5" cy="5" r="1.6"/><circle cx="11" cy="6.5" r="1.1"/><circle cx="7" cy="11" r="1.3"/></symbol>
+<symbol id="i-tools" viewBox="0 0 16 16"><path d="M8 1.5 9.6 5.4 13.5 7 9.6 8.6 8 12.5 6.4 8.6 2.5 7l3.9-1.6z"/><path d="M12.5 11.5 13 13l1.5.5-1.5.5-.5 1.5-.5-1.5L10.5 13l1.5-.5z"/></symbol>
+<symbol id="i-db" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-remove" viewBox="0 0 16 16"><path d="M2.5 4.5h11M6 4.5V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1.5M4 4.5l.7 8a1 1 0 0 0 1 1h4.6a1 1 0 0 0 1-1l.7-8"/></symbol>
+<symbol id="i-warp" viewBox="0 0 16 16"><path d="M2 12c3 0 3-8 6-8s3 8 6 8"/><path d="M2 4.5h2M12 11.5h2"/></symbol>
+<symbol id="i-layers" viewBox="0 0 16 16"><path d="M8 1.5 14.5 5 8 8.5 1.5 5z"/><path d="M1.5 8 8 11.5 14.5 8"/><path d="M1.5 11 8 14.5 14.5 11"/></symbol>
+<symbol id="i-sweep" viewBox="0 0 16 16"><path d="M2 13V3M2 13h12"/><path d="M4.5 11l2.5-4 2.5 2.5L13.5 4"/></symbol>
+<symbol id="i-preset" viewBox="0 0 16 16"><path d="M3.5 2h6l3 3v9a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M9.5 2v3.5h3M5.5 9h5M5.5 11.5h3"/></symbol>
+<symbol id="i-q" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.8 1.8 0 1 1 2.3 1.9c-.4.2-.5.5-.5.9"/><circle cx="8" cy="11.4" r=".8" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-chev" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5"/></symbol>
+<symbol id="i-play" viewBox="0 0 16 16"><path d="M4 2.5 13 8l-9 5.5z"/></symbol>
+<symbol id="i-save" viewBox="0 0 16 16"><path d="M2.5 2.5h8.5L13.5 5v8.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1z"/><path d="M5 2.5v4h5v-4M5 14.5v-4h6v4"/></symbol>
+<symbol id="i-alert" viewBox="0 0 16 16"><path d="M8 1.8 15 14H1z"/><path d="M8 6v4"/><circle cx="8" cy="12" r=".7" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-face" viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5"/></symbol>
+<symbol id="i-ruler" viewBox="0 0 16 16"><path d="M1.5 10.5 10.5 1.5l4 4-9 9z"/><path d="M4.5 7.5 6 9M6.5 5.5 8 7M8.5 3.5 10 5"/></symbol>
+</defs></svg>
+
 <div class="wrap">
 <div class="side">
-  <h2>Кадр</h2>
-  <div class="row"><input type="text" id="path" placeholder="шлях до TIFF"></div>
-  <div class="row">
-    <button id="browse">Огляд…</button>
-    <button id="open" class="pri" style="flex:1">Відкрити</button>
-  </div>
-  <div id="picker" hidden><div class="pick" id="picklist"></div></div>
-  <div id="info" class="hint"></div>
-
-  <h2>Детекція</h2>
-  <div class="row"><label>ціль, % шкіри</label>
-    <input type="range" id="target_coverage" min="0" max="0.12" step="0.005" value="0">
-    <span class="val" id="target_coverage_v">вимк</span></div>
-  <div class="hint">Поріг контрасту між кадрами НЕ переноситься: на 44 реальних
-    кадрах фіксовані 0.012 дали від 0% до 24% торкнутої шкіри. Ціль переноситься —
-    постав 3%, і поріг підбереться під кадр сам.</div>
-  <div class="row"><label>поріг</label>
-    <input type="range" id="threshold" min="0.004" max="0.04" step="0.001" value="0.012">
-    <span class="val" id="threshold_v">0.012</span></div>
-  <div class="row"><label>радіус</label>
-    <input type="range" id="radius" min="0" max="24" step="0.5" value="0">
-    <span class="val" id="radius_v">авто</span></div>
-  <div class="row"><label>мін. площа</label>
-    <input type="number" id="min_area" value="8"></div>
-  <div class="row"><label>макс. площа</label>
-    <input type="number" id="max_area" value="1200"></div>
-  <div class="row"><label>витягнутість</label>
-    <input type="range" id="max_elongation" min="1.5" max="12" step="0.5" value="6">
-    <span class="val" id="max_elongation_v">6</span></div>
-
-  <h2>Лікування</h2>
-  <div class="row"><label>сила</label>
-    <input type="range" id="strength" min="0.1" max="1" step="0.05" value="1">
-    <span class="val" id="strength_v">1</span></div>
-  <div class="row"><label>пошук донора</label>
-    <input type="range" id="search_radius" min="0" max="300" step="10" value="0">
-    <span class="val" id="search_radius_v">авто</span></div>
-  <div class="row"><label>ліміт плям</label>
-    <input type="number" id="limit" placeholder="усі"></div>
-  <div class="row"><label>ерозія маски</label>
-    <input type="range" id="mask_erode" min="0" max="24" step="1" value="6">
-    <span class="val" id="mask_erode_v">6</span></div>
-  <div class="row"><label>face-parsing</label>
-    <select id="face_model" class="sel"><option value="">евристика</option></select></div>
-  <div class="row"><label>детектор</label>
-    <select id="face_detector" class="sel"><option value="">без кропа</option></select></div>
-  <div class="row"><label>інпейнт</label>
-    <select id="lama_model" class="sel"><option value="">Telea</option></select></div>
-  <div class="hint" id="models_hint">шукаю моделі в models/…</div>
-  <div class="row"><label>RAW через</label>
-    <select id="raw_decoder" style="flex:1;background:#12141a;border:1px solid var(--line);
-      border-radius:5px;padding:5px 7px">
-      <option value="">авто</option><option value="rawpy">rawpy (libraw)</option>
-      <option value="imageio">ImageIO (Apple)</option></select></div>
-  <div class="hint">Вибір декодера зсуває поріг: ImageIO додає своє
-    шумозаглушення й різкість у високу частоту, і плям знаходиться втричі
-    більше на тому самому порозі.</div>
-
-  <h2>Дії</h2>
-  <button id="rerun" class="pri" style="width:100%;margin-bottom:6px">Перегнати</button>
-  <div class="row">
-    <input type="text" id="out" value="out" placeholder="тека виводу">
-    <button id="write">Зберегти</button>
+  <!-- Дії — НАГОРІ, бо натискають їх найчастіше, а решта панелі
+       налаштовується раз на зйомку. Розділи згортаються: їх сім, а
+       одночасно потрібен один. -->
+  <button id="rerun" class="pri go"
+    data-tip="Маска, детекція, лікування по поточних параметрах. На 26 Мп ~30 с"><svg class="ic"><use href="#i-play"/></svg>Перегнати</button>
+  <div class="row" style="margin-top:6px">
+    <input type="text" id="out" value="out" placeholder="тека виводу"
+      data-tip="Куди писати базу, шари й зведений файл">
+    <button id="write" data-tip="Записати стопку: база, шари з альфою, зведений кадр, маски"><svg class="ic"><use href="#i-save"/></svg>Зберегти</button>
   </div>
   <div id="stages" class="stages"></div>
+  <div id="chips" class="chips"></div>
+
+  <details class="sect" open>
+    <summary><svg class="ic chev"><use href="#i-chev"/></svg>
+      <svg class="ic"><use href="#i-folder"/></svg>Кадр</summary>
+    <div class="row"><input type="text" id="path" placeholder="шлях до кадру"></div>
+    <div class="row">
+      <button id="browse" data-tip="Пройтись теками й обрати файл">Огляд…</button>
+      <button id="open" class="pri" style="flex:1">Відкрити</button>
+    </div>
+    <div id="picker" hidden><div class="pick" id="picklist"></div></div>
+    <div id="info" class="hint"></div>
+  </details>
+
+  <details class="sect" open>
+    <summary><svg class="ic chev"><use href="#i-chev"/></svg>
+      <svg class="ic"><use href="#i-spots"/></svg>Детекція</summary>
+    <div class="row"><label data-tip="Скільки ШКІРИ дозволено торкнутися. Поріг тоді підбирається під кожен кадр окремо.
+
+Це головний параметр: поріг контрасту між кадрами не переноситься — на 44 реальних кадрах фіксовані 0.012 дали від 0% до 24% торкнутої шкіри. Ціль переноситься. 3% — робоче значення.">ціль, % шкіри <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <input type="range" id="target_coverage" min="0" max="0.12" step="0.005" value="0">
+      <span class="val" id="target_coverage_v">вимк</span></div>
+    <div class="row"><label data-tip="Мінімальний контраст плями. Працює, лише коли ціль вимкнена.
+
+МІЖ КАДРАМИ НЕ ПЕРЕНОСИТЬСЯ — задавай для одного конкретного кадру, для зйомки бери ціль.">поріг <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <input type="range" id="threshold" min="0.004" max="0.04" step="0.001" value="0.012">
+      <span class="val" id="threshold_v">0.012</span></div>
+    <div class="row"><label data-tip="Радіус частотного розділення, px. «Авто» — рахується з ширини обличчя (1200 px → 6 px).
+
+Нижче 2 px частотка вже не відділяє дефект від пікселя, тож на дрібних обличчях радіус упирається в підлогу — панель про це скаже.">радіус <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <input type="range" id="radius" min="0" max="24" step="0.5" value="0">
+      <span class="val" id="radius_v">авто</span></div>
+    <div class="row"><label data-tip="Найменша площа плями в px. Дрібніше — це зерно, а не дефект">мін. площа</label>
+      <input type="number" id="min_area" value="8"></div>
+    <div class="row"><label data-tip="Найбільша площа. Більше — це тінь або велика структура, і підміняти її текстурою не можна">макс. площа</label>
+      <input type="number" id="max_area" value="1200"></div>
+    <div class="row"><label data-tip="Відношення сторін рамки. Витягнуте — це волосина або край, не пляма">витягнутість</label>
+      <input type="range" id="max_elongation" min="1.5" max="12" step="0.5" value="6">
+      <span class="val" id="max_elongation_v">6</span></div>
+  </details>
+
+  <details class="sect" open>
+    <summary><svg class="ic chev"><use href="#i-chev"/></svg>
+      <svg class="ic"><use href="#i-tools"/></svg>Лікування</summary>
+    <div class="row"><label data-tip="Множник альфи дотику — прямий аналог непрозорості шару. Те саме можна зробити потім на вкладці «Шари», не переганяючи">сила <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <input type="range" id="strength" min="0.1" max="1" step="0.05" value="1">
+      <span class="val" id="strength_v">1</span></div>
+    <div class="row"><label data-tip="Як далеко шукати чисту текстуру на заміну, px. «Авто» — 7.5% ширини обличчя.
+
+Фіксоване число тут шкодить: на реальній зйомці обличчя гуляє від 191 до 1582 px, і 90 px означали то 47% ширини обличчя, то 5.7%.">пошук донора <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <input type="range" id="search_radius" min="0" max="300" step="10" value="0">
+      <span class="val" id="search_radius_v">авто</span></div>
+    <div class="row"><label data-tip="Лікувати лише N найконтрастніших плям. Порожньо — усі">ліміт плям</label>
+      <input type="number" id="limit" placeholder="усі"></div>
+    <div class="row"><label data-tip="Відступ від краю маски шкіри, px. Щоб лікування не підповзало під волосся й губи">ерозія маски</label>
+      <input type="range" id="mask_erode" min="0" max="24" step="1" value="6">
+      <span class="val" id="mask_erode_v">6</span></div>
+  </details>
+
+  <details class="sect">
+    <summary><svg class="ic chev"><use href="#i-chev"/></svg>
+      <svg class="ic"><use href="#i-face"/></svg>Моделі й декодер</summary>
+    <div class="row"><label data-tip="BiSeNet: каже, де шкіра, де око, де рот. БЕЗ НЬОГО маска евристична — тест на колір, а не на обличчя, і на реальному портреті вона віддає 90+% кадру">face-parsing <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <select id="face_model" class="sel"><option value="">евристика</option></select></div>
+    <div class="row"><label data-tip="YuNet: знаходить обличчя й кропає його для face-parsing. З нього ж береться ширина обличчя для радіусів">детектор <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <select id="face_detector" class="sel"><option value="">без кропа</option></select></div>
+    <div class="row"><label data-tip="LaMa для видалення об'єктів. Без нього запасний Telea — годиться лише для дрібного">інпейнт <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <select id="lama_model" class="sel"><option value="">Telea</option></select></div>
+    <div class="hint" id="models_hint">шукаю моделі в models/…</div>
+    <div class="row"><label data-tip="Чим читати RAW. Вибір зсуває поріг: ImageIO додає своє шумозаглушення й різкість у високу частоту, і плям знаходиться втричі більше на тому самому порозі. Порівнювати прогони різними декодерами не можна">RAW через <svg class="ic sm"><use href="#i-q"/></svg></label>
+      <select id="raw_decoder" class="sel">
+        <option value="">авто</option><option value="rawpy">rawpy (libraw)</option>
+        <option value="imageio">ImageIO (Apple)</option></select></div>
+  </details>
 </div>
 
 <div class="main">
+  <!-- Вкладки згруповані за етапами конвеєра, а не звалені в ряд: їх
+       тринадцять, і плаский ряд не каже, що йде за чим. Порядок груп —
+       порядок роботи: обрати кадр, проявити, ретушувати, зібрати. -->
   <div class="tabs">
-    <button data-t="shoot">Зйомка</button>
-    <button data-t="view" class="on">Перегляд</button>
-    <button data-t="crops">1:1</button>
-    <button data-t="develop">Проявлення</button>
-    <button data-t="mask">Маска</button>
-    <button data-t="tools">Інструменти</button>
-    <button data-t="db">Світлотінь</button>
-    <button data-t="remove">Видалення</button>
-    <button data-t="warp">Пластика</button>
-    <button data-t="layers">Шари</button>
-    <button data-t="spots">Плями</button>
-    <button data-t="sweep">Калібрування</button>
-    <button data-t="presets">Пресети</button>
+    <button data-t="shoot" data-tip="Тека зйомки: усі кадри, навігація ← →, пакетний прогін"><svg class="ic"><use href="#i-folder"/></svg><span class="lbl">Зйомка</span></button>
+    <span class="tsep"></span>
+    <button data-t="view" class="on" data-tip="Загальний план: чи не полізло воно кудись. Про якість ретуші НЕ судити тут"><svg class="ic"><use href="#i-eye"/></svg><span class="lbl">Перегляд</span></button>
+    <button data-t="crops" data-tip="Вирізки в рідних пікселях. ЄДИНЕ місце, де видно якість ретуші (§1)"><svg class="ic"><use href="#i-zoom"/></svg><span class="lbl">1:1</span></button>
+    <span class="tsep"></span>
+    <button data-t="develop" data-tip="Експозиція, ББ, крива, кроп. Перший етап — усе подальше рахується по цьому кадру"><svg class="ic"><use href="#i-develop"/></svg><span class="lbl">Проявлення</span></button>
+    <button data-t="mask" data-tip="Що вважати шкірою: класи face-parsing і пензель"><svg class="ic"><use href="#i-mask"/></svg><span class="lbl">Маска</span></button>
+    <button data-t="spots" data-tip="Список знайдених плям: які лікувати, які лишити"><svg class="ic"><use href="#i-spots"/></svg><span class="lbl">Плями</span></button>
+    <button data-t="tools" data-tip="Судини в очах, зуби, матування, тон шкіри — кожен у межах свого класу"><svg class="ic"><use href="#i-tools"/></svg><span class="lbl">Інструменти</span></button>
+    <button data-t="db" data-tip="Вирівнювання низької частоти. Текстура не чіпається"><svg class="ic"><use href="#i-db"/></svg><span class="lbl">Світлотінь</span></button>
+    <button data-t="remove" data-tip="Прибрати об'єкт або людину (LaMa)"><svg class="ic"><use href="#i-remove"/></svg><span class="lbl">Видалення</span></button>
+    <button data-t="warp" data-tip="Геометрія: поле зміщення, пластика"><svg class="ic"><use href="#i-warp"/></svg><span class="lbl">Пластика</span></button>
+    <span class="tsep"></span>
+    <button data-t="layers" data-tip="Непрозорість шарів. Складання, а не перегін — відповідає миттєво"><svg class="ic"><use href="#i-layers"/></svg><span class="lbl">Шари</span></button>
+    <button data-t="presets" data-tip="Пресети агента: накласти, порівняти на кадрі, записати"><svg class="ic"><use href="#i-preset"/></svg><span class="lbl">Пресети</span></button>
+    <button data-t="sweep" data-tip="Той самий кадр кількома порогами — таблиця §6.2"><svg class="ic"><use href="#i-sweep"/></svg><span class="lbl">Калібрування</span></button>
+    <button id="tipsbtn" class="tips tipr" style="margin-left:auto"
+      data-tip="Показувати пояснення під заголовками вкладок.
+
+Попередження про кадр не ховаються ніколи — вони про те, що сталося саме тут."><svg class="ic"><use href="#i-q"/></svg></button>
   </div>
   <div id="msg"></div>
   <div id="pane"></div>
@@ -251,26 +384,48 @@ async function tick(){
   st.innerHTML = (S.stages||[]).map(s =>
     `<div><b>${s.stage}</b><span>${s.sec == null
       ? '<span class="spin"></span>' : s.sec+'s '+(s.note||'')}</span></div>`).join('');
-  $('#info').innerHTML = S.loaded
-    ? `${S.name} · ${S.w}×${S.h} (${S.mp} Мп)<br>маска ${S.skin_source}` +
-      (S.skin_frac != null ? ` · ${(S.skin_frac*100).toFixed(0)}%` : '') +
-      (S.raw_decoder ? ` · RAW: ${S.raw_decoder}` : '') +
-      (S.warp ? `<span class="tag">пластика ${S.warp.max_px}px</span>` : '') +
-      (S.face_w ? ` · обличчя ${Math.round(S.face_w)}px` : '') +
-      (S.face_w_source && S.face_w_source !== 'detector'
-        ? `<span class="tag" title="ширину взято не з рамки детектора — на груповому кадрі габарит маски міряє відстань між обличчями">${S.face_w_source}</span>`
-        : '') +
-      (S.n_faces > 1
-        ? `<span class="tag" title="${esc(S.faces_note || '')}">облич ${S.n_faces}: ${
-            (S.face_widths || []).join(', ')}px</span>` : '') +
-      (S.radius ? ` · радіус ${S.radius}px` : '') +
-      (S.search_radius_px ? ` · донор ${S.search_radius_px}px` : '') +
-      (S.n_blobs ? ` · ${S.n_blobs} плям` : '') +
-      ((S.blob_classes || []).length
-        ? ` (${S.blob_classes.slice(0, 3).map(c => c.name + ' ' + c.n).join(', ')})`
-        : '') +
-      (S.painted ? '<span class="tag">маска правлена</span>' : '')
-    : 'кадр не відкрито';
+  /* Числа кадру — чипами з поясненням на кожному. Було одним рядком у
+     двадцять слів: усе видно, нічого не читається. Чип, який вимагає
+     уваги, фарбується — і тоді його видно з іншого кінця панелі. */
+  const chip = (icon, val, tip, cls) =>
+    `<span class="chip ${cls || ''}" data-tip="${esc(tip)}">${
+      icon ? `<svg class="ic sm"><use href="#i-${icon}"/></svg>` : ''
+    }<b>${esc(String(val))}</b></span>`;
+  const chips = [];
+  if (S.loaded){
+    chips.push(chip('', `${S.w}×${S.h}`, `${S.mp} Мп, ${S.name}`));
+    if (S.raw_decoder) chips.push(chip('', S.raw_decoder,
+      'чим прочитано RAW. Вибір декодера зсуває поріг детекції'));
+    const heur = S.skin_source === 'heuristic';
+    const miss = (S.skin_source || '').includes('МИМО');
+    chips.push(chip('mask',
+      (S.skin_frac != null ? (S.skin_frac*100).toFixed(1) + '%' : '—'),
+      `маска шкіри, джерело: ${S.skin_source}` + (heur
+        ? '\n\nЕВРИСТИКА — це тест на КОЛІР, а не на обличчя. На реальному портреті вона віддає 90+% кадру. Обери face-parsing зліва.'
+        : miss ? '\n\nДетектор не знайшов обличчя, тож розбирався ПОВНИЙ кадр — це ненадійно, і ширина обличчя взята з габариту маски.'
+        : ''),
+      heur || miss ? 'warn' : ''));
+    if (S.face_w) chips.push(chip('face',
+      Math.round(S.face_w) + 'px' + (S.n_faces > 1 ? ` ×${S.n_faces}` : ''),
+      (S.n_faces > 1 ? `обличчя в кадрі: ${(S.face_widths||[]).join(', ')} px\n` : 'ширина обличчя\n')
+      + (S.faces_note || `джерело: ${S.face_w_source}`),
+      S.face_w_source !== 'detector' || (S.faces_note||'').startsWith('УВАГА') ? 'warn' : ''));
+    if (S.radius) chips.push(chip('ruler', S.radius + 'px',
+      'радіус частотного розділення' + (S.radius_warn ? '\n\n' + S.radius_warn : '')
+      + (S.search_radius_px ? `\nпошук донора: ${S.search_radius_px} px` : ''),
+      S.radius_warn ? 'warn' : ''));
+    if (S.n_blobs != null) chips.push(chip('spots', S.n_blobs + ' плям',
+      'знайдено дефектів' + ((S.blob_classes||[]).length
+        ? '\nпо класах: ' + S.blob_classes.map(c => `${c.name} ${c.n}`).join(', ')
+        : '') + (S.detect_warn ? '\n\n' + S.detect_warn : ''),
+      S.detect_warn ? 'warn' : ''));
+    if (S.healed != null) chips.push(chip('', (S.healed*100).toFixed(3) + '%',
+      'торкнулися цієї частки КАДРУ', 'ok'));
+    if (S.warp) chips.push(chip('warp', S.warp.max_px + 'px', 'пластика: зсув'));
+    if (S.painted) chips.push(chip('mask', 'правлена', 'маску правили пензлем'));
+  }
+  $('#chips').innerHTML = chips.join('');
+  $('#info').innerHTML = S.loaded ? esc(S.name) : 'кадр не відкрито';
 
   let m = '';
   if (S.error) m += `<div class="note bad">${esc(S.error)}</div>`;
@@ -297,6 +452,46 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
   b.classList.add('on'); tab = b.dataset.t; draw();
 });
 
+/* Пояснення в панелі згортаються — але не всі й не сліпо.
+
+   Сховати можна ЛИШЕ прозу: підказка з повзунком усередині (розмір
+   кропа, наприклад) — це керування, а не текст. Тому фільтруємо за
+   наявністю контролів, а не за класом: клас довелося б проставляти в
+   сорока місцях і десь забути.
+
+   ПОПЕРЕДЖЕННЯ (.note) не згортаються ніколи. §1 будується на тому, що
+   конвеєр нічого не робить мовчки, і сховати «39 зі 154 знахідок на
+   шиї» за кнопкою означало б це порушити. */
+const TIPS_KEY = 'retouch.tips';
+let tipsOpen = localStorage.getItem(TIPS_KEY) !== '0';
+
+function foldHints(){
+  $('#pane').querySelectorAll('.hint').forEach(h => {
+    if (h.dataset.folded) return;
+    if (h.querySelector('input,button,select,textarea')) return;
+    if (h.textContent.trim().length < 90) return;
+    h.dataset.folded = '1';
+    const body = document.createElement('div');
+    body.className = 'why-body';
+    while (h.firstChild) body.appendChild(h.firstChild);
+    const btn = document.createElement('button');
+    btn.className = 'why-btn';
+    btn.innerHTML = '<svg class="ic chev"><use href="#i-chev"/></svg>' +
+                    '<svg class="ic"><use href="#i-q"/></svg>навіщо це';
+    btn.onclick = () => h.classList.toggle('why-open');
+    h.appendChild(btn); h.appendChild(body);
+    if (tipsOpen) h.classList.add('why-open');
+  });
+}
+
+function setTips(on){
+  tipsOpen = on;
+  localStorage.setItem(TIPS_KEY, on ? '1' : '0');
+  $('#pane').querySelectorAll('.hint[data-folded]').forEach(
+    h => h.classList.toggle('why-open', on));
+  $('#tipsbtn').classList.toggle('on', on);
+}
+
 function draw(){
   const p = $('#pane');
   // Пресети читаються без кадру: агент присилає їх наперед, і подивитися,
@@ -319,6 +514,11 @@ function draw(){
   if (tab === 'presets') return drawPresets(p);
   if (tab === 'shoot') return drawShoot(p);
 }
+
+/* draw() у частині вкладок асинхронний, тож згортати треба після того,
+   як розмітка з'явилась, а не одразу. Спостерігач простіший за обіцянку
+   від кожного рендерера — і не забудеться в наступному. */
+new MutationObserver(foldHints).observe($('#pane'), {childList: true, subtree: true});
 
 function card(kind, cap){
   return `<div class="card"><div class="cap"><span>${cap}</span></div>
@@ -1146,6 +1346,8 @@ async function loadModels(){
     `<br>Без LaMa видалення працює через Telea: дрібне прибере, велику
      дірку розмаже.`;
 }
+$('#tipsbtn').onclick = () => setTips(!tipsOpen);
+setTips(tipsOpen);
 loadModels();
 tick().then(draw);
 </script>
