@@ -18,6 +18,7 @@ python3 -m retouch.webui IMG.tif --port 8771 --no-browser
 # вкладка «Зйомка»: тека кадрів, ← → гортання, пакет тим самим движком
 python3 -m retouch.cli --schema             # схема пресету для агента
 python3 scripts/brief.py IMG.CR3 -o brief   # досьє на кадр ДЛЯ агента
+python3 scripts/shoot_brief.py photos/ -o brief   # досьє на ЗЙОМКУ
 python3 -m retouch.cli IMG.tif -o out --xmp          # взяти налаштування ACR
 python3 -m retouch.cli SHOOT/ -o out --batch --xmp   # сайдкар до кожного кадру
 python3 scripts/variants.py IMG.tif presets/*.yaml -o var   # порівняти пресети
