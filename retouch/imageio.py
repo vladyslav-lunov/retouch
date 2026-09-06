@@ -72,6 +72,13 @@ def read(path: str | Path, raw_decoder: str | None = None,
     return img.astype(np.float32) / scale, np.dtype(src_dtype)
 
 
+# Adobe Deflate (тег 8). Заміряно на кадрі 26 Мп 16 біт: 165.8 -> 130.6 МБ,
+# тобто -21%, ціною 3.7 -> 6.3 с на файл. LZW на таких даних не дає нічого
+# (ті самі 165.8 МБ), zstd ця збірка OpenCV не пише. Стиснення без утрат —
+# перевірено побайтовим порівнянням після читання назад.
+TIFF_DEFLATE = 8
+
+
 def write(path: str | Path, img: np.ndarray, dtype: np.dtype | None = None,
           alpha: np.ndarray | None = None) -> None:
     """Пише BGR (або BGRA, якщо задано alpha) у вказаній розрядності."""
@@ -81,8 +88,11 @@ def write(path: str | Path, img: np.ndarray, dtype: np.dtype | None = None,
     if alpha is not None:
         out = np.dstack([out, np.clip(alpha, 0, 1)])
     out = (out * scale + 0.5).astype(dtype)
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    if not cv2.imwrite(str(path), out):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    params = ([int(cv2.IMWRITE_TIFF_COMPRESSION), TIFF_DEFLATE]
+              if path.suffix.lower() in (".tif", ".tiff") else [])
+    if not cv2.imwrite(str(path), out, params):
         raise IOError(f"не записалося: {path}")
 
 

@@ -1,7 +1,7 @@
 """Тести шарів корекції. Головні інваріанти:
 
   1. base*(1-a) + layer*a == result — головна обіцянка §1;
-  2. де альфа нульова, шар несе базу, а не сміття;
+  2. під нульовою альфою шар не тягне копію фотографії;
   3. write_stack кладе базу, шари, маски й зведений результат;
   4. накладання ДВОХ шарів по черзі теж сходиться.
 
@@ -43,13 +43,59 @@ def test_layer_reconstructs_result():
     assert err < 2e-3, "шар не збігається з результатом"
 
 
-def test_zero_alpha_carries_base():
+def test_zero_alpha_area_is_flat_not_a_copy_of_the_photo():
+    """Під нульовою альфою RGB не бере участі в складанні взагалі, тож
+    копія фотографії там — це просто десятки мегабайтів на шар.
+
+    Заміряно на реальному кадрі: 145.3 МБ проти 0.4 МБ. На зйомці з 44
+    кадрів різниця в десятки гігабайтів, і платили ми за неї нічим.
+    """
+    from retouch.layers import EMPTY_RGB
     base = _scene()
     cov = np.zeros(base.shape[:2], np.float32)
     rgb, a = extract_layer(base, base.copy(), cov)
-    print(f"  альфа скрізь {a.max():.1f}; шар == база: {np.allclose(rgb, base)}")
+    print(f"  альфа скрізь {a.max():.1f}; унікальних значень у RGB: "
+          f"{len(np.unique(rgb))}")
     assert a.max() == 0.0
-    assert np.allclose(rgb, base), "де альфа нуль, у шарі має бути база"
+    assert np.allclose(rgb, EMPTY_RGB), "під нульовою альфою лишилась копія кадру"
+    # і головне: складання від цього не змінюється
+    recon = base * (1 - a[..., None]) + rgb * a[..., None]
+    assert np.allclose(recon, base), "заливка вплинула на складання"
+
+
+def test_partial_alpha_still_carries_base_in_the_eps_band():
+    """Смуга 0 < a <= eps — окремий випадок: там ділення на крихітну
+    альфу роздуває шум, тому база лишається. Константа внесла б помилку
+    a*|base-0.5|, тобто до 65 квантів на межі eps."""
+    base = _scene()
+    cov = np.full(base.shape[:2], 5e-4, np.float32)      # менше за eps=1e-3
+    rgb, a = extract_layer(base, base.copy(), cov)
+    print(f"  альфа {cov.max():.0e}: шар == база: {np.allclose(rgb, base)}")
+    assert np.allclose(rgb, base), "у смузі eps підмінили базу константою"
+
+
+def test_empty_layer_compresses_to_almost_nothing():
+    """Те, заради чого все це: шар без дотиків має важити копійки."""
+    import tempfile
+    from pathlib import Path as P
+    from retouch import imageio as iio
+    base = _scene(h=600, w=800)
+    cov = np.zeros(base.shape[:2], np.float32)
+    cov[300:310, 400:410] = 1.0                    # один дрібний дотик
+    result = base.copy()
+    result[300:310, 400:410] = 0.2
+    rgb, a = extract_layer(base, result, cov)
+    with tempfile.TemporaryDirectory() as t:
+        f = P(t) / "layer.png"
+        iio.write(f, rgb, np.dtype("uint16"), alpha=a)
+        kb = f.stat().st_size / 1024
+        full = P(t) / "full.png"
+        iio.write(full, base, np.dtype("uint16"), alpha=np.ones_like(a))
+        kb_full = full.stat().st_size / 1024
+    print(f"  шар з дотиком 0.02% кадру: {kb:.0f} КБ; повний кадр: {kb_full:.0f} КБ")
+    assert kb < kb_full / 10, (
+        f"шар важить {kb:.0f} КБ проти {kb_full:.0f} КБ — під прозорою "
+        f"альфою знову лежить фотографія")
 
 
 def test_alpha_is_clipped_to_unit():

@@ -140,6 +140,32 @@ def test_mask_read_is_binary_and_resized():
         assert set(np.unique(got)) <= {0, 1}, "маска не бінарна"
 
 
+def test_tiff_is_compressed_losslessly():
+    """Стиснення без утрат — і «без утрат» тут перевіряється, а не
+    береться на віру: 16 біт мовчки зрізати до 8 вже пробували (§4)."""
+    import tempfile
+    from pathlib import Path as P
+    # Плавні дані, а не шум: випадковий шум не стискається за побудовою,
+    # і тест на ньому перевіряв би не стиснення, а ентропію.
+    y, x = np.mgrid[0:400, 0:600].astype(np.float32)
+    img = np.dstack([x / 600, y / 400, (x + y) / 1000]).astype(np.float32)
+    rng = np.random.default_rng(3)
+    img = np.clip(img + rng.normal(0, 0.004, img.shape).astype(np.float32), 0, 1)
+    with tempfile.TemporaryDirectory() as t:
+        f = P(t) / "a.tif"
+        imageio.write(f, img, np.dtype("uint16"))
+        back = imageio.read(f)[0]
+        raw = P(t) / "raw.tif"
+        cv2.imwrite(str(raw), (img * 65535 + 0.5).astype(np.uint16),
+                    [int(cv2.IMWRITE_TIFF_COMPRESSION), 1])
+        print(f"  зі стисненням {f.stat().st_size/1e6:.2f} МБ, "
+              f"без {raw.stat().st_size/1e6:.2f} МБ")
+        assert f.stat().st_size < raw.stat().st_size, "стиснення не ввімкнулось"
+        q = np.abs(back - img).max() * 65535
+        print(f"  похибка після читання назад: {q:.2f} кванта")
+        assert q <= 1.0, "стиснення виявилось із утратами"
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):
