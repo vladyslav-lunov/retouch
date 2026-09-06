@@ -1,0 +1,2365 @@
+{
+  "shoot": {
+    "dir": "photos/",
+    "frames": 44,
+    "skipped": [],
+    "target_coverage": 0.03
+  },
+  "spread": {
+    "recommended_threshold": {
+      "min": 0.008,
+      "median": 0.012,
+      "max": 0.028,
+      "n": 44
+    },
+    "face_w": {
+      "min": 191.0,
+      "median": 480.5,
+      "max": 1582.0,
+      "n": 42
+    },
+    "skin_frac": {
+      "min": 0.00179,
+      "median": 0.011845000000000001,
+      "max": 0.07141,
+      "n": 44
+    },
+    "blobs": {
+      "min": 0,
+      "median": 25.5,
+      "max": 161,
+      "n": 44
+    },
+    "radius_px": {
+      "min": 2.0,
+      "median": 2.4,
+      "max": 8.99,
+      "n": 44
+    },
+    "luma_median": {
+      "min": 0.0795,
+      "median": 0.20345000000000002,
+      "max": 0.3585,
+      "n": 44
+    },
+    "skin_luma_median": {
+      "min": 0.1681,
+      "median": 0.2784,
+      "max": 0.5319,
+      "n": 44
+    }
+  },
+  "one_preset_enough": false,
+  "distinct_thresholds": [
+    0.008,
+    0.01,
+    0.012,
+    0.014,
+    0.018,
+    0.022,
+    0.028
+  ],
+  "multi_face_frames": [
+    "IMG_0417.CR3",
+    "IMG_0421.CR3",
+    "IMG_0423.CR3",
+    "IMG_0427.CR3",
+    "IMG_0430.CR3",
+    "IMG_0432.CR3",
+    "IMG_0434.CR3",
+    "IMG_0501.CR3",
+    "IMG_0503.CR3",
+    "IMG_0506.CR3",
+    "IMG_0792.CR3",
+    "IMG_0794.CR3",
+    "IMG_0796.CR3",
+    "IMG_0798.CR3",
+    "IMG_0800.CR3",
+    "IMG_0802.CR3",
+    "IMG_0804.CR3",
+    "IMG_0806.CR3",
+    "IMG_0808.CR3",
+    "IMG_0810.CR3",
+    "IMG_0812.CR3",
+    "IMG_0814.CR3"
+  ],
+  "radius_clamped_frames": [
+    "IMG_0417.CR3",
+    "IMG_0421.CR3",
+    "IMG_0425.CR3",
+    "IMG_0430.CR3",
+    "IMG_0432.CR3",
+    "IMG_0434.CR3",
+    "IMG_0497.CR3",
+    "IMG_0501.CR3",
+    "IMG_0503.CR3",
+    "IMG_0506.CR3",
+    "IMG_0814.CR3",
+    "IMG_9945.CR3",
+    "IMG_9958.CR3",
+    "IMG_9983.CR3",
+    "IMG_9988.CR3"
+  ],
+  "target_unreachable_frames": [],
+  "extremes": {
+    "найжорсткіший поріг": "IMG_0794.CR3",
+    "найм'якший поріг": "IMG_0425.CR3",
+    "найбільше обличчя": "IMG_9997.CR3",
+    "найменше обличчя": "IMG_0417.CR3",
+    "найбільше знахідок": "IMG_9997.CR3",
+    "найбільша маска": "IMG_9997.CR3"
+  },
+  "frames": [
+    {
+      "file": "IMG_0417.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.0025,
+      "faces": 4,
+      "face_widths": [
+        191,
+        161,
+        144,
+        130
+      ],
+      "face_w": 191.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 24,
+      "recommended_threshold": 0.022,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 55,
+          "touched_of_skin": 0.1118
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 39,
+          "touched_of_skin": 0.07824
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 27,
+          "touched_of_skin": 0.04636
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 19,
+          "touched_of_skin": 0.03778
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 11,
+          "touched_of_skin": 0.03357
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 10,
+          "touched_of_skin": 0.02915
+        }
+      ],
+      "unreachable": null,
+      "blobs": 10,
+      "blobs_by_class": {
+        "nose": 7,
+        "skin": 3
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 191px, 161px, 144px, 130px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.2156,
+      "clipped_high": 0.0,
+      "clipped_low": 7e-05,
+      "skin_luma_median": 0.3386
+    },
+    {
+      "file": "IMG_0421.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00649,
+      "faces": 2,
+      "face_widths": [
+        305,
+        249
+      ],
+      "face_w": 305.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 24,
+      "recommended_threshold": 0.012,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 77,
+          "touched_of_skin": 0.06519
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 34,
+          "touched_of_skin": 0.03564
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 12,
+          "touched_of_skin": 0.01339
+        }
+      ],
+      "unreachable": null,
+      "blobs": 12,
+      "blobs_by_class": {
+        "skin": 6,
+        "nose": 6
+      },
+      "detect_warn": null,
+      "faces_note": "облич 2: 305px, 249px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.1713,
+      "clipped_high": 0.00818,
+      "clipped_low": 0.00129,
+      "skin_luma_median": 0.3122
+    },
+    {
+      "file": "IMG_0423.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00985,
+      "faces": 4,
+      "face_widths": [
+        468,
+        343,
+        198,
+        153
+      ],
+      "face_w": 468.0,
+      "radius_px": 2.34,
+      "radius_clamped": false,
+      "search_radius_px": 35,
+      "recommended_threshold": 0.01,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 76,
+          "touched_of_skin": 0.04223
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 21,
+          "touched_of_skin": 0.01738
+        }
+      ],
+      "unreachable": null,
+      "blobs": 21,
+      "blobs_by_class": {
+        "skin": 17,
+        "nose": 4
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 468px, 343px, 198px, 153px — один радіус 2.34 годиться для всіх",
+      "luma_median": 0.1755,
+      "clipped_high": 4e-05,
+      "clipped_low": 0.0003,
+      "skin_luma_median": 0.2714
+    },
+    {
+      "file": "IMG_0425.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00732,
+      "faces": 1,
+      "face_widths": [
+        386
+      ],
+      "face_w": 386.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 29,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 46,
+          "touched_of_skin": 0.02877
+        }
+      ],
+      "unreachable": null,
+      "blobs": 46,
+      "blobs_by_class": {
+        "skin": 46
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.1617,
+      "clipped_high": 0.00037,
+      "clipped_low": 0.00046,
+      "skin_luma_median": 0.2788
+    },
+    {
+      "file": "IMG_0427.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00665,
+      "faces": 3,
+      "face_widths": [
+        400,
+        271,
+        188
+      ],
+      "face_w": 400.0,
+      "radius_px": 2.0,
+      "radius_clamped": false,
+      "search_radius_px": 30,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 7,
+          "touched_of_skin": 0.01446
+        }
+      ],
+      "unreachable": null,
+      "blobs": 7,
+      "blobs_by_class": {
+        "skin": 5,
+        "nose": 2
+      },
+      "detect_warn": null,
+      "faces_note": "облич 3: 400px, 271px, 188px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.1515,
+      "clipped_high": 3e-05,
+      "clipped_low": 0.0003,
+      "skin_luma_median": 0.2693
+    },
+    {
+      "file": "IMG_0430.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00888,
+      "faces": 4,
+      "face_widths": [
+        340,
+        309,
+        183,
+        162
+      ],
+      "face_w": 340.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 26,
+      "recommended_threshold": 0.014,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 144,
+          "touched_of_skin": 0.08318
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 64,
+          "touched_of_skin": 0.04091
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 34,
+          "touched_of_skin": 0.03179
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 19,
+          "touched_of_skin": 0.02161
+        }
+      ],
+      "unreachable": null,
+      "blobs": 19,
+      "blobs_by_class": {
+        "skin": 17,
+        "nose": 2
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 340px, 309px, 183px, 162px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.2031,
+      "clipped_high": 0.02266,
+      "clipped_low": 0.00072,
+      "skin_luma_median": 0.3177
+    },
+    {
+      "file": "IMG_0432.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00425,
+      "faces": 4,
+      "face_widths": [
+        216,
+        206,
+        201,
+        139
+      ],
+      "face_w": 216.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 24,
+      "recommended_threshold": 0.014,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 45,
+          "touched_of_skin": 0.06567
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 33,
+          "touched_of_skin": 0.05693
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 24,
+          "touched_of_skin": 0.0445
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 19,
+          "touched_of_skin": 0.02977
+        }
+      ],
+      "unreachable": null,
+      "blobs": 19,
+      "blobs_by_class": {
+        "skin": 10,
+        "nose": 9
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 216px, 206px, 201px, 139px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.2595,
+      "clipped_high": 0.0027,
+      "clipped_low": 0.00023,
+      "skin_luma_median": 0.2573
+    },
+    {
+      "file": "IMG_0434.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.0065,
+      "faces": 4,
+      "face_widths": [
+        302,
+        300,
+        147,
+        121
+      ],
+      "face_w": 302.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 24,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 15,
+          "touched_of_skin": 0.01516
+        }
+      ],
+      "unreachable": null,
+      "blobs": 15,
+      "blobs_by_class": {
+        "skin": 13,
+        "nose": 2
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 302px, 300px, 147px, 121px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.2466,
+      "clipped_high": 0.0,
+      "clipped_low": 9e-05,
+      "skin_luma_median": 0.2509
+    },
+    {
+      "file": "IMG_0493.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01701,
+      "faces": 1,
+      "face_widths": [
+        635
+      ],
+      "face_w": 635.0,
+      "radius_px": 3.17,
+      "radius_clamped": false,
+      "search_radius_px": 48,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 6,
+          "touched_of_skin": 0.00558
+        }
+      ],
+      "unreachable": null,
+      "blobs": 6,
+      "blobs_by_class": {
+        "skin": 4,
+        "nose": 2
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.1617,
+      "clipped_high": 0.00051,
+      "clipped_low": 1e-05,
+      "skin_luma_median": 0.1681
+    },
+    {
+      "file": "IMG_0495.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01806,
+      "faces": 1,
+      "face_widths": [
+        670
+      ],
+      "face_w": 670.0,
+      "radius_px": 3.35,
+      "radius_clamped": false,
+      "search_radius_px": 50,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 4,
+          "touched_of_skin": 0.00405
+        }
+      ],
+      "unreachable": null,
+      "blobs": 4,
+      "blobs_by_class": {
+        "skin": 3,
+        "nose": 1
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.211,
+      "clipped_high": 0.00174,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.2089
+    },
+    {
+      "file": "IMG_0497.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet-МИМО",
+      "skin_frac": 0.00526,
+      "faces": 0,
+      "face_widths": [],
+      "face_w": null,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 24,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 0,
+          "touched_of_skin": 0.0
+        }
+      ],
+      "unreachable": null,
+      "blobs": 0,
+      "blobs_by_class": {},
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2849,
+      "clipped_high": 0.0,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.2928
+    },
+    {
+      "file": "IMG_0499.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet-МИМО",
+      "skin_frac": 0.02123,
+      "faces": 0,
+      "face_widths": [],
+      "face_w": null,
+      "radius_px": 8.99,
+      "radius_clamped": false,
+      "search_radius_px": 135,
+      "recommended_threshold": 0.01,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 89,
+          "touched_of_skin": 0.04898
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 42,
+          "touched_of_skin": 0.01922
+        }
+      ],
+      "unreachable": null,
+      "blobs": 42,
+      "blobs_by_class": {
+        "skin": 42
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2183,
+      "clipped_high": 0.0,
+      "clipped_low": 0.00015,
+      "skin_luma_median": 0.2749
+    },
+    {
+      "file": "IMG_0501.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00864,
+      "faces": 4,
+      "face_widths": [
+        351,
+        268,
+        233,
+        180
+      ],
+      "face_w": 351.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 26,
+      "recommended_threshold": 0.014,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 89,
+          "touched_of_skin": 0.0633
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 58,
+          "touched_of_skin": 0.04616
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 56,
+          "touched_of_skin": 0.03856
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 45,
+          "touched_of_skin": 0.02733
+        }
+      ],
+      "unreachable": null,
+      "blobs": 45,
+      "blobs_by_class": {
+        "skin": 37,
+        "nose": 8
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 351px, 268px, 233px, 180px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.3118,
+      "clipped_high": 0.0,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.3082
+    },
+    {
+      "file": "IMG_0503.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00806,
+      "faces": 3,
+      "face_widths": [
+        370,
+        296,
+        184
+      ],
+      "face_w": 370.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 28,
+      "recommended_threshold": 0.012,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 54,
+          "touched_of_skin": 0.04284
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 40,
+          "touched_of_skin": 0.03835
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 29,
+          "touched_of_skin": 0.02269
+        }
+      ],
+      "unreachable": null,
+      "blobs": 29,
+      "blobs_by_class": {
+        "skin": 24,
+        "nose": 5
+      },
+      "detect_warn": null,
+      "faces_note": "облич 3: 370px, 296px, 184px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.2963,
+      "clipped_high": 0.00874,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.2823
+    },
+    {
+      "file": "IMG_0506.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00835,
+      "faces": 4,
+      "face_widths": [
+        365,
+        286,
+        283,
+        147
+      ],
+      "face_w": 365.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 27,
+      "recommended_threshold": 0.018,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 104,
+          "touched_of_skin": 0.06546
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 88,
+          "touched_of_skin": 0.0564
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 69,
+          "touched_of_skin": 0.04693
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 48,
+          "touched_of_skin": 0.03492
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 36,
+          "touched_of_skin": 0.02425
+        }
+      ],
+      "unreachable": null,
+      "blobs": 36,
+      "blobs_by_class": {
+        "skin": 24,
+        "nose": 12
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 365px, 286px, 283px, 147px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.2565,
+      "clipped_high": 0.0,
+      "clipped_low": 8e-05,
+      "skin_luma_median": 0.2524
+    },
+    {
+      "file": "IMG_0792.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01483,
+      "faces": 4,
+      "face_widths": [
+        446,
+        388,
+        287,
+        131
+      ],
+      "face_w": 446.0,
+      "radius_px": 2.23,
+      "radius_clamped": false,
+      "search_radius_px": 33,
+      "recommended_threshold": 0.022,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 385,
+          "touched_of_skin": 0.14031
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 271,
+          "touched_of_skin": 0.11211
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 191,
+          "touched_of_skin": 0.08017
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 144,
+          "touched_of_skin": 0.06218
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 93,
+          "touched_of_skin": 0.0387
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 68,
+          "touched_of_skin": 0.02593
+        }
+      ],
+      "unreachable": null,
+      "blobs": 68,
+      "blobs_by_class": {
+        "skin": 60,
+        "nose": 8
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 446px, 388px, 287px, 131px — один радіус 2.23 годиться для всіх",
+      "luma_median": 0.3585,
+      "clipped_high": 0.0,
+      "clipped_low": 3e-05,
+      "skin_luma_median": 0.3523
+    },
+    {
+      "file": "IMG_0794.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01479,
+      "faces": 4,
+      "face_widths": [
+        446,
+        418,
+        320,
+        290
+      ],
+      "face_w": 446.0,
+      "radius_px": 2.23,
+      "radius_clamped": false,
+      "search_radius_px": 33,
+      "recommended_threshold": 0.028,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 347,
+          "touched_of_skin": 0.13633
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 224,
+          "touched_of_skin": 0.09866
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 177,
+          "touched_of_skin": 0.07727
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 144,
+          "touched_of_skin": 0.05856
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 100,
+          "touched_of_skin": 0.04749
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 71,
+          "touched_of_skin": 0.03108
+        },
+        {
+          "threshold": 0.028,
+          "blobs": 41,
+          "touched_of_skin": 0.01939
+        }
+      ],
+      "unreachable": null,
+      "blobs": 41,
+      "blobs_by_class": {
+        "skin": 36,
+        "nose": 5
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 446px, 418px, 320px, 290px — один радіус 2.23 годиться для всіх",
+      "luma_median": 0.3454,
+      "clipped_high": 0.0,
+      "clipped_low": 2e-05,
+      "skin_luma_median": 0.3368
+    },
+    {
+      "file": "IMG_0796.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.03955,
+      "faces": 4,
+      "face_widths": [
+        642,
+        633,
+        464,
+        443
+      ],
+      "face_w": 642.0,
+      "radius_px": 3.21,
+      "radius_clamped": false,
+      "search_radius_px": 48,
+      "recommended_threshold": 0.028,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 1314,
+          "touched_of_skin": 0.1894
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 994,
+          "touched_of_skin": 0.15212
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 751,
+          "touched_of_skin": 0.1195
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 585,
+          "touched_of_skin": 0.09181
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 344,
+          "touched_of_skin": 0.05575
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 218,
+          "touched_of_skin": 0.03781
+        },
+        {
+          "threshold": 0.028,
+          "blobs": 104,
+          "touched_of_skin": 0.02023
+        }
+      ],
+      "unreachable": null,
+      "blobs": 104,
+      "blobs_by_class": {
+        "skin": 76,
+        "nose": 28
+      },
+      "detect_warn": null,
+      "faces_note": "УВАГА: облич 4: 642px, 633px, 464px, 443px. Ідеальні радіуси розходяться в 1.45 раза (2.21-3.21), а радіус на кадр один — узято 3.21 по найбільшому обличчю. Дрібнішим дістанеться грубуватий: дивись на них окремо на вкладці 1:1",
+      "luma_median": 0.1131,
+      "clipped_high": 0.0,
+      "clipped_low": 0.01505,
+      "skin_luma_median": 0.2489
+    },
+    {
+      "file": "IMG_0798.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.03696,
+      "faces": 4,
+      "face_widths": [
+        708,
+        558,
+        471,
+        464
+      ],
+      "face_w": 708.0,
+      "radius_px": 3.54,
+      "radius_clamped": false,
+      "search_radius_px": 53,
+      "recommended_threshold": 0.028,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 980,
+          "touched_of_skin": 0.15833
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 721,
+          "touched_of_skin": 0.12339
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 506,
+          "touched_of_skin": 0.09363
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 372,
+          "touched_of_skin": 0.07397
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 213,
+          "touched_of_skin": 0.05617
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 132,
+          "touched_of_skin": 0.04098
+        },
+        {
+          "threshold": 0.028,
+          "blobs": 86,
+          "touched_of_skin": 0.02975
+        }
+      ],
+      "unreachable": null,
+      "blobs": 86,
+      "blobs_by_class": {
+        "skin": 78,
+        "nose": 8
+      },
+      "detect_warn": null,
+      "faces_note": "УВАГА: облич 4: 708px, 558px, 471px, 464px. Ідеальні радіуси розходяться в 1.53 раза (2.32-3.54), а радіус на кадр один — узято 3.54 по найбільшому обличчю. Дрібнішим дістанеться грубуватий: дивись на них окремо на вкладці 1:1",
+      "luma_median": 0.1134,
+      "clipped_high": 0.0,
+      "clipped_low": 0.01617,
+      "skin_luma_median": 0.2439
+    },
+    {
+      "file": "IMG_0800.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.03318,
+      "faces": 4,
+      "face_widths": [
+        605,
+        537,
+        410,
+        400
+      ],
+      "face_w": 605.0,
+      "radius_px": 3.02,
+      "radius_clamped": false,
+      "search_radius_px": 45,
+      "recommended_threshold": 0.028,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 817,
+          "touched_of_skin": 0.14584
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 616,
+          "touched_of_skin": 0.11655
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 452,
+          "touched_of_skin": 0.09417
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 337,
+          "touched_of_skin": 0.0785
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 188,
+          "touched_of_skin": 0.04534
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 135,
+          "touched_of_skin": 0.0359
+        },
+        {
+          "threshold": 0.028,
+          "blobs": 62,
+          "touched_of_skin": 0.02113
+        }
+      ],
+      "unreachable": null,
+      "blobs": 62,
+      "blobs_by_class": {
+        "skin": 55,
+        "nose": 7
+      },
+      "detect_warn": null,
+      "faces_note": "УВАГА: облич 4: 605px, 537px, 410px, 400px. Ідеальні радіуси розходяться в 1.51 раза (2.00-3.02), а радіус на кадр один — узято 3.02 по найбільшому обличчю. Дрібнішим дістанеться грубуватий: дивись на них окремо на вкладці 1:1",
+      "luma_median": 0.1216,
+      "clipped_high": 0.0,
+      "clipped_low": 0.01276,
+      "skin_luma_median": 0.2829
+    },
+    {
+      "file": "IMG_0802.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.02843,
+      "faces": 3,
+      "face_widths": [
+        569,
+        523,
+        409
+      ],
+      "face_w": 569.0,
+      "radius_px": 2.85,
+      "radius_clamped": false,
+      "search_radius_px": 43,
+      "recommended_threshold": 0.028,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 1584,
+          "touched_of_skin": 0.27956
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 1070,
+          "touched_of_skin": 0.20004
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 737,
+          "touched_of_skin": 0.14641
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 515,
+          "touched_of_skin": 0.10427
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 280,
+          "touched_of_skin": 0.06707
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 168,
+          "touched_of_skin": 0.04271
+        },
+        {
+          "threshold": 0.028,
+          "blobs": 80,
+          "touched_of_skin": 0.02288
+        }
+      ],
+      "unreachable": null,
+      "blobs": 80,
+      "blobs_by_class": {
+        "skin": 69,
+        "nose": 11
+      },
+      "detect_warn": null,
+      "faces_note": "УВАГА: облич 3: 569px, 523px, 409px. Ідеальні радіуси розходяться в 1.39 раза (2.04-2.85), а радіус на кадр один — узято 2.85 по найбільшому обличчю. Дрібнішим дістанеться грубуватий: дивись на них окремо на вкладці 1:1",
+      "luma_median": 0.0834,
+      "clipped_high": 0.0,
+      "clipped_low": 0.05109,
+      "skin_luma_median": 0.5289
+    },
+    {
+      "file": "IMG_0804.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.02638,
+      "faces": 3,
+      "face_widths": [
+        555,
+        493,
+        389
+      ],
+      "face_w": 555.0,
+      "radius_px": 2.77,
+      "radius_clamped": false,
+      "search_radius_px": 42,
+      "recommended_threshold": 0.028,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 1277,
+          "touched_of_skin": 0.2517
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 873,
+          "touched_of_skin": 0.18597
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 614,
+          "touched_of_skin": 0.13612
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 428,
+          "touched_of_skin": 0.10294
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 221,
+          "touched_of_skin": 0.06765
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 141,
+          "touched_of_skin": 0.04193
+        },
+        {
+          "threshold": 0.028,
+          "blobs": 76,
+          "touched_of_skin": 0.02147
+        }
+      ],
+      "unreachable": null,
+      "blobs": 76,
+      "blobs_by_class": {
+        "skin": 64,
+        "nose": 12
+      },
+      "detect_warn": null,
+      "faces_note": "УВАГА: облич 3: 555px, 493px, 389px. Ідеальні радіуси розходяться в 1.39 раза (2.00-2.77), а радіус на кадр один — узято 2.77 по найбільшому обличчю. Дрібнішим дістанеться грубуватий: дивись на них окремо на вкладці 1:1",
+      "luma_median": 0.0795,
+      "clipped_high": 0.0,
+      "clipped_low": 0.06001,
+      "skin_luma_median": 0.5319
+    },
+    {
+      "file": "IMG_0806.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.02154,
+      "faces": 4,
+      "face_widths": [
+        480,
+        423,
+        381,
+        367
+      ],
+      "face_w": 480.0,
+      "radius_px": 2.4,
+      "radius_clamped": false,
+      "search_radius_px": 36,
+      "recommended_threshold": 0.022,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 872,
+          "touched_of_skin": 0.21347
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 532,
+          "touched_of_skin": 0.14312
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 338,
+          "touched_of_skin": 0.0974
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 229,
+          "touched_of_skin": 0.07423
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 91,
+          "touched_of_skin": 0.03632
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 58,
+          "touched_of_skin": 0.02461
+        }
+      ],
+      "unreachable": null,
+      "blobs": 58,
+      "blobs_by_class": {
+        "skin": 49,
+        "nose": 9
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 480px, 423px, 381px, 367px — один радіус 2.40 годиться для всіх",
+      "luma_median": 0.0971,
+      "clipped_high": 0.0,
+      "clipped_low": 0.04033,
+      "skin_luma_median": 0.4909
+    },
+    {
+      "file": "IMG_0808.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.0222,
+      "faces": 4,
+      "face_widths": [
+        481,
+        425,
+        414,
+        391
+      ],
+      "face_w": 481.0,
+      "radius_px": 2.4,
+      "radius_clamped": false,
+      "search_radius_px": 36,
+      "recommended_threshold": 0.022,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 829,
+          "touched_of_skin": 0.20319
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 561,
+          "touched_of_skin": 0.14704
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 368,
+          "touched_of_skin": 0.10961
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 252,
+          "touched_of_skin": 0.08034
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 123,
+          "touched_of_skin": 0.04428
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 63,
+          "touched_of_skin": 0.02516
+        }
+      ],
+      "unreachable": null,
+      "blobs": 63,
+      "blobs_by_class": {
+        "skin": 52,
+        "nose": 11
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 481px, 425px, 414px, 391px — один радіус 2.40 годиться для всіх",
+      "luma_median": 0.1304,
+      "clipped_high": 0.0,
+      "clipped_low": 0.0314,
+      "skin_luma_median": 0.4021
+    },
+    {
+      "file": "IMG_0810.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.02206,
+      "faces": 4,
+      "face_widths": [
+        469,
+        439,
+        406,
+        394
+      ],
+      "face_w": 469.0,
+      "radius_px": 2.35,
+      "radius_clamped": false,
+      "search_radius_px": 35,
+      "recommended_threshold": 0.022,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 923,
+          "touched_of_skin": 0.22347
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 617,
+          "touched_of_skin": 0.15346
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 394,
+          "touched_of_skin": 0.10225
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 290,
+          "touched_of_skin": 0.08094
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 140,
+          "touched_of_skin": 0.04646
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 72,
+          "touched_of_skin": 0.02529
+        }
+      ],
+      "unreachable": null,
+      "blobs": 72,
+      "blobs_by_class": {
+        "skin": 60,
+        "nose": 12
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 469px, 439px, 406px, 394px — один радіус 2.35 годиться для всіх",
+      "luma_median": 0.1226,
+      "clipped_high": 0.0,
+      "clipped_low": 0.02931,
+      "skin_luma_median": 0.4055
+    },
+    {
+      "file": "IMG_0812.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01939,
+      "faces": 4,
+      "face_widths": [
+        467,
+        376,
+        372,
+        365
+      ],
+      "face_w": 467.0,
+      "radius_px": 2.33,
+      "radius_clamped": false,
+      "search_radius_px": 35,
+      "recommended_threshold": 0.022,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 446,
+          "touched_of_skin": 0.12263
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 254,
+          "touched_of_skin": 0.08734
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 137,
+          "touched_of_skin": 0.0642
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 105,
+          "touched_of_skin": 0.05168
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 62,
+          "touched_of_skin": 0.03228
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 47,
+          "touched_of_skin": 0.02254
+        }
+      ],
+      "unreachable": null,
+      "blobs": 47,
+      "blobs_by_class": {
+        "skin": 34,
+        "nose": 13
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 467px, 376px, 372px, 365px — один радіус 2.33 годиться для всіх",
+      "luma_median": 0.103,
+      "clipped_high": 0.00306,
+      "clipped_low": 0.04617,
+      "skin_luma_median": 0.3347
+    },
+    {
+      "file": "IMG_0814.CR3",
+      "w": 6264,
+      "h": 4180,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01152,
+      "faces": 4,
+      "face_widths": [
+        328,
+        324,
+        317,
+        295
+      ],
+      "face_w": 328.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 25,
+      "recommended_threshold": 0.022,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 313,
+          "touched_of_skin": 0.16211
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 221,
+          "touched_of_skin": 0.11401
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 146,
+          "touched_of_skin": 0.08753
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 101,
+          "touched_of_skin": 0.07068
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 63,
+          "touched_of_skin": 0.04694
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 38,
+          "touched_of_skin": 0.0296
+        }
+      ],
+      "unreachable": null,
+      "blobs": 38,
+      "blobs_by_class": {
+        "skin": 30,
+        "nose": 8
+      },
+      "detect_warn": null,
+      "faces_note": "облич 4: 328px, 324px, 317px, 295px — один радіус 2.00 годиться для всіх",
+      "luma_median": 0.1601,
+      "clipped_high": 0.0,
+      "clipped_low": 0.00293,
+      "skin_luma_median": 0.362
+    },
+    {
+      "file": "IMG_9851.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01203,
+      "faces": 1,
+      "face_widths": [
+        680
+      ],
+      "face_w": 680.0,
+      "radius_px": 3.4,
+      "radius_clamped": false,
+      "search_radius_px": 51,
+      "recommended_threshold": 0.012,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 43,
+          "touched_of_skin": 0.05154
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 25,
+          "touched_of_skin": 0.03409
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 17,
+          "touched_of_skin": 0.02518
+        }
+      ],
+      "unreachable": null,
+      "blobs": 17,
+      "blobs_by_class": {
+        "skin": 13,
+        "nose": 4
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2318,
+      "clipped_high": 0.0072,
+      "clipped_low": 0.00824,
+      "skin_luma_median": 0.3
+    },
+    {
+      "file": "IMG_9860.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.013,
+      "faces": 1,
+      "face_widths": [
+        612
+      ],
+      "face_w": 612.0,
+      "radius_px": 3.06,
+      "radius_clamped": false,
+      "search_radius_px": 46,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 22,
+          "touched_of_skin": 0.02823
+        }
+      ],
+      "unreachable": null,
+      "blobs": 22,
+      "blobs_by_class": {
+        "skin": 15,
+        "nose": 7
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2038,
+      "clipped_high": 0.01234,
+      "clipped_low": 0.01074,
+      "skin_luma_median": 0.2926
+    },
+    {
+      "file": "IMG_9865.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01166,
+      "faces": 1,
+      "face_widths": [
+        631
+      ],
+      "face_w": 631.0,
+      "radius_px": 3.15,
+      "radius_clamped": false,
+      "search_radius_px": 47,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 7,
+          "touched_of_skin": 0.00463
+        }
+      ],
+      "unreachable": null,
+      "blobs": 7,
+      "blobs_by_class": {
+        "skin": 4,
+        "nose": 3
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2054,
+      "clipped_high": 0.01218,
+      "clipped_low": 0.01221,
+      "skin_luma_median": 0.2636
+    },
+    {
+      "file": "IMG_9870.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01937,
+      "faces": 1,
+      "face_widths": [
+        763
+      ],
+      "face_w": 763.0,
+      "radius_px": 3.81,
+      "radius_clamped": false,
+      "search_radius_px": 57,
+      "recommended_threshold": 0.014,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 119,
+          "touched_of_skin": 0.05831
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 65,
+          "touched_of_skin": 0.0398
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 48,
+          "touched_of_skin": 0.03508
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 40,
+          "touched_of_skin": 0.02725
+        }
+      ],
+      "unreachable": null,
+      "blobs": 40,
+      "blobs_by_class": {
+        "skin": 34,
+        "nose": 6
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.1413,
+      "clipped_high": 0.00257,
+      "clipped_low": 0.01386,
+      "skin_luma_median": 0.3041
+    },
+    {
+      "file": "IMG_9879.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.03999,
+      "faces": 1,
+      "face_widths": [
+        1089
+      ],
+      "face_w": 1089.0,
+      "radius_px": 5.45,
+      "radius_clamped": false,
+      "search_radius_px": 82,
+      "recommended_threshold": 0.012,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 204,
+          "touched_of_skin": 0.05961
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 133,
+          "touched_of_skin": 0.03929
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 91,
+          "touched_of_skin": 0.02666
+        }
+      ],
+      "unreachable": null,
+      "blobs": 91,
+      "blobs_by_class": {
+        "skin": 86,
+        "nose": 5
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.1489,
+      "clipped_high": 0.00751,
+      "clipped_low": 0.013,
+      "skin_luma_median": 0.2458
+    },
+    {
+      "file": "IMG_9884.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00937,
+      "faces": 1,
+      "face_widths": [
+        571
+      ],
+      "face_w": 571.0,
+      "radius_px": 2.85,
+      "radius_clamped": false,
+      "search_radius_px": 43,
+      "recommended_threshold": 0.022,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 164,
+          "touched_of_skin": 0.12904
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 112,
+          "touched_of_skin": 0.10853
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 76,
+          "touched_of_skin": 0.07611
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 59,
+          "touched_of_skin": 0.06698
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 36,
+          "touched_of_skin": 0.04384
+        },
+        {
+          "threshold": 0.022,
+          "blobs": 21,
+          "touched_of_skin": 0.02205
+        }
+      ],
+      "unreachable": null,
+      "blobs": 21,
+      "blobs_by_class": {
+        "skin": 16,
+        "nose": 5
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.217,
+      "clipped_high": 0.00083,
+      "clipped_low": 0.01549,
+      "skin_luma_median": 0.4852
+    },
+    {
+      "file": "IMG_9895.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00493,
+      "faces": 1,
+      "face_widths": [
+        515
+      ],
+      "face_w": 515.0,
+      "radius_px": 2.58,
+      "radius_clamped": false,
+      "search_radius_px": 39,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 11,
+          "touched_of_skin": 0.02198
+        }
+      ],
+      "unreachable": null,
+      "blobs": 11,
+      "blobs_by_class": {
+        "skin": 7,
+        "nose": 4
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.1303,
+      "clipped_high": 0.0,
+      "clipped_low": 0.03019,
+      "skin_luma_median": 0.2376
+    },
+    {
+      "file": "IMG_9904.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00631,
+      "faces": 1,
+      "face_widths": [
+        492
+      ],
+      "face_w": 492.0,
+      "radius_px": 2.46,
+      "radius_clamped": false,
+      "search_radius_px": 37,
+      "recommended_threshold": 0.014,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 26,
+          "touched_of_skin": 0.04538
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 22,
+          "touched_of_skin": 0.04509
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 22,
+          "touched_of_skin": 0.03798
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 17,
+          "touched_of_skin": 0.02229
+        }
+      ],
+      "unreachable": null,
+      "blobs": 17,
+      "blobs_by_class": {
+        "skin": 13,
+        "nose": 4
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.1123,
+      "clipped_high": 0.0,
+      "clipped_low": 0.0233,
+      "skin_luma_median": 0.2594
+    },
+    {
+      "file": "IMG_9945.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00259,
+      "faces": 1,
+      "face_widths": [
+        324
+      ],
+      "face_w": 324.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 24,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 2,
+          "touched_of_skin": 0.01852
+        }
+      ],
+      "unreachable": null,
+      "blobs": 2,
+      "blobs_by_class": {
+        "nose": 1,
+        "skin": 1
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.18,
+      "clipped_high": 0.0,
+      "clipped_low": 0.00069,
+      "skin_luma_median": 0.2106
+    },
+    {
+      "file": "IMG_9953.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.01368,
+      "faces": 1,
+      "face_widths": [
+        633
+      ],
+      "face_w": 633.0,
+      "radius_px": 3.17,
+      "radius_clamped": false,
+      "search_radius_px": 47,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 2,
+          "touched_of_skin": 0.00041
+        }
+      ],
+      "unreachable": null,
+      "blobs": 2,
+      "blobs_by_class": {
+        "skin": 2
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.118,
+      "clipped_high": 4e-05,
+      "clipped_low": 0.01473,
+      "skin_luma_median": 0.1685
+    },
+    {
+      "file": "IMG_9958.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00375,
+      "faces": 1,
+      "face_widths": [
+        359
+      ],
+      "face_w": 359.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 27,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 3,
+          "touched_of_skin": 0.006
+        }
+      ],
+      "unreachable": null,
+      "blobs": 3,
+      "blobs_by_class": {
+        "skin": 2,
+        "nose": 1
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2224,
+      "clipped_high": 1e-05,
+      "clipped_low": 5e-05,
+      "skin_luma_median": 0.2767
+    },
+    {
+      "file": "IMG_9966.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00637,
+      "faces": 1,
+      "face_widths": [
+        499
+      ],
+      "face_w": 499.0,
+      "radius_px": 2.5,
+      "radius_clamped": false,
+      "search_radius_px": 37,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 3,
+          "touched_of_skin": 0.00467
+        }
+      ],
+      "unreachable": null,
+      "blobs": 3,
+      "blobs_by_class": {
+        "nose": 2,
+        "skin": 1
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2587,
+      "clipped_high": 0.03055,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.2497
+    },
+    {
+      "file": "IMG_9974.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.06066,
+      "faces": 1,
+      "face_widths": [
+        1456
+      ],
+      "face_w": 1456.0,
+      "radius_px": 7.28,
+      "radius_clamped": false,
+      "search_radius_px": 109,
+      "recommended_threshold": 0.01,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 220,
+          "touched_of_skin": 0.03416
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 101,
+          "touched_of_skin": 0.01875
+        }
+      ],
+      "unreachable": null,
+      "blobs": 101,
+      "blobs_by_class": {
+        "skin": 94,
+        "nose": 7
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2446,
+      "clipped_high": 0.00783,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.2549
+    },
+    {
+      "file": "IMG_9980.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.06633,
+      "faces": 1,
+      "face_widths": [
+        1346
+      ],
+      "face_w": 1346.0,
+      "radius_px": 6.73,
+      "radius_clamped": false,
+      "search_radius_px": 101,
+      "recommended_threshold": 0.018,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 823,
+          "touched_of_skin": 0.09218
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 404,
+          "touched_of_skin": 0.05735
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 223,
+          "touched_of_skin": 0.03825
+        },
+        {
+          "threshold": 0.014,
+          "blobs": 154,
+          "touched_of_skin": 0.03055
+        },
+        {
+          "threshold": 0.018,
+          "blobs": 102,
+          "touched_of_skin": 0.02283
+        }
+      ],
+      "unreachable": null,
+      "blobs": 102,
+      "blobs_by_class": {
+        "skin": 94,
+        "nose": 8
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2573,
+      "clipped_high": 0.00953,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.278
+    },
+    {
+      "file": "IMG_9983.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00193,
+      "faces": 1,
+      "face_widths": [
+        269
+      ],
+      "face_w": 269.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 24,
+      "recommended_threshold": 0.01,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 7,
+          "touched_of_skin": 0.03049
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 4,
+          "touched_of_skin": 0.01969
+        }
+      ],
+      "unreachable": null,
+      "blobs": 4,
+      "blobs_by_class": {
+        "nose": 3,
+        "skin": 1
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.3043,
+      "clipped_high": 0.02593,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.3273
+    },
+    {
+      "file": "IMG_9988.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.00179,
+      "faces": 1,
+      "face_widths": [
+        264
+      ],
+      "face_w": 264.0,
+      "radius_px": 2.0,
+      "radius_clamped": true,
+      "search_radius_px": 24,
+      "recommended_threshold": 0.008,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 4,
+          "touched_of_skin": 0.01536
+        }
+      ],
+      "unreachable": null,
+      "blobs": 4,
+      "blobs_by_class": {
+        "skin": 3,
+        "nose": 1
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.2096,
+      "clipped_high": 0.00447,
+      "clipped_low": 1e-05,
+      "skin_luma_median": 0.2363
+    },
+    {
+      "file": "IMG_9997.CR3",
+      "w": 4180,
+      "h": 6264,
+      "mp": 26.2,
+      "raw_decoder": "rawpy",
+      "skin_source": "face-parsing+yunet",
+      "skin_frac": 0.07141,
+      "faces": 1,
+      "face_widths": [
+        1582
+      ],
+      "face_w": 1582.0,
+      "radius_px": 7.91,
+      "radius_clamped": false,
+      "search_radius_px": 119,
+      "recommended_threshold": 0.012,
+      "threshold_curve": [
+        {
+          "threshold": 0.008,
+          "blobs": 539,
+          "touched_of_skin": 0.05671
+        },
+        {
+          "threshold": 0.01,
+          "blobs": 277,
+          "touched_of_skin": 0.0301
+        },
+        {
+          "threshold": 0.012,
+          "blobs": 161,
+          "touched_of_skin": 0.02303
+        }
+      ],
+      "unreachable": null,
+      "blobs": 161,
+      "blobs_by_class": {
+        "skin": 152,
+        "nose": 9
+      },
+      "detect_warn": null,
+      "faces_note": null,
+      "luma_median": 0.21,
+      "clipped_high": 0.00013,
+      "clipped_low": 0.0,
+      "skin_luma_median": 0.2442
+    }
+  ],
+  "how_to_use": {
+    "головне": "пиши ЦІЛЬ (detect.target_coverage), а не поріг: поріг між кадрами не переноситься (spec.md §6.2.1)",
+    "скільки пресетів": "дивись spread.recommended_threshold. Якщо min і max відрізняються в рази — одного пресету на зйомку не існує, і ділити треба за тим, що РОЗХОДИТЬСЯ, а не за номером кадру",
+    "чому": "поле why обов'язкове. Десять пресетів у числах виглядають однаково, і вибрати з них можна лише за причиною (spec.md §1.2)",
+    "crop_*.jpg": "кропи 1:1 з КРАЙНІХ кадрів. Про ретуш судити тільки по них — на contact.jpg її не видно взагалі",
+    "contact.jpg": "про що зйомка й чим кадри відрізняються: світло, план, скільки людей",
+    "схема": "python3 -m retouch.cli --schema"
+  }
+}

@@ -210,19 +210,23 @@ def main(argv: list[str] | None = None) -> int:
     if not a.input:
         ap.error("не вказано вхідний файл або теку")
     src = Path(a.input)
-    files = ([p for p in sorted(src.iterdir()) if p.suffix.lower() in SUFFIXES]
-             if src.is_dir() else [src])
+    # Перелік кадрів теки — ТІЛЬКИ через batch.find_inputs. Свій список
+    # розширень тут уже розійшовся: він лишився без RAW після того, як
+    # RAW навчились читати, і тека з 44 CR3 виглядала порожньою, а
+    # повідомлення радило «сконвертуй у TIFF» про формат, який конвеєр
+    # читає сам. Одне означення «що таке кадр» на весь застосунок.
+    files = batch_mod.find_inputs(src)
     if not files:
-        # Найчастіша причина порожньої теки — вона повна RAW. Мовчазне
-        # "нічого обробляти" на теці з 200 CR3 збиває з пантелику.
-        raws = ([p for p in sorted(src.iterdir())
-                 if p.suffix.lower() in RAW_SUFFIXES] if src.is_dir() else [])
-        if raws:
-            print(f"у {src} лише RAW ({len(raws)} шт., напр. {raws[0].name}).\n"
-                  f"RAW проєкт не читає навмисно — spec.md §4. Потрібен "
-                  f"16-бітний TIFF з Camera Raw.", file=sys.stderr)
+        # Дві причини, і шукати їх треба в різних місцях: «немає файлу»
+        # — у шляху, «тека без кадрів» — у теці. Названий явно файл сюди
+        # не потрапляє взагалі: find_inputs віддає його як є, навіть якщо
+        # розширення чуже, і зрозумілу відмову дає вже imageio. Так і
+        # має бути — явне прохання не фільтрують за здогадкою.
+        if not src.exists():
+            print(f"файлу немає: {src}", file=sys.stderr)
         else:
-            print("нічого обробляти", file=sys.stderr)
+            print(f"нічого обробляти в {src}: жодного кадру "
+                  f"({', '.join(sorted(batch_mod.SUFFIXES))})", file=sys.stderr)
         return 1
 
     if a.batch:

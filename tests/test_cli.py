@@ -211,6 +211,43 @@ def test_missing_xmp_does_not_stop_the_run():
             "промовчали про те, що XMP просили, а не знайшли")
 
 
+def test_a_folder_of_raw_is_not_empty():
+    """Тека з RAW має бути повною теки, а не порожньою.
+
+    Було: cli.py мав СВІЙ список розширень, і той лишився без RAW після
+    того, як RAW навчились читати. Тека з 44 CR3 виглядала порожньою, а
+    повідомлення радило сконвертувати в TIFF формат, який конвеєр читає
+    сам. Тепер перелік кадрів один на весь застосунок.
+    """
+    from retouch import batch as bm
+    from retouch import webui as wm
+    print(f"  batch: {len(bm.SUFFIXES)} розширень, webui: {len(wm.SUFFIXES)}")
+    assert bm.SUFFIXES is wm.SUFFIXES or bm.SUFFIXES == wm.SUFFIXES, (
+        "webui й batch знову рахують кадри по-різному")
+    assert ".cr3" in bm.SUFFIXES, "RAW випав з переліку кадрів"
+
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        (d / "IMG_1.CR3").write_bytes(b"x")
+        (d / "IMG_2.NEF").write_bytes(b"x")
+        (d / "notes.txt").write_text("x")
+        found = bm.find_inputs(d)
+        print(f"  знайдено {[p.name for p in found]}")
+        assert len(found) == 2, "RAW не потрапив у перелік"
+        r = _run(str(d / "нема.CR3"), "--dry-run", expect=1)
+        assert "файлу немає" in r.stderr
+
+
+def test_empty_folder_says_which_folder():
+    """Порожня тека — зрозуміла відмова з назвою теки."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t) / "порожньо"
+        d.mkdir()
+        r = _run(str(d), "--dry-run", expect=1)
+        print(f"  {r.stderr.strip()[:60]}")
+        assert "нічого обробляти" in r.stderr and str(d) in r.stderr
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

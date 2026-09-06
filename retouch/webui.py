@@ -42,7 +42,12 @@ from .pipeline import Config, Session
 from .warp import WarpParams
 
 STATIC = Path(__file__).resolve().parent / "static"
-SUFFIXES = {".tif", ".tiff", ".png", ".jpg", ".jpeg"}
+# Одне означення «що таке кадр» на весь застосунок. Свій список тут уже
+# розходився з batch.SUFFIXES, і тека з RAW виглядала порожньою в одному
+# місці й повною в іншому.
+from .batch import SUFFIXES as FRAME_SUFFIXES
+
+SUFFIXES = FRAME_SUFFIXES
 
 
 # ---------------------------------------------------------------------------
@@ -968,7 +973,7 @@ class Handler(BaseHTTPRequestHandler):
                     continue
                 if p.is_dir():
                     dirs.append(p.name)
-                elif p.suffix.lower() in SUFFIXES | RAW_SUFFIXES:
+                elif p.suffix.lower() in SUFFIXES:
                     files.append({"name": p.name,
                                   "raw": p.suffix.lower() in RAW_SUFFIXES,
                                   "mb": round(p.stat().st_size / 2**20, 1)})
