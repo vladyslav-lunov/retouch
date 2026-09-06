@@ -438,6 +438,85 @@ def test_class_choice_survives_rerun():
         _post("/api/preset", {"clear": True})
 
 
+def test_shoot_listing_marks_written_frames():
+    """«Готово» в панелі і «готово» в пакеті мають означати одне й те саме.
+
+    Ознака одна на обох — зведений файл, за яким `batch.already_done`
+    вирішує, чи кадр дійшов до кінця. Два різні означення розійшлися б
+    на першому ж перерваному прогоні.
+    """
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        src = d / "shoot"
+        src.mkdir()
+        for n in ("A", "B"):
+            img, _s, _tr = make_face(h=600, w=460, face_w=340, n_spots=6, seed=1)
+            cv2.imwrite(str(src / f"{n}.tif"),
+                        (np.clip(img, 0, 1) * 65535 + 0.5).astype(np.uint16))
+        out = d / "out"
+        out.mkdir()
+        rows = json.loads(_get(f"/api/session?dir={src}&out={out}")[1])
+        print(f"  до запису: {[(r['file'], r['done']) for r in rows]}")
+        assert len(rows) == 2 and not any(r["done"] for r in rows)
+
+        (out / "A_99_flat.tif").write_bytes(b"x")     # ніби кадр записано
+        rows = json.loads(_get(f"/api/session?dir={src}&out={out}")[1])
+        print(f"  після: {[(r['file'], r['done']) for r in rows]}")
+        assert dict((r["file"], r["done"]) for r in rows) == {"A.tif": True,
+                                                              "B.tif": False}
+
+
+def test_batch_from_ui_uses_the_same_engine_and_reports_each_frame():
+    """UI не має власного циклу по кадрах.
+
+    Якби мав, «прогнати один кадр руками» і «прогнати теку на ніч»
+    давали б різний результат, і дізнались би ми про це вранці.
+    """
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        src = d / "shoot"
+        src.mkdir()
+        for n in ("A", "B"):
+            img, _s, _tr = make_face(h=600, w=460, face_w=340, n_spots=6, seed=2)
+            cv2.imwrite(str(src / f"{n}.tif"),
+                        (np.clip(img, 0, 1) * 65535 + 0.5).astype(np.uint16))
+        out = d / "out"
+        code, r = _post("/api/session/batch",
+                        {"dir": str(src), "out": str(out), "params": {}})
+        assert code == 200 and r.get("ok"), r
+        st = _wait_idle()
+        print(f"  {[(b['file'], b['status']) for b in st['batch']]}")
+        print(f"  {st['written']}")
+        assert len(st["batch"]) == 2
+        assert all(b["status"] == "done" for b in st["batch"]), st["batch"]
+        assert (out / "A_99_flat.tif").exists()
+
+        # продовження: другий прогін має пропустити те, що вже записано
+        _post("/api/session/batch", {"dir": str(src), "out": str(out), "params": {}})
+        st = _wait_idle()
+        print(f"  повторно: {[(b['file'], b['status']) for b in st['batch']]}")
+        assert all(b["status"] == "skipped" for b in st["batch"])
+
+
+def test_batch_without_a_folder_refuses():
+    """Порожня тека — зрозуміла відмова, а не мовчазний «успіх» ні над чим.
+
+    Теку скидаємо явно: попередні тести її задають, і без скидання тест
+    просто нічого не перевіряв би, лишаючись зеленим.
+    """
+    _start()
+    saved = webui.APP.shoot_dir
+    webui.APP.shoot_dir = ""
+    try:
+        code, r = _post("/api/session/batch", {"params": {}})
+        print(f"  -> {code}: {r.get('error')}")
+        assert code == 409 and r.get("error")
+    finally:
+        webui.APP.shoot_dir = saved
+
+
 if __name__ == "__main__":
     fails = 0
     # Порядок — той, у якому тести написані: вони ділять один сервер і

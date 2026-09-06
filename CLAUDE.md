@@ -15,6 +15,7 @@ python3 scripts/check_face_model.py M.onnx IMG.tif   # перевірити ва
 python3 -m retouch.cli fixtures/PORTRAIT.tif -o out --preview
 python3 -m retouch.webui                    # локальний UI, порт 8765
 python3 -m retouch.webui IMG.tif --port 8771 --no-browser
+# вкладка «Зйомка»: тека кадрів, ← → гортання, пакет тим самим движком
 python3 -m retouch.cli --schema             # схема пресету для агента
 python3 scripts/brief.py IMG.CR3 -o brief   # досьє на кадр ДЛЯ агента
 python3 -m retouch.cli IMG.tif -o out --xmp          # взяти налаштування ACR

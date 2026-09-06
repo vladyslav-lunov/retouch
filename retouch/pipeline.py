@@ -15,7 +15,8 @@ import cv2
 import numpy as np
 
 from . import imageio, layers as layers_mod
-from .blemish import DetectParams, detect_blemishes, heal_blemishes
+from .blemish import (DetectParams, Responses, detect_blemishes,
+                      heal_blemishes)
 from .freqsep import face_width, freq_merge, freq_split, radius_for
 from .masks import MaskParams, build_skin_mask
 from .develop import DevelopParams, apply_pixels
@@ -543,10 +544,13 @@ class Session:
             st.done("маски немає — підбирати нема під що")
             return self.cfg.detect.threshold
 
+        # Смуговий банк — один раз на всі проби: він від порога не
+        # залежить, а коштує більше половини кожної проби.
+        bank = Responses(self.high, self.cfg.detect)
         curve, chosen = [], None
         for t in self.THRESHOLD_LADDER:
             p = replace(self.cfg.detect, threshold=t, target_coverage=None)
-            lbl, blobs = detect_blemishes(self.high, self.skin, p)
+            lbl, blobs = detect_blemishes(self.high, self.skin, p, responses=bank)
             _h2, cov = heal_blemishes(self.high, lbl, blobs, self.skin,
                                       search_radius=self.search_radius_px,
                                       strength=self.cfg.strength)

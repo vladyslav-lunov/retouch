@@ -166,6 +166,38 @@ def test_stability_across_seeds():
         assert found >= 0.7 * len(spots)
 
 
+def test_response_bank_changes_nothing_but_the_time():
+    """Оптимізація, яка міняє результат, — це не оптимізація."""
+    from retouch.blemish import Responses
+    img, _spots = make_skin(h=900, w=700, n_spots=14, seed=5)
+    _low, high = freq_split(img, 4.0)
+    bank = Responses(high, DetectParams())
+    for t in (0.008, 0.012, 0.02):
+        p = DetectParams(threshold=t)
+        l1, b1 = detect_blemishes(high, None, p)
+        l2, b2 = detect_blemishes(high, None, p, responses=bank)
+        assert np.array_equal(l1, l2), f"мітки розійшлись на порозі {t}"
+        assert [x["contrast"] for x in b1] == [x["contrast"] for x in b2]
+    print(f"  три пороги, той самий банк — мітки й контрасти збігаються")
+
+
+def test_bank_with_other_scales_is_refused():
+    """Мовчки взяти чужі відгуки = застосувати не ті параметри (§1)."""
+    from retouch.blemish import Responses
+    img, _s = make_skin(h=600, w=460, n_spots=8, seed=2)
+    _low, high = freq_split(img, 4.0)
+    bank = Responses(high, DetectParams(scales=(1.5, 3.0, 6.0)))
+    other = DetectParams(scales=(2.0, 5.0))
+    print(f"  банк {bank.scales} для параметрів {other.scales}: "
+          f"пасує={bank.fits(other)}")
+    assert not bank.fits(other)
+    # і результат має збігтися з чесним перерахунком, а не з банком
+    a = detect_blemishes(high, None, other)[1]
+    b = detect_blemishes(high, None, other, responses=bank)[1]
+    assert [x["contrast"] for x in a] == [x["contrast"] for x in b], (
+        "непридатний банк усе-таки використали")
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

@@ -72,6 +72,9 @@ class App:
         self.preset: dict = {}
         self.preset_notes: list[str] = []
         self.preset_name: str = ""
+        self.shoot_dir: str = ""
+        self.shoot_out: str = "out"
+        self.batch: list = []          # прогрес пакетного прогону
 
     # --- прогрес --------------------------------------------------------
     def sink(self, ev: dict) -> None:
@@ -93,6 +96,8 @@ class App:
             # наперед, і вкладка «Пресети» читається до відкриття файлу.
             "preset": self.preset, "preset_notes": self.preset_notes,
             "preset_name": self.preset_name,
+            "shoot_dir": self.shoot_dir, "shoot_out": self.shoot_out,
+            "batch": self.batch,
         }
         if s is None:
             return d
@@ -378,6 +383,55 @@ def list_presets(root: str = "presets") -> list[dict]:
     return out
 
 
+def shoot_frames(src: str, out_dir: str) -> list[dict]:
+    """Кадри зйомки з ознакою «вже записаний».
+
+    Ознака — той самий зведений файл, за яким пакет вирішує, чи кадр
+    оброблено (`batch.already_done`). Два різні означення «готово» в
+    одному застосунку розійшлися б на першому ж перерваному прогоні.
+    """
+    from . import batch as batch_mod
+
+    d = Path(src).expanduser()
+    if not d.exists():
+        return []
+    files = batch_mod.find_inputs(d)
+    out = Path(out_dir).expanduser()
+    rows = []
+    for f in files:
+        rows.append({
+            "file": f.name, "path": str(f),
+            "mb": round(f.stat().st_size / 1e6, 1),
+            "raw": f.suffix.lower() in RAW_SUFFIXES,
+            "done": batch_mod.already_done(f, out),
+        })
+    return rows
+
+
+def do_batch(src: str, out_dir: str, params: dict, use_xmp: bool) -> None:
+    """Прогнати всю теку тими самими налаштуваннями, що й поточний кадр.
+
+    Свідомо той самий `batch.process`, що й у CLI: якби UI мав власний
+    цикл, «прогнати вручну один кадр» і «прогнати теку на ніч» давали б
+    різний результат, і дізнались би ми про це вранці.
+    """
+    from . import batch as batch_mod
+
+    APP.batch = []
+
+    def on_item(item, rep):
+        APP.batch = [{"file": i.path.name, "status": i.status,
+                      "sec": round(i.seconds, 1), "note": i.note,
+                      "preset": i.preset} for i in rep.items]
+
+    rep = batch_mod.process(
+        src, out_dir, base_preset=APP.preset,
+        cfg_factory=lambda: cfg_from(params, APP.preset),
+        resume=True, use_xmp=use_xmp, on_item=on_item)
+    APP.written = [f"пакет: {len(rep.done)} готово, {len(rep.skipped)} пропущено, "
+                   f"{len(rep.failed)} збоїв"]
+
+
 # ---------------------------------------------------------------------------
 # дії
 # ---------------------------------------------------------------------------
@@ -598,6 +652,10 @@ class Handler(BaseHTTPRequestHandler):
                 # інакше поле в дата-класі й поле в UI розходяться на
                 # першій же зміні.
                 return self._json(presets_mod.schema())
+            if u.path == "/api/session":
+                APP.shoot_dir = q.get("dir", APP.shoot_dir)
+                APP.shoot_out = q.get("out", APP.shoot_out) or "out"
+                return self._json(shoot_frames(APP.shoot_dir, APP.shoot_out))
             if u.path == "/api/presets":
                 return self._json(list_presets(q.get("dir", "presets")))
             if u.path == "/api/models":
@@ -727,6 +785,14 @@ class Handler(BaseHTTPRequestHandler):
                     out = out / f"{d.get('file') or 'preset'}.yaml"
                 return self._json({"ok": True,
                                    "path": str(presets_mod.save(out, data))})
+            if u.path == "/api/session/batch":
+                src = d.get("dir") or APP.shoot_dir
+                if not src:
+                    return self._json({"error": "тека зйомки не задана"}, 409)
+                out = d.get("out") or APP.shoot_out or "out"
+                APP.job(lambda: do_batch(src, out, d.get("params", {}),
+                                         bool(d.get("xmp"))))
+                return self._json({"ok": True})
             if u.path == "/api/develop":
                 if APP.sess is None:
                     return self._json({"error": "спершу відкрий кадр"}, 409)

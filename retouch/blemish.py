@@ -64,10 +64,41 @@ class DetectParams:
     небезпечно."""
 
 
+class Responses:
+    """Смуговий банк, порахований один раз.
+
+    Розмиття трьох масштабів на 26 Мп коштує ~2.2 с, і від ПОРОГА воно
+    не залежить узагалі: поріг лише ріже вже готові відгуки. Підбір
+    порога (`Session.solve_threshold`) робить до восьми проб, тобто без
+    цього класу платив би за ті самі розмиття вісім разів.
+
+    Бісекція замість повного перебору тут НЕ годиться: заміряно на 44
+    кадрах, що покриття не строго монотонне по порогу — 6 порушень на
+    264 переходах. Причина в `max_area`: завелика пляма на низькому
+    порозі відкидається, а на вищому стискається і починає проходити.
+    Тому перебір лишається повним, а дешевшає сама проба.
+    """
+
+    __slots__ = ("hf", "maps", "scales")
+
+    def __init__(self, high: np.ndarray, p: "DetectParams"):
+        self.hf = luma(high)
+        self.scales = tuple(p.scales)
+        self.maps = [cv2.GaussianBlur(self.hf, (0, 0), s,
+                                      borderType=cv2.BORDER_REPLICATE)
+                     for s in self.scales]
+
+    def fits(self, p: "DetectParams") -> bool:
+        """Чи придатні ці відгуки для таких параметрів. Масштаби — єдине,
+        що на них впливає; поріг і фільтри площі — ні."""
+        return tuple(p.scales) == self.scales
+
+
 def detect_blemishes(
     high: np.ndarray,
     skin_mask: np.ndarray | None = None,
     p: DetectParams | None = None,
+    responses: "Responses | None" = None,
 ) -> tuple[np.ndarray, list[dict]]:
     """Багатомасштабна детекція плям на HF-шарі.
 
@@ -76,9 +107,16 @@ def detect_blemishes(
       blobs  — список dict: id, bbox, area, contrast, scale, center.
     Список відсортований за спаданням контрасту: перші елементи —
     найпомітніші дефекти, тобто ті, які варто лікувати завжди.
+
+    `responses` — готовий смуговий банк, щоб не платити за розмиття
+    вдруге при переборі порогів. Якщо він не пасує до параметрів
+    (інші масштаби), рахуємо наново: мовчки взяти чужі відгуки означало
+    б застосувати не ті параметри, про які просили.
     """
     p = p or DetectParams()
-    hf = luma(high)
+    if responses is None or not responses.fits(p):
+        responses = Responses(high, p)
+    hf = responses.hf
     h, w = hf.shape
 
     if skin_mask is None:
@@ -89,8 +127,7 @@ def detect_blemishes(
     acc = np.zeros((h, w), np.uint8)
     scale_of = np.zeros((h, w), np.float32)
 
-    for s in p.scales:
-        resp = cv2.GaussianBlur(hf, (0, 0), s, borderType=cv2.BORDER_REPLICATE)
+    for s, resp in zip(responses.scales, responses.maps):
         hit = np.zeros((h, w), np.uint8)
         if p.darks:
             hit |= (resp < -p.threshold).astype(np.uint8)
