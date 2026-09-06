@@ -517,6 +517,75 @@ def test_batch_without_a_folder_refuses():
         webui.APP.shoot_dir = saved
 
 
+def test_variants_compare_presets_on_one_frame():
+    """Друга половина роботи з агентом: обрати з десяти пресетів."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        p = _fixture(d)
+        a = d / "a.yaml"
+        a.write_text("name: м'яко\nwhy: обережно\ndetect: {threshold: 0.03}\n",
+                     encoding="utf-8")
+        b = d / "b.yaml"
+        b.write_text("name: жорстко\nwhy: щільно\ndetect: {threshold: 0.006}\n",
+                     encoding="utf-8")
+        _post("/api/open", {"path": str(p), "params": {}})
+        _wait_idle()
+        code, r = _post("/api/variants", {"presets": [str(a), str(b)],
+                                          "x": 480, "y": 620, "size": 200,
+                                          "params": {}})
+        assert code == 200 and r.get("ok"), r
+        st = _wait_idle()
+        vs = st["variants"]
+        print(f"  {[(v['name'], v['blobs']) for v in vs]}")
+        assert len(vs) == 3, "оригінал і два варіанти — три картки"
+        assert vs[0]["name"] == "ОРИГІНАЛ" and vs[0]["blobs"] is None
+        assert vs[1]["why"] and vs[2]["why"], "причина не дійшла до картки"
+        assert vs[2]["blobs"] > vs[1]["blobs"], (
+            "жорсткіший поріг дав не більше знахідок — порівнювати нема чого")
+        for i in range(3):
+            code, body, ctype = _get(f"/api/variant?i={i}")
+            assert code == 200 and ctype.startswith("image/"), (code, ctype)
+        code, _b, _c = _get("/api/variant?i=99")
+        assert code == 404, "неіснуючий варіант мав дати 404"
+
+
+def test_variants_say_when_develop_is_not_applied():
+    """Проявлення живе в load(). Мовчки його проігнорувати означало б
+    показати варіант, якого пресет не описує."""
+    _start()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        p = _fixture(d)
+        v = d / "v.yaml"
+        v.write_text("name: з проявленням\ndevelop: {contrast: 0.3}\n",
+                     encoding="utf-8")
+        _post("/api/open", {"path": str(p), "params": {}})
+        _wait_idle()
+        _post("/api/variants", {"presets": [str(v)], "x": 480, "y": 620,
+                                "size": 160, "params": {}})
+        st = _wait_idle()
+        notes = st["variants"][1]["notes"]
+        print(f"  {notes}")
+        assert any("develop" in n for n in notes), (
+            "розділ develop проігноровано мовчки")
+
+
+def test_variants_refuse_without_presets_or_frame():
+    _start()
+    saved, webui.APP.sess = webui.APP.sess, None
+    try:
+        code, r = _post("/api/variants", {"presets": ["x.yaml"]})
+        print(f"  без кадру -> {code}: {r.get('error')}")
+        assert code == 409
+    finally:
+        webui.APP.sess = saved
+    if webui.APP.sess is not None:
+        code, r = _post("/api/variants", {"presets": []})
+        print(f"  без пресетів -> {code}: {r.get('error')}")
+        assert code == 409
+
+
 if __name__ == "__main__":
     fails = 0
     # Порядок — той, у якому тести написані: вони ділять один сервер і

@@ -607,6 +607,74 @@ def test_layer_extraction_is_cached():
         assert sess._layer_cache is None, "кеш пережив перелікування"
 
 
+# ---------------------------------------------------------------------------
+# порівняння пресетів
+# ---------------------------------------------------------------------------
+
+def test_variant_shares_the_frame_and_the_class_map():
+    """Копіювати 26 Мп на кожен варіант — вихід за §2 на рівному місці,
+    а перезапускати модель — платити по 4 с ні за що."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        base = Session(_fixture(d), Config(force_mask=True)).load()
+        base.cls = _cls_map(base)
+        v = base.variant(Config(force_mask=True))
+        print(f"  кадр спільний: {v.img is base.img}; "
+              f"карта класів спільна: {v.cls is base.cls}")
+        assert v.img is base.img, "кадр скопійовано"
+        assert v.cls is base.cls, "карту класів скопійовано або перерахували"
+        assert v.skin is not base.skin, (
+            "маска має будуватись СВОЯ — інакше набір класів пресету "
+            "не діяв би")
+
+
+def test_variant_does_not_disturb_the_base_session():
+    """Порівняння не має псувати те, над чим людина працює."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        base = Session(_fixture(d), Config(force_mask=True)).load().analyze().heal()
+        n0, cov0 = len(base.blobs), float((base.coverage > 0).mean())
+        from retouch.blemish import DetectParams
+        v = base.variant(Config(force_mask=True,
+                                detect=DetectParams(threshold=0.03)))
+        v.analyze().heal()
+        print(f"  база: {n0} плям -> {len(base.blobs)}; варіант: {len(v.blobs)}")
+        assert len(base.blobs) == n0, "варіант змінив детекцію бази"
+        assert abs(float((base.coverage > 0).mean()) - cov0) < 1e-12
+
+
+def test_variants_differ_by_preset():
+    """Інакше порівнювати нема чого."""
+    from retouch.blemish import DetectParams
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        base = Session(_fixture(d), Config(force_mask=True)).load()
+        got = []
+        for th in (0.008, 0.02):
+            v = base.variant(Config(force_mask=True,
+                                    detect=DetectParams(threshold=th)))
+            v.analyze().heal()
+            got.append((th, len(v.blobs), float((v.coverage > 0).mean())))
+        print(f"  {[(t, n, round(c, 5)) for t, n, c in got]}")
+        assert got[0][1] > got[1][1], "різні пороги дали однакову детекцію"
+
+
+def test_variant_crops_are_composed_the_same_way_as_the_frame():
+    """Кроп варіанта має збігатися зі складанням у тих же межах —
+    інакше порівнюють не те, що потім запишуть."""
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        base = Session(_fixture(d), Config(force_mask=True)).load()
+        v = base.variant(Config(force_mask=True))
+        v.analyze().heal()
+        sl = (slice(200, 500), slice(200, 500))
+        crop = v.compose_crop(sl)
+        full = v.compose()[sl]
+        err = float(np.abs(crop - full).max() / QUANT)
+        print(f"  кроп проти повного складання: {err:.2f} кванта")
+        assert err < 0.5
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

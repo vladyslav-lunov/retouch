@@ -810,6 +810,40 @@ class Session:
         self.composed = self._layer_cache = None
         return self
 
+    def variant(self, cfg: "Config") -> "Session":
+        """Сеанс на ТОМУ САМОМУ кадрі з іншим конфігом.
+
+        Для порівняння пресетів: агент дає десять, і обрати з них по
+        YAML неможливо — у числах вони виглядають однаково (§1.2).
+
+        Кадр і карта класів переносяться ПОСИЛАННЯМ, не копією. Карту
+        можна ділити, бо вона не залежить від того, що ми потім назвемо
+        шкірою: `mask_from_classes` читає її й будує свою маску. Копіювати
+        26 Мп на кожен варіант означало б з десятьма варіантами вийти за
+        8 ГБ (§2), а перезапускати модель — платити по 4 с ні за що.
+
+        Проявлення тут не застосовується: воно живе в `load()`, тобто
+        вимагає перечитати файл. Пресет, що чіпає `develop`, порівняти
+        цим шляхом не можна, і сказати про це має той, хто кличе.
+        """
+        v = Session.__new__(Session)
+        v.__dict__.update({k: None for k in self.__dict__})
+        v.path, v.cfg, v.dtype = self.path, cfg, self.dtype
+        v.img = v.img_src = self.img
+        v.cls, v.faces, v.face_w = self.cls, self.faces, self.face_w
+        v.raw_decoder, v.skin_source = self.raw_decoder, self.skin_source
+        v.blobs, v.tool_layers, v.opacity = [], [], {}
+        v.threshold_curve, v.blob_classes = [], []
+        v.face_w_source, v.search_radius_px = self.face_w_source, 0
+        v.radius_clamped = False
+        if self.cls is not None:
+            from .masks import mask_from_classes
+            v.skin = mask_from_classes(self.cls, cfg.mask)
+        else:
+            v.skin = self.skin
+        v.skin_auto = v.skin
+        return v
+
     def opacity_of(self, name: str) -> float:
         """Непрозорість шару 0..1. Не задано — повна."""
         return float(np.clip(self.opacity.get(name, 1.0), 0.0, 1.0))

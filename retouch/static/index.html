@@ -832,9 +832,25 @@ async function drawPresets(p){
         <div class="row"><input type="text" id="pwhy" placeholder="чому саме так"></div>
         <div class="row"><button id="psave" class="pri" style="width:100%"
           ${keys.length ? '' : 'disabled'}>Записати в presets/</button></div></div>
+      <div><h2>Порівняти на цьому кадрі</h2>
+        <div class="hint">Обрати з десяти пресетів по YAML неможливо — у числах
+          вони виглядають однаково. Дивитись треба в 1:1: на зменшеному різниці
+          в ретуші немає за визначенням. Точку бере клац на вкладці «1:1»,
+          типово — найконтрастніша пляма.</div>
+        <div class="bar"><button id="vgo" class="pri"
+          ${S.loaded ? '' : 'disabled'}>Порівняти обрані</button>
+          <span class="hint" style="margin:0">розмір
+            <input type="number" id="vsize" value="400" min="100" max="900"
+              style="width:70px"> px</span></div>
+        <div id="vout"></div>
+      </div>
       <div><h2>У теці presets/</h2>
         <div class="pick plist" style="max-height:none">${list.length ? list.map((r, i) =>
-          `<div data-p="${esc(r.path)}"><b>${esc(r.name)}</b>
+          `<div data-p="${esc(r.path)}">
+            <label style="float:right;cursor:pointer"><input type="checkbox"
+              class="vpick" value="${esc(r.path)}"
+              style="accent-color:var(--acc)"></label>
+            <b>${esc(r.name)}</b>
             <span class="tag">${esc(r.dir || r.file)}</span>
             ${r.error ? `<div class="why" style="color:var(--bad)">${esc(r.error)}</div>`
                       : `<div class="why">${esc(r.why || '—')}</div>
@@ -842,8 +858,38 @@ async function drawPresets(p){
           ).join('') : '<div style="padding:9px;color:var(--dim)">порожньо</div>'}</div>
         <div class="hint" style="margin-top:8px">Клац — накласти поверх активного.</div>
       </div></div>`;
-  p.querySelectorAll('[data-p]').forEach(e =>
-    e.onclick = () => pset({path: e.dataset.p}));
+  p.querySelectorAll('[data-p]').forEach(e => {
+    e.onclick = ev => {
+      if (ev.target.type === 'checkbox') return;   // галочка — це вибір для порівняння
+      pset({path: e.dataset.p});
+    };
+  });
+  const chosen = () => [...p.querySelectorAll('.vpick:checked')].map(e => e.value);
+  $('#vgo').onclick = async () => {
+    const ps = chosen();
+    if (!ps.length){ alert('Постав галочки біля пресетів, які порівнюємо.'); return; }
+    const pt = cropAt || (S.n_blobs ? null : [0, 0]);
+    const b = pt || [Math.round(S.w/2), Math.round(S.h/2)];
+    await post('/api/variants', {presets: ps, x: b[0], y: b[1],
+                                 size: +$('#vsize').value, params: params()});
+    await tick(); waitDone();
+  };
+  const vs = S.variants || [];
+  $('#vout').innerHTML = vs.length
+    ? `<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">
+        ${vs.map((v, i) => `<div class="card">
+          <div class="cap"><span>${esc(v.name)}</span><span>${
+            v.touched == null ? '' : (v.touched*100).toFixed(1) + '% шкіри'}</span></div>
+          <img src="/api/variant?i=${i}${bust()}" alt="${esc(v.name)}">
+          <div class="cap" style="border:0;display:block">${
+            v.blobs == null ? '' : v.blobs + ' плям, поріг ' + v.threshold}
+            ${v.why ? `<div class="why" style="margin-top:4px;white-space:pre-wrap">${
+              esc(v.why)}</div>` : ''}
+            ${(v.notes||[]).map(n => `<div class="why" style="color:var(--warn)">${
+              esc(n)}</div>`).join('')}</div>
+        </div>`).join('')}
+       </div>`
+    : '';
   $('#pclear').onclick = () => pset({clear: true});
   $('#pxmp').onclick = async () => {
     const r = await post('/api/xmp', {});

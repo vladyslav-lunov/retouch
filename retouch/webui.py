@@ -80,6 +80,9 @@ class App:
         self.shoot_dir: str = ""
         self.shoot_out: str = "out"
         self.batch: list = []          # прогрес пакетного прогону
+        # Варіанти пресетів: тримаємо тільки КРОПИ, не повні кадри.
+        # Десять результатів по 26 Мп — це 3 ГБ, тобто вихід за §2.
+        self.variants: list = []
 
     # --- прогрес --------------------------------------------------------
     def sink(self, ev: dict) -> None:
@@ -103,6 +106,8 @@ class App:
             "preset_name": self.preset_name,
             "shoot_dir": self.shoot_dir, "shoot_out": self.shoot_out,
             "batch": self.batch,
+            "variants": [{k: v for k, v in x.items() if k != "crop"}
+                         for x in self.variants],
         }
         if s is None:
             return d
@@ -425,6 +430,62 @@ def shoot_frames(src: str, out_dir: str) -> list[dict]:
     return rows
 
 
+def do_variants(paths: list[str], cx: int, cy: int, size: int,
+                params: dict) -> None:
+    """Прогнати кілька пресетів по ПОТОЧНОМУ кадру й лишити кропи 1:1.
+
+    Обрати з десяти пресетів по YAML неможливо — у числах вони виглядають
+    однаково (§1.2). Дивитись треба, і саме в масштабі 1:1: на зменшеному
+    різниці в ретуші немає за визначенням (§1).
+
+    Тримаємо тільки вирізки. Десять повних результатів по 26 Мп — це
+    близько 3 ГБ, тобто вихід за бюджет §2 на рівному місці.
+    """
+    base = APP.sess
+    APP.variants = []
+    h, w = base.img.shape[:2]
+    size = max(64, min(int(size), 900))
+    x0 = int(np.clip(cx - size // 2, 0, max(0, w - size)))
+    y0 = int(np.clip(cy - size // 2, 0, max(0, h - size)))
+    sl = (slice(y0, min(h, y0 + size)), slice(x0, min(w, x0 + size)))
+
+    APP.variants.append({"name": "ОРИГІНАЛ", "why": "без обробки",
+                         "crop": base.img[sl].copy(), "blobs": None,
+                         "touched": None, "notes": []})
+    for path in paths:
+        row = {"name": Path(path).stem, "why": "", "notes": [],
+               "blobs": None, "touched": None, "crop": None}
+        try:
+            data = presets_mod.load(path)
+            row["name"] = str(data.get("name") or row["name"])
+            row["why"] = str(data.get("why") or "").strip()
+            cfg = cfg_from(params)
+            notes = presets_mod.apply(cfg, data)
+            if data.get("develop"):
+                # Проявлення живе в load(), тобто вимагає перечитати файл.
+                # Мовчки його проігнорувати означало б показати варіант,
+                # якого пресет не описує.
+                notes.append("розділ develop тут НЕ застосовано: він вимагає "
+                             "перечитати кадр. Порівнюй його окремо")
+            row["notes"] = notes
+            v = base.variant(cfg)
+            v.analyze(APP.sink).heal(None, APP.sink)
+            if cfg.tools:
+                v.run_tools(APP.sink)
+            if cfg.dodgeburn_on:
+                v.dodge_burn(APP.sink)
+            row["blobs"] = len(v.blobs)
+            row["touched"] = (None if v.skin is None or not v.skin.any() else
+                              round(float((v.coverage > 0).sum())
+                                    / float(v.skin.sum()), 5))
+            row["threshold"] = v.cfg.detect.threshold
+            row["crop"] = v.compose_crop(sl)
+            del v
+        except Exception as e:                            # noqa: BLE001
+            row["notes"] = [f"{type(e).__name__}: {e}"]
+        APP.variants.append(row)
+
+
 def do_batch(src: str, out_dir: str, params: dict, use_xmp: bool) -> None:
     """Прогнати всю теку тими самими налаштуваннями, що й поточний кадр.
 
@@ -703,6 +764,14 @@ class Handler(BaseHTTPRequestHandler):
                 k = float(q.get("strength", 1.0))
                 out = pr if f is None else f.apply_to(pr, WarpParams(strength=k))
                 return self._send(200, _png(out), "image/png")
+            if u.path == "/api/variant":
+                i = int(q.get("i", 0))
+                if not (0 <= i < len(APP.variants)):
+                    return self._json({"error": "немає такого варіанта"}, 404)
+                arr = APP.variants[i].get("crop")
+                if arr is None:
+                    return self._json({"error": "варіант не порахувався"}, 409)
+                return self._send(200, _png(arr), "image/png")
             if u.path == "/api/crop":
                 s = APP.sess
                 if s is None or s.img is None:
@@ -814,6 +883,16 @@ class Handler(BaseHTTPRequestHandler):
                     out = out / f"{d.get('file') or 'preset'}.yaml"
                 return self._json({"ok": True,
                                    "path": str(presets_mod.save(out, data))})
+            if u.path == "/api/variants":
+                if APP.sess is None or APP.sess.img is None:
+                    return self._json({"error": "спершу відкрий кадр"}, 409)
+                ps = d.get("presets") or []
+                if not ps:
+                    return self._json({"error": "не обрано жодного пресету"}, 409)
+                APP.job(lambda: do_variants(
+                    ps, int(d.get("x", 0)), int(d.get("y", 0)),
+                    int(d.get("size", 400)), d.get("params", {})))
+                return self._json({"ok": True})
             if u.path == "/api/session/batch":
                 src = d.get("dir") or APP.shoot_dir
                 if not src:
